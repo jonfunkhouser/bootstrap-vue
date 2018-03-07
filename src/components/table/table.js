@@ -1,5 +1,5 @@
 import startCase from 'lodash.startcase'
-
+import get from 'lodash/get'
 import looseEqual from '../../utils/loose-equal'
 import stableSort from '../../utils/stable-sort'
 import KeyCodes from '../../utils/key-codes'
@@ -203,7 +203,7 @@ export default {
             $scoped[field.key]({
               item: item,
               index: rowIndex,
-              unformatted: item[field.key],
+              unformatted: get(item, field.key),
               value: t.getFormattedValue(item, field),
               toggleDetails: toggleDetailsFn,
               detailsShowing: Boolean(item._showDetails)
@@ -217,10 +217,10 @@ export default {
           const formatted = t.getFormattedValue(item, field)
           if (t.isStacked) {
             // We innerHTML a DIV to ensure rendered as a single cell when visually stacked!
-            childNodes = [h('div', { domProps: { innerHTML: formatted } })]
+            childNodes = [h('div', formatted)]
           } else {
-            // Non stcaked, so we just innerHTML the td
-            data.domProps['innerHTML'] = formatted
+            // Non stacked
+            childNodes = formatted
           }
         }
         if (t.isStacked) {
@@ -759,16 +759,23 @@ export default {
       // If no field provided, take a sample from first record (if exits)
       if (fields.length === 0 && this.computedItems.length > 0) {
         const sample = this.computedItems[0]
+        const ignoredKeys = [
+          '_rowVariant',
+          '_cellVariants',
+          '_showDetails'
+        ]
         keys(sample).forEach(k => {
-          fields.push({ key: k, label: startCase(k) })
+          if (!ignoredKeys.includes(k)) {
+            fields.push({ key: k, label: startCase(k) })
+          }
         })
       }
-      // Ensure we have a unique array of fields and that they have labels
+      // Ensure we have a unique array of fields and that they have String labels
       const memo = {}
       return fields.filter(f => {
         if (!memo[f.key]) {
           memo[f.key] = true
-          f.label = f.label || startCase(f.key)
+          f.label = typeof f.label === 'string' ? f.label : startCase(f.key)
           return true
         }
         return false
@@ -978,7 +985,7 @@ export default {
       const key = field.key
       const formatter = field.formatter
       const parent = this.$parent
-      let value = item[key]
+      let value = get(item, key)
       if (formatter) {
         if (typeof formatter === 'function') {
           value = formatter(value, key, item)

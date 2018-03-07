@@ -212,7 +212,7 @@ export default {
 Also, fields can be a an object providing similar control over the fields as the
 _array of objects_ above does. Only columns listed in the fields object will be shown.
 The order of the fields will typically be in the order they were defined in the object,
-although **order is not guaranteed**:
+although **order is not guaranteed**.  
 
 **Example: Using object fields definition**
 ```html
@@ -239,13 +239,19 @@ export default {
           key: 'age',
           label: 'Person age',
           sortable: true
+        },
+        city: {
+          key: 'address.city'
+        },
+        'address.country': {
+          label: 'Country'
         }
       },
       items: [
-        { isActive: true, age: 40, first_name: 'Dickerson', last_name: 'Macdonald' },
-        { isActive: false, age: 21, first_name: 'Larsen', last_name: 'Shaw' },
-        { isActive: false, age: 89, first_name: 'Geneva', last_name: 'Wilson' },
-        { isActive: true, age: 38, first_name: 'Jami', last_name: 'Carney' }
+        { isActive: true, age: 40, first_name: 'Dickerson', last_name: 'Macdonald', address: { country: 'USA', city: 'New York' } },
+        { isActive: false, age: 21, first_name: 'Larsen', last_name: 'Shaw', address: { country: 'Canada', city: 'Toronto' }},
+        { isActive: false, age: 89, first_name: 'Geneva', last_name: 'Wilson', address: { country: 'Australia', city: 'Sydney' } },
+        { isActive: true, age: 38, first_name: 'Jami', last_name: 'Carney', address: { country: 'England', city: 'London' } }
       ]
     }
   }
@@ -255,8 +261,9 @@ export default {
 <!-- table-fields-object.vue -->
 ```
 
->**Note:** _if a `key` property is defined in the field definition, it will take
-precidence over the key used to define the field._
+>**Notes:** 
+>- _if a `key` property is defined in the field definition, it will take precedence over the key used to define the field._
+>- _It is possible to define `key` as column's object property, but currently, sorting of these columns **not supported**_
 
 ### Field definition reference
 The following field properties are recognized:
@@ -264,7 +271,7 @@ The following field properties are recognized:
 | Property | Type | Description
 | ---------| ---- | -----------
 | `key` | String | The key for selecting data from the record in the items array. Required when passing the props `fields` an array of objects.
-| `label` | String | Appears in the columns table header (and footer if `foot-clone` is set). Defaults to the field's key (in humanized format) if not provided.
+| `label` | String | Appears in the columns table header (and footer if `foot-clone` is set). Defaults to the field's key (in humanized format) if not provided. It's possible to use empty labels by assigning an empty string `""`
 | `class` | String or Array | Class name (or array of class names) to add to `<th>` **and** `<td>` in the column.
 | `formatter` | String or Function | A formatter callback function, can be used instead of (or in conjunction with) slots for real table fields (i.e. fields, that have corresponding data at items array). Refer to [**Custom Data Rendering**](#custom-data-rendering) for more details.
 | `sortable` | Boolean | Enable sorting on this column. Refer to the [**Sorting**](#sorting) Section for more details.
@@ -434,7 +441,7 @@ export default {
 
 >**Responsive table notes:**
 > - _Possible vertical clipping/truncation_. Responsive tables make use of `overflow-y: hidden`, which clips off any content that goes beyond the bottom or top edges of the table. In particular, this can clip off dropdown menus and other third-party widgets.
-> - When in responsive mode the table will lose it's width of 100%. This is a known issue with bootstrap V4 css and placing the `table-responsive` class on the `<table>` element as reccommended by Bootstrap.
+> - When in responsive mode the table will lose it's width of 100%. This is a known issue with bootstrap V4 css and placing the `table-responsive` class on the `<table>` element as recommended by Bootstrap.
 
 
 ## Stacked tables
@@ -475,7 +482,7 @@ export default {
 **Note: When the table is visually stacked:**
 - The table header (and table footer) will be hidden.
 - Custom rendred header slots will not be shown, rather, the fields' `label` will be used.
-- The table **cannot** be sorted by clicking the rendered field labels. You will need to provde an external control to select the field to sort by and the sort direction. See the [**Sorting**](#sorting) section below for sorting control information, as well as the [**complete example**](#complete-example) at the bottom of this page for an example of controlling sorting via the use of form controls.
+- The table **cannot** be sorted by clicking the rendered field labels. You will need to provide an external control to select the field to sort by and the sort direction. See the [**Sorting**](#sorting) section below for sorting control information, as well as the [**complete example**](#complete-example) at the bottom of this page for an example of controlling sorting via the use of form controls.
 - The slots `top-row` and `bottom-row` will be hidden when visually stacked.
 - The table caption, if provided, will always appear at the top of the table when visually stacked.
 - In an always stacked table, the table header and footer, and the fixed top and bottom row slots will not be rendered.
@@ -560,7 +567,7 @@ Custom rendering for each data field in a row is possible using either
 or formatter callback function.
 
 ### Scoped Field Slots
-Scoped slots give you greater control over how the record data apepars.
+Scoped slots give you greater control over how the record data appears.
 If you want to add an extra field which does not exist in the records,
 just add it to the `fields` array, And then reference the field(s) in the scoped
 slot(s).
@@ -634,7 +641,7 @@ number will align with the indexes from the optional `v-model` bound variable._
 >- _When placing inputs, buttons, selects or links within a data cell scoped slot,
 be sure to add a `@click.stop` (or `@click.native.stop` if needed) handler (which can
 be empty) to prevent the click on the input, button, select, or link, from triggering
-the `row-clicked` event:_
+the `row-clicked` event:_ 
 
 ```html
 <template slot="actions" slot-scope="cell">
@@ -643,6 +650,35 @@ the `row-clicked` event:_
 </template>
 ```
 
+#### Displaying raw HTML
+By default `b-table` escapes HTML tags in items, if you need to display raw HTML code in `b-table`, you should use 
+`v-html` prop in scoped field slot
+
+```html
+<template>
+  <b-table :items="items">
+       <span slot="html" slot-scope="data" v-html="data.value">     
+      </span>
+    </b-table>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      items: [
+        {
+          text: 'This is <i>escaped</i> content',
+          html: 'This is <i>raw <strong>HTML</strong></i> <span style="color:red">content</span>'
+        }
+      ]    
+    }
+  }
+}
+</script>
+
+<!-- table-html-data-slots.vue -->
+```
 
 ### Formatter callback
 One more option to customize field output is to use formatter callback function.
@@ -720,7 +756,7 @@ It is also possible to provide custom rendering for the tables `thead` and
 `foot-clone` is set to `true`.
 
 Scoped slots for the header and footer cells uses a special naming
-convetion of `HEAD_<fieldkey>` and `FOOT_<fieldkey>` respectivly. if a `FOOT_`
+convention of `HEAD_<fieldkey>` and `FOOT_<fieldkey>` respectively. if a `FOOT_`
 slot for a field is not provided, but a `HEAD_` slot is provided, then
 the footer will use the `HEAD_` slot content.
 
@@ -783,13 +819,13 @@ the visibility of the `row-details` slot.
  exist in the items data for proper reactive detection of changes to it's value. Read more about
 [Vue's reactivity limitations](https://vuejs.org/v2/guide/reactivity.html#Change-Detection-Caveats)._
 
-Available `row-details` scoped viariable properties:
+Available `row-details` scoped variable properties:
 
 | Property | Type | Description
 | -------- | ---- | -----------
 | `item` | Object | The entire row record data object
 | `index` | Number | The current visible row number
-| `fields` | Array | The normailized fields definition array (in the _array of objects_ format)
+| `fields` | Array | The normalized fields definition array (in the _array of objects_ format)
 | `toggleDetails` | Function | Function to toggle visibility of the row's details slot
 
 In the following example, we show two methods of toggling the visibility of the details:
@@ -925,7 +961,7 @@ The `sort-compare` routine is passed three arguments. The first two arguments
 (`a` and `b`) are the record objects for the rows being compared, and the third
 argument is the field `key` being sorted on (`sortBy`). The routine should return
 either `-1`, `0`, or `1` based on the result of the comparing of the two records.
-If the routine returns `null`, then the default sort-compare rouine will be used.
+If the routine returns `null`, then the default sort-compare routine will be used.
 You can use this feature (i.e. returning `null`) to have your custom sort-compare
 routine handle only certain fields (keys).
 
@@ -980,19 +1016,19 @@ See the [Complete Example](#complete-example) below for an example of using the
 
 ## Pagination
 `<b-table>` supports built in pagination of item data. You can control how many
-reords are displayed at a time by setting the `per-page` prop to the maximum
+rows are displayed at a time by setting the `per-page` prop to the maximum
 number of rows you would like displayed, and use the `current-page` prop
 to specify which page to display (starting from page `1`). If you set `current-page`
 to a value larger than the computed number of pages, then no rows will be shown.
 
 You can use the [`<b-pagination>`](/docs/components/pagination) component in
-conjuction with `<b-table>` for providing control over pagination.
+conjunction with `<b-table>` for providing control over pagination.
 
 Setting `per-page` to `0` (default) will disable the local items pagination feature.
 
 ## `v-model` binding
 If you bind a variable to the `v-model` prop, the contents of this variable will
-be the currently disaplyed item records (zero based index, up to `page-size` - 1).
+be the currently displayed item records (zero based index, up to `page-size` - 1).
 This variable (the `value` prop) should usually be treated as readonly.
 
 The records within the v-model are a filtered/paginated shallow copy of `items`, and
@@ -1120,7 +1156,7 @@ methods: {
 >- _If you manually place the table in the `busy` state, the items provider will
 __not__ be called/refreshed until the `busy` state has been set to `false`._
 >- _All click related and hover events, and sort-changed events will __not__ be
- emiited when in the `busy` state (either set automatically during provider update,
+ emitted when in the `busy` state (either set automatically during provider update,
  or when manually set)._
 
 ### Provider Paging, Filtering, and Sorting
@@ -1144,7 +1180,7 @@ maximum, `perPage` number of records.
 trigger the calling of the provider function. So be sure to bind to the `per-page`,
 `current-page` and `filter` props on `b-table` to trigger the provider update function call
 (unless you have the respective `no-provider-*` prop set to `true`)._
->- _The `no-local-sorting` prop has no effect when `items` is a provider funtion._
+>- _The `no-local-sorting` prop has no effect when `items` is a provider function._
 
 ### Event based refreshing of data
 You may also trigger the refresh of the provider function by emitting the
@@ -1210,9 +1246,9 @@ when fetching your data!
         <b-form-group horizontal label="Filter" class="mb-0">
           <b-input-group>
             <b-form-input v-model="filter" placeholder="Type to Search" />
-            <b-input-group-button>
+            <b-input-group-append>
               <b-btn :disabled="!filter" @click="filter = ''">Clear</b-btn>
-            </b-input-group-button>
+            </b-input-group-append>
           </b-input-group>
         </b-form-group>
       </b-col>
@@ -1222,12 +1258,10 @@ when fetching your data!
             <b-form-select v-model="sortBy" :options="sortOptions">
               <option slot="first" :value="null">-- none --</option>
             </b-form-select>
-            <b-input-group-button>
-              <b-form-select :disabled="!sortBy" v-model="sortDesc">
-                <option :value="false">Asc</option>
-                <option :value="true">Desc</option>
-              </b-form-select>
-            </b-input-group-button>
+            <b-form-select :disabled="!sortBy" v-model="sortDesc" slot="append">
+              <option :value="false">Asc</option>
+              <option :value="true">Desc</option>
+            </b-form-select>
           </b-input-group>
         </b-form-group>
       </b-col>
