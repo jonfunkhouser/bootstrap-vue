@@ -51,15 +51,15 @@ To disable the `card-body` class, set the `no-body` prop on `<b-tab>` sub compon
 <b-card no-body>
   <b-tabs card>
     <b-tab no-body title="Picture 1" active>
-      <b-card-img bottom src="https://lorempixel.com/600/200/food/1/" />
+      <b-card-img bottom src="https://picsum.photos/600/200/?image=21" />
       <b-card-footer>Picture 1 footer</b-card-footer>
     </b-tab>
     <b-tab no-body title="Picture 2">
-      <b-card-img bottom src="https://lorempixel.com/600/200/food/5/" />
+      <b-card-img bottom src="https://picsum.photos/600/200/?image=25" />
       <b-card-footer>Picture 2 footer</b-card-footer>
     </b-tab>
     <b-tab no-body title="Picture 3">
-      <b-card-img bottom src="https://lorempixel.com/600/200/food/6/" />
+      <b-card-img bottom src="https://picsum.photos/600/200/?image=26" />
       <b-card-footer>Picture 3 footer</b-card-footer>
     </b-tab>
     <b-tab title="Text">
@@ -294,6 +294,28 @@ export default {
 
 <!-- with-classes.vue -->
 ```
+
+## Keyboard Navigation
+Keyboard navigation is enabled by default.
+
+| Keypress | Action
+| -------- | ------
+| <kbd>LEFT</kbd> or <kbd>UP</kbd> | Move to the previous non-disabled tab
+| <kbd>RIGHT</kbd> or <kbd>DOWN</kbd> | Move to the next non-disabled tab
+| <kbd>SHIFT</kbd>+<kbd>LEFT</kbd> or <kbd>SHIFT</kbd>+<kbd>UP</kbd> | Move to the first non-disabled tab
+| <kbd>SHIFT</kbd>+<kbd>RIGHT</kbd> or <kbd>SHIFT</kbd>+<kbd>DOWN</kbd> | Move to the last non-disabled tab
+| <kbd>TAB</kbd> | Move to the next control on the page
+| <kbd>SHIFT</kbd>+<kbd>TAB</kbd> | Move to the previous control on the page
+
+Disable it by setting the prop `no-key-nav`. Behavior will now default to standard browser navigation with TAB key. 
+
+| Keypress | Action
+| -------- | ------
+| <kbd>TAB</kbd> | Move to the next tab or control on the page
+| <kbd>SHIFT</kbd>+<kbd>TAB</kbd> | Move to the previous tab or control on the page
+
+**Caution:** If you have text or text-like inputs in your tabs, leave keyboard navigation off,
+as it is not possble to use key presses to jump out of a text (or test-like) inputs.
 
 
 ## Advanced Examples

@@ -275,11 +275,12 @@ The following field properties are recognized:
 | `class` | String or Array | Class name (or array of class names) to add to `<th>` **and** `<td>` in the column.
 | `formatter` | String or Function | A formatter callback function, can be used instead of (or in conjunction with) slots for real table fields (i.e. fields, that have corresponding data at items array). Refer to [**Custom Data Rendering**](#custom-data-rendering) for more details.
 | `sortable` | Boolean | Enable sorting on this column. Refer to the [**Sorting**](#sorting) Section for more details.
+| `sortDirection` | String | Change sort direction on this column. Refer to the [**Change sort direction**](#change-sort-direction) Section for more details.
 | `tdClass` | String or Array or Function | Class name (or array of class names) to add to `<tbody>` data `<td>` cells in the column. If custom classes per cell are required, a callback function can be specified instead.
 | `thClass` | String or Array | Class name (or array of class names) to add to `<thead>`/`<tfoot>` heading `<th>` cell.
 | `thStyle` | Object | JavaScript object representing CSS styles you would like to apply to the table `<thead>`/`<tfoot>` field `<th>`.
 | `variant` | String | Apply contextual class to all the `<th>` **and** `<td>` in the column - `active`, `success`, `info`, `warning`, `danger` (these variants map to classes `thead-${variant}`, `table-${variant}`, or `bg-${variant}` accordingly).
-| `tdAttr` | Object | JavaScript object representing additional attributes to apply to the `<tbody>` field `td` cell.
+| `tdAttr` | Object or Function | JavaScript object representing additional attributes to apply to the `<tbody>` field `<td>` cell. If custom attributes per cell are required, a callback function can be specified instead.
 | `isRowHeader` | Boolean | When set to `true`, the field's item data cell will be rendered with `<th>` rather than the default of `<td>`.
 
 >**Notes:**
@@ -306,6 +307,8 @@ fields: [
 ```
 
 ## Table style options
+
+### Table Styling ###
 `<b-table>` provides several props to alter the style of the table:
 
 | prop | Type | Description
@@ -375,7 +378,49 @@ export default {
 
 <!-- table-bordered.vue -->
 ```
+### Row Styling ###
 
+You can also style every row using the `tbdoy-tr-class` prop
+
+| Property | Type | Description
+| ---------| ---- | -----------
+| `tbodyTrClass` | String, Array or Function | Classes to be applied to every row on the table. If a function is given, it will be called as `tbodyTrClass( item, type )` and it may return an `Array`, `Object` or `String`.
+
+
+**Example: Basic row styles**
+```html
+<template>
+  <div>
+    <b-table :items="items" :fields="fields" :tbody-tr-class="rowClass">
+    </b-table>
+  </div>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      fields: [ 'first_name', 'last_name', 'age' ],
+      items: [
+        { age: 40, first_name: 'Dickerson', last_name: 'Macdonald', status: 'awesome'  },
+        { age: 21, first_name: 'Larsen', last_name: 'Shaw' },
+        { age: 89, first_name: 'Geneva', last_name: 'Wilson' }
+      ],
+    }
+  },
+  methods: {
+    rowClass( item, type ) {
+      if ( !item )
+        return;
+      if ( item.status === 'awesome' )
+        return 'table-success';
+    },
+  }
+}
+</script>
+
+<!-- table-styled-row-basic.vue -->
+```
 
 ## Responsive tables
 Responsive tables allow tables to be scrolled horizontally with ease. Make any table
@@ -886,7 +931,8 @@ export default {
 As mentioned in the [**Fields**](#fields-column-definitions-) section above,
 you can make columns sortable. Clicking on a sortable column header will sort the
 column in ascending direction (smallest first), while clicking on it again will switch the direction
-of sorting. Clicking on a non-sortable column will clear the sorting.
+of sorting. Clicking on a non-sortable column will clear the sorting. The prop `no-sort-reset` 
+can be used to disable this feature.
 
 You can control which column is pre-sorted and the order of sorting (ascending or
 descending). To pre-specify the column to be sorted, set the `sort-by` prop to
@@ -981,7 +1027,7 @@ if (typeof a[key] === 'number' && typeof b[key] === 'number') {
 
 ### Disable local sorting
 If you want to handle sorting entirely in your app, you can disable the local
-sorting in `<b-table>` bu setting the prop `no-local-sorting` to true, while
+sorting in `<b-table>` by setting the prop `no-local-sorting` to true, while
 still maintaining the sortable header functionality.
 
 You can use the syncable props `sort-by.sync` and `sort-desc.sync` to detect
@@ -991,6 +1037,18 @@ Also, When a sortable column header (or footer) is clicked, the event `sort-chan
 will be emitted with a single argument containing the context object of `<b-table>`.
 See the [Detection of sorting change](#detection-of-sorting-change) section below
 for details about the sort-changed event and the context object.
+
+### Change sort direction
+Control the order in which ascending and descending sorting is applied when a sortable column 
+header is clicked, by using the the `sort-direction` prop. The default value `'asc'` applies
+ascending sort first. To reverse the behavior and sort in descending direction first, set 
+it to `'desc'`.
+
+If you don't want the sorting direction to change at all when clicking another sortable 
+column header, set `sort-direction` to `'last'`. 
+
+For individual column sort directions, specify the property `sortDirection` in `fields`.
+See the [Complete Example](#complete-example) below for an example of using this feature.
 
 
 ## Filtering
@@ -1184,11 +1242,11 @@ trigger the calling of the provider function. So be sure to bind to the `per-pag
 
 ### Event based refreshing of data
 You may also trigger the refresh of the provider function by emitting the
-event `table::refresh` on `$root` with the single argument being the `id` of your `b-table`.
+event `refresh::table` on `$root` with the single argument being the `id` of your `b-table`.
 You must have a unique ID on your table for this to work.
 
 ```js
-    this.$root.$emit('bv::table::refresh', 'my-table');
+    this.$root.$emit('bv::refresh::table', 'my-table');
 ```
 
 Or by calling the refresh method on the table reference
@@ -1266,7 +1324,15 @@ when fetching your data!
         </b-form-group>
       </b-col>
       <b-col md="6" class="my-1">
-        <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
+        <b-form-group horizontal label="Sort direction" class="mb-0">
+          <b-input-group>
+            <b-form-select v-model="sortDirection" slot="append">
+              <option value="asc">Asc</option>
+              <option value="desc">Desc</option>
+              <option value="last">Last</option>
+            </b-form-select>
+          </b-input-group>
+        </b-form-group>
       </b-col>
       <b-col md="6" class="my-1">
         <b-form-group horizontal label="Per page" class="mb-0">
@@ -1285,6 +1351,7 @@ when fetching your data!
              :filter="filter"
              :sort-by.sync="sortBy"
              :sort-desc.sync="sortDesc"
+             :sort-direction="sortDirection"
              @filtered="onFiltered"
     >
       <template slot="name" slot-scope="row">{{row.value.first}} {{row.value.last}}</template>
@@ -1306,6 +1373,12 @@ when fetching your data!
         </b-card>
       </template>
     </b-table>
+    
+    <b-row>
+      <b-col md="6" class="my-1">
+        <b-pagination :total-rows="totalRows" :per-page="perPage" v-model="currentPage" class="my-0" />
+      </b-col>
+    </b-row>
 
     <!-- Info modal -->
     <b-modal id="modalInfo" @hide="resetModal" :title="modalInfo.title" ok-only>
@@ -1346,7 +1419,7 @@ export default {
     return {
       items: items,
       fields: [
-        { key: 'name', label: 'Person Full name', sortable: true },
+        { key: 'name', label: 'Person Full name', sortable: true, sortDirection: 'desc' },
         { key: 'age', label: 'Person age', sortable: true, 'class': 'text-center' },
         { key: 'isActive', label: 'is Active' },
         { key: 'actions', label: 'Actions' }
@@ -1357,6 +1430,7 @@ export default {
       pageOptions: [ 5, 10, 15 ],
       sortBy: null,
       sortDesc: false,
+      sortDirection: 'asc',
       filter: null,
       modalInfo: { title: '', content: '' }
     }

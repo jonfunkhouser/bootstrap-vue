@@ -528,6 +528,38 @@ describe('table', async () => {
     }
   })
 
+  it('non-sortable header th should not emit a sort-changed event when clicked and prop no-sort-reset is set', async () => {
+    const { app: { $refs } } = window
+    const vm = $refs.table_no_sort_reset
+    const spy = jest.fn()
+    const fieldKeys = Object.keys(vm.fields)
+
+    vm.$on('sort-changed', spy)
+    const thead = [...vm.$el.children].find(el => el && el.tagName === 'THEAD')
+    expect(thead).toBeDefined()
+    if (thead) {
+      const tr = [...thead.children].find(el => el && el.tagName === 'TR')
+      expect(tr).toBeDefined()
+      if (tr) {
+        let sortBy = null
+        const ths = [...tr.children]
+        expect(ths.length).toBe(fieldKeys.length)
+        ths.forEach((th, idx) => {
+          th.click()
+          if (vm.fields[fieldKeys[idx]].sortable) {
+            expect(spy).toHaveBeenCalledWith(vm.context)
+            expect(vm.context.sortBy).toBe(fieldKeys[idx])
+            sortBy = vm.context.sortBy
+          } else {
+            expect(spy).not.toHaveBeenCalled()
+            expect(vm.context.sortBy).toBe(sortBy)
+          }
+          spy.mockClear()
+        })
+      }
+    }
+  })
+
   it('table_paginated pagination works', async () => {
     const { app: { $refs } } = window
     const vm = $refs.table_paginated
@@ -733,7 +765,41 @@ describe('table', async () => {
           tr.children[3].classList.contains('bg-primary') &&
           tr.children[3].classList.contains('text-light'))
           .toBe(true)
+        expect(Boolean(tr.children[0]) &&
+          Boolean(tr.children[0].attributes) &&
+          tr.children[0].getAttribute('title') === 'Person Full name')
+          .toBe(true)
+        expect(Boolean(tr.children[2]) &&
+          Boolean(tr.children[2].attributes) &&
+          tr.children[2].getAttribute('title') === 'is Active')
+          .toBe(true)
+        expect(Boolean(tr.children[3]) &&
+          Boolean(tr.children[3].attributes) &&
+          tr.children[3].getAttribute('title') === 'Actions')
+          .toBe(true)
       }
     })
+  })
+
+  it('should set row classes', async () => {
+    // Classes that children rows must contain
+    const classesTest = {
+      'tr-start-with-l': [1, 7],
+      'tr-last-name-macdonald': [0, 6]
+    }
+    const { app } = window
+    const vm = app.$refs.table_style_row
+    const tbody = [...vm.$el.children].find(el => el && el.tagName === 'TBODY')
+    expect(tbody).toBeDefined()
+    for (const className in classesTest) {
+      const children = classesTest[className]
+      for (let childIndex = 0, len = tbody.children.length - 1; childIndex < len; ++childIndex) {
+        const hasClass = children.indexOf(childIndex) >= 0
+        expect(Boolean(tbody.children[childIndex]) &&
+        Boolean(tbody.children[childIndex].classList) &&
+        tbody.children[childIndex].classList.contains(className))
+          .toBe(hasClass)
+      }
+    }
   })
 })

@@ -16,9 +16,8 @@ export default {
     formOptionsMixin
   ],
   render (h) {
-    const t = this
-    const $slots = t.$slots
-    const options = t.formOptions.map((option, index) => {
+    const $slots = this.$slots
+    const options = this.formOptions.map((option, index) => {
       return h('option', {
         key: `option_${index}_opt`,
         attrs: { disabled: Boolean(option.disabled) },
@@ -29,24 +28,24 @@ export default {
       'select',
       {
         ref: 'input',
-        class: t.inputClass,
+        class: this.inputClass,
         directives: [
           {
             name: 'model',
             rawName: 'v-model',
-            value: t.localValue,
+            value: this.localValue,
             expression: 'localValue'
           }
         ],
         attrs: {
-          id: t.safeId(),
-          name: t.name,
-          multiple: t.multiple || null,
-          size: t.selectSize,
-          disabled: t.disabled,
-          required: t.required,
-          'aria-required': t.required ? 'true' : null,
-          'aria-invalid': t.computedAriaInvalid
+          id: this.safeId(),
+          name: this.name,
+          multiple: this.multiple || null,
+          size: this.computedSelectSize,
+          disabled: this.disabled,
+          required: this.required,
+          'aria-required': this.required ? 'true' : null,
+          'aria-invalid': this.computedAriaInvalid
         },
         on: {
           change: evt => {
@@ -54,8 +53,8 @@ export default {
             const selectedVal = arrayFrom(target.options)
               .filter(o => o.selected)
               .map(o => ('_value' in o ? o._value : o.value))
-            t.localValue = target.multiple ? selectedVal : selectedVal[0]
-            t.$emit('change', t.localValue)
+            this.localValue = target.multiple ? selectedVal : selectedVal[0]
+            this.$emit('change', this.localValue)
           }
         }
       },
@@ -93,21 +92,20 @@ export default {
     }
   },
   computed: {
+    computedSelectSize () {
+      // Custom selects with a size of zero causes the arrows to be hidden,
+      // so dont render the size attribute in this case
+      return !this.plain && this.selectSize === 0 ? null : this.selectSize
+    },
     inputClass () {
       return [
         'form-control',
         this.stateClass,
         this.sizeFormClass,
         // Awaiting for https://github.com/twbs/bootstrap/issues/23058
-        this.isPlain ? null : 'custom-select',
-        this.isPlain || !this.size ? null : 'custom-select-' + this.size
+        this.plain ? null : 'custom-select',
+        this.plain || !this.size ? null : 'custom-select-' + this.size
       ]
-    },
-    isPlain () {
-      return this.plain || this.isMultiple
-    },
-    isMultiple () {
-      return Boolean(this.multiple && this.selectSize > 1)
     },
     computedAriaInvalid () {
       if (this.ariaInvalid === true || this.ariaInvalid === 'true') {

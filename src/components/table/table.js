@@ -1,11 +1,11 @@
 import startCase from 'lodash.startcase'
-import get from 'lodash/get'
+import get from 'lodash.get'
 import looseEqual from '../../utils/loose-equal'
 import stableSort from '../../utils/stable-sort'
 import KeyCodes from '../../utils/key-codes'
 import warn from '../../utils/warn'
 import { keys, assign } from '../../utils/object'
-import { isArray } from '../../utils/array'
+import { arrayIncludes, isArray } from '../../utils/array'
 import idMixin from '../../mixins/id'
 import listenOnRootMixin from '../../mixins/listen-on-root'
 
@@ -69,18 +69,17 @@ function processField (key, value) {
 export default {
   mixins: [idMixin, listenOnRootMixin],
   render (h) {
-    const t = this
-    const $slots = t.$slots
-    const $scoped = t.$scopedSlots
-    const fields = t.computedFields
-    const items = t.computedItems
+    const $slots = this.$slots
+    const $scoped = this.$scopedSlots
+    const fields = this.computedFields
+    const items = this.computedItems
 
     // Build the caption
     let caption = h(false)
-    if (t.caption || $slots['table-caption']) {
-      const data = { style: t.captionStyles }
+    if (this.caption || $slots['table-caption']) {
+      const data = { style: this.captionStyles }
       if (!$slots['table-caption']) {
-        data.domProps = { innerHTML: t.caption }
+        data.domProps = { innerHTML: this.caption }
       }
       caption = h('caption', data, $slots['table-caption'])
     }
@@ -95,7 +94,7 @@ export default {
       return fields.map((field, colIndex) => {
         const data = {
           key: field.key,
-          class: t.fieldClasses(field),
+          class: this.fieldClasses(field),
           style: field.thStyle || {},
           attrs: {
             tabindex: field.sortable ? '0' : null,
@@ -103,27 +102,27 @@ export default {
             title: field.headerTitle || null,
             'aria-colindex': String(colIndex + 1),
             'aria-label': field.sortable
-              ? t.localSortDesc && t.localSortBy === field.key
-                ? t.labelSortAsc
-                : t.labelSortDesc
+              ? this.localSortDesc && this.localSortBy === field.key
+                ? this.labelSortAsc
+                : this.labelSortDesc
               : null,
             'aria-sort':
-              field.sortable && t.localSortBy === field.key
-                ? t.localSortDesc ? 'descending' : 'ascending'
+              field.sortable && this.localSortBy === field.key
+                ? this.localSortDesc ? 'descending' : 'ascending'
                 : null
           },
           on: {
             click: evt => {
               evt.stopPropagation()
               evt.preventDefault()
-              t.headClicked(evt, field)
+              this.headClicked(evt, field)
             },
             keydown: evt => {
               const keyCode = evt.keyCode
               if (keyCode === KeyCodes.ENTER || keyCode === KeyCodes.SPACE) {
                 evt.stopPropagation()
                 evt.preventDefault()
-                t.headClicked(evt, field)
+                this.headClicked(evt, field)
               }
             }
           }
@@ -143,19 +142,19 @@ export default {
 
     // Build the thead
     let thead = h(false)
-    if (t.isStacked !== true) {
-      // If in always stacked mode (t.isStacked === true), then we don't bother rendering the thead
-      thead = h('thead', { class: t.headClasses }, [
-        h('tr', { class: t.theadTrClass }, makeHeadCells(false))
+    if (this.isStacked !== true) {
+      // If in always stacked mode (this.isStacked === true), then we don't bother rendering the thead
+      thead = h('thead', { class: this.headClasses }, [
+        h('tr', { class: this.theadTrClass }, makeHeadCells(false))
       ])
     }
 
     // Build the tfoot
     let tfoot = h(false)
-    if (t.footClone && t.isStacked !== true) {
-      // If in always stacked mode (t.isStacked === true), then we don't bother rendering the tfoot
-      tfoot = h('tfoot', { class: t.footClasses }, [
-        h('tr', { class: t.tfootTrClass }, makeHeadCells(true))
+    if (this.footClone && this.isStacked !== true) {
+      // If in always stacked mode (this.isStacked === true), then we don't bother rendering the tfoot
+      tfoot = h('tfoot', { class: this.footClasses }, [
+        h('tr', { class: this.tfootTrClass }, makeHeadCells(true))
       ])
     }
 
@@ -164,11 +163,11 @@ export default {
 
     // Add static Top Row slot (hidden in visibly stacked mode as we can't control the data-label)
     // If in always stacked mode, we don't bother rendering the row
-    if ($scoped['top-row'] && t.isStacked !== true) {
+    if ($scoped['top-row'] && this.isStacked !== true) {
       rows.push(
         h(
           'tr',
-          { key: 'top-row', class: ['b-table-top-row', t.tbodyTrClass] },
+          { key: 'top-row', class: ['b-table-top-row', typeof this.tbodyTrClass === 'function' ? this.tbodyTrClass(null, 'row-top') : this.tbodyTrClass] },
           [$scoped['top-row']({ columns: fields.length, fields: fields })]
         )
       )
@@ -181,41 +180,41 @@ export default {
       const detailsSlot = $scoped['row-details']
       const rowShowDetails = Boolean(item._showDetails && detailsSlot)
       const detailsId = rowShowDetails
-        ? t.safeId(`_details_${rowIndex}_`)
+        ? this.safeId(`_details_${rowIndex}_`)
         : null
       const toggleDetailsFn = () => {
         if (detailsSlot) {
-          t.$set(item, '_showDetails', !item._showDetails)
+          this.$set(item, '_showDetails', !item._showDetails)
         }
       }
       // For each item data field in row
       const tds = fields.map((field, colIndex) => {
         const data = {
           key: `row-${rowIndex}-cell-${colIndex}`,
-          class: t.tdClasses(field, item),
-          attrs: field.tdAttr || {},
+          class: this.tdClasses(field, item),
+          attrs: this.tdAttrs(field, item, colIndex),
           domProps: {}
         }
-        data.attrs['aria-colindex'] = String(colIndex + 1)
         let childNodes
         if ($scoped[field.key]) {
           childNodes = [
             $scoped[field.key]({
               item: item,
               index: rowIndex,
+              field: field,
               unformatted: get(item, field.key),
-              value: t.getFormattedValue(item, field),
+              value: this.getFormattedValue(item, field),
               toggleDetails: toggleDetailsFn,
               detailsShowing: Boolean(item._showDetails)
             })
           ]
-          if (t.isStacked) {
+          if (this.isStacked) {
             // We wrap in a DIV to ensure rendered as a single cell when visually stacked!
             childNodes = [h('div', {}, [childNodes])]
           }
         } else {
-          const formatted = t.getFormattedValue(item, field)
-          if (t.isStacked) {
+          const formatted = this.getFormattedValue(item, field)
+          if (this.isStacked) {
             // We innerHTML a DIV to ensure rendered as a single cell when visually stacked!
             childNodes = [h('div', formatted)]
           } else {
@@ -223,22 +222,13 @@ export default {
             childNodes = formatted
           }
         }
-        if (t.isStacked) {
-          // Generate the "header cell" label content in stacked mode
-          data.attrs['data-label'] = field.label
-          if (field.isRowHeader) {
-            data.attrs['role'] = 'rowheader'
-          } else {
-            data.attrs['role'] = 'cell'
-          }
-        }
         // Render either a td or th cell
         return h(field.isRowHeader ? 'th' : 'td', data, childNodes)
       })
       // Calculate the row number in the dataset (indexed from 1)
       let ariaRowIndex = null
-      if (t.currentPage && t.perPage && t.perPage > 0) {
-        ariaRowIndex = (t.currentPage - 1) * t.perPage + rowIndex + 1
+      if (this.currentPage && this.perPage && this.perPage > 0) {
+        ariaRowIndex = (this.currentPage - 1) * this.perPage + rowIndex + 1
       }
       // Assemble and add the row
       rows.push(
@@ -247,23 +237,23 @@ export default {
           {
             key: `row-${rowIndex}`,
             class: [
-              t.rowClasses(item),
+              this.rowClasses(item),
               { 'b-table-has-details': rowShowDetails }
             ],
             attrs: {
               'aria-describedby': detailsId,
               'aria-rowindex': ariaRowIndex,
-              role: t.isStacked ? 'row' : null
+              role: this.isStacked ? 'row' : null
             },
             on: {
               click: evt => {
-                t.rowClicked(evt, item, rowIndex)
+                this.rowClicked(evt, item, rowIndex)
               },
               dblclick: evt => {
-                t.rowDblClicked(evt, item, rowIndex)
+                this.rowDblClicked(evt, item, rowIndex)
               },
               mouseenter: evt => {
-                t.rowHovered(evt, item, rowIndex)
+                this.rowHovered(evt, item, rowIndex)
               }
             }
           },
@@ -274,7 +264,7 @@ export default {
       if (rowShowDetails) {
         const tdAttrs = { colspan: String(fields.length) }
         const trAttrs = { id: detailsId }
-        if (t.isStacked) {
+        if (this.isStacked) {
           tdAttrs['role'] = 'cell'
           trAttrs['role'] = 'row'
         }
@@ -291,7 +281,7 @@ export default {
             'tr',
             {
               key: `details-${rowIndex}`,
-              class: ['b-table-details', t.tbodyTrClass],
+              class: ['b-table-details', typeof this.tbodyTrClass === 'function' ? this.tbodyTrClass(item, 'row-details') : this.tbodyTrClass],
               attrs: trAttrs
             },
             [details]
@@ -304,12 +294,12 @@ export default {
     })
 
     // Empty Items / Empty Filtered Row slot
-    if (t.showEmpty && (!items || items.length === 0)) {
-      let empty = t.filter ? $slots['emptyfiltered'] : $slots['empty']
+    if (this.showEmpty && (!items || items.length === 0)) {
+      let empty = this.filter ? $slots['emptyfiltered'] : $slots['empty']
       if (!empty) {
         empty = h('div', {
           class: ['text-center', 'my-2'],
-          domProps: { innerHTML: t.filter ? t.emptyFilteredText : t.emptyText }
+          domProps: { innerHTML: this.filter ? this.emptyFilteredText : this.emptyText }
         })
       }
       empty = h(
@@ -317,7 +307,7 @@ export default {
         {
           attrs: {
             colspan: String(fields.length),
-            role: t.isStacked ? 'cell' : null
+            role: this.isStacked ? 'cell' : null
           }
         },
         [h('div', { attrs: { role: 'alert', 'aria-live': 'polite' } }, [empty])]
@@ -327,8 +317,8 @@ export default {
           'tr',
           {
             key: 'empty-row',
-            class: ['b-table-empty-row', t.tbodyTrClass],
-            attrs: t.isStacked ? { role: 'row' } : {}
+            class: ['b-table-empty-row', typeof this.tbodyTrClass === 'function' ? this.tbodyTrClass(null, 'row-empty') : this.tbodyTrClass],
+            attrs: this.isStacked ? { role: 'row' } : {}
           },
           [empty]
         )
@@ -339,11 +329,11 @@ export default {
 
     // Static bottom row slot (hidden in visibly stacked mode as we can't control the data-label)
     // If in always stacked mode, we don't bother rendering the row
-    if ($scoped['bottom-row'] && t.isStacked !== true) {
+    if ($scoped['bottom-row'] && this.isStacked !== true) {
       rows.push(
         h(
           'tr',
-          { key: 'bottom-row', class: ['b-table-bottom-row', t.tbodyTrClass] },
+          { key: 'bottom-row', class: ['b-table-bottom-row', typeof this.tbodyTrClass === 'function' ? this.tbodyTrClass(null, 'row-bottom') : this.tbodyTrClass] },
           [$scoped['bottom-row']({ columns: fields.length, fields: fields })]
         )
       )
@@ -354,7 +344,7 @@ export default {
     // Assemble the rows into the tbody
     const tbody = h(
       'tbody',
-      { class: t.bodyClasses, attrs: t.isStacked ? { role: 'rowgroup' } : {} },
+      { class: this.bodyClasses, attrs: this.isStacked ? { role: 'rowgroup' } : {} },
       rows
     )
 
@@ -362,24 +352,22 @@ export default {
     const table = h(
       'table',
       {
-        class: t.tableClasses,
+        class: this.tableClasses,
         attrs: {
-          id: t.safeId(),
-          role: t.isStacked ? 'table' : null,
-          'aria-busy': t.computedBusy ? 'true' : 'false',
+          id: this.safeId(),
+          role: this.isStacked ? 'table' : null,
+          'aria-busy': this.computedBusy ? 'true' : 'false',
           'aria-colcount': String(fields.length),
-          'aria-rowcount':
-            t.$attrs['aria-rowcount'] || (t.perPage && t.perPage > 0)
-              ? '-1'
-              : null
+          'aria-rowcount': this.$attrs['aria-rowcount'] ||
+            this.items.length > this.perPage ? this.items.length : null
         }
       },
       [caption, colgroup, thead, tfoot, tbody]
     )
 
     // Add responsive wrapper if needed and return table
-    return t.isResponsive
-      ? h('div', { class: t.responsiveClass }, [table])
+    return this.isResponsive
+      ? h('div', { class: this.responsiveClass }, [table])
       : table
   },
   data () {
@@ -410,6 +398,11 @@ export default {
     sortDesc: {
       type: Boolean,
       default: false
+    },
+    sortDirection: {
+      type: String,
+      default: 'asc',
+      validator: direction => arrayIncludes(['asc', 'desc', 'last'], direction)
     },
     caption: {
       type: String,
@@ -494,7 +487,7 @@ export default {
       default: null
     },
     tbodyTrClass: {
-      type: [String, Array],
+      type: [String, Array, Function],
       default: null
     },
     tfootClass: {
@@ -534,6 +527,10 @@ export default {
       default: false
     },
     noProviderFiltering: {
+      type: Boolean,
+      default: false
+    },
+    noSortReset: {
       type: Boolean,
       default: false
     },
@@ -782,16 +779,6 @@ export default {
       })
     },
     computedItems () {
-      // Grab some props/data to ensure reactivity
-      const perPage = this.perPage
-      const currentPage = this.currentPage
-      const filter = this.filter
-      const sortBy = this.localSortBy
-      const sortDesc = this.localSortDesc
-      const sortCompare = this.sortCompare
-      const localFiltering = this.localFiltering
-      const localSorting = this.localSorting
-      const localPaging = this.localPaging
       let items = this.hasProvider ? this.localItems : this.items
       if (!items) {
         this.$nextTick(this._providerUpdate)
@@ -800,30 +787,49 @@ export default {
       // Array copy for sorting, filtering, etc.
       items = items.slice()
       // Apply local filter
-      if (filter && localFiltering) {
-        if (filter instanceof Function) {
-          items = items.filter(filter)
-        } else {
-          let regex
-          if (filter instanceof RegExp) {
-            regex = filter
-          } else {
-            regex = new RegExp('.*' + filter + '.*', 'ig')
-          }
-          items = items.filter(item => {
-            const test = regex.test(recToString(item))
-            regex.lastIndex = 0
-            return test
-          })
+      this.filteredItems = items = this.filterItems(items)
+      // Apply local sort
+      items = this.sortItems(items)
+      // Apply local pagination
+      items = this.paginateItems(items)
+      // Update the value model with the filtered/sorted/paginated data set
+      this.$emit('input', items)
+      return items
+    },
+    computedBusy () {
+      return this.busy || this.localBusy
+    }
+  },
+  methods: {
+    keys,
+    filterItems (items) {
+      if (this.localFiltering && this.filter) {
+        if (this.filter instanceof Function) {
+          return items.filter(this.filter)
         }
+
+        let regex
+        if (this.filter instanceof RegExp) {
+          regex = this.filter
+        } else {
+          regex = new RegExp('.*' + this.filter + '.*', 'ig')
+        }
+
+        return items.filter(item => {
+          const test = regex.test(recToString(item))
+          regex.lastIndex = 0
+          return test
+        })
       }
-      if (localFiltering) {
-        // Make a local copy of filtered items to trigger filtered event
-        this.filteredItems = items.slice()
-      }
-      // Apply local Sort
+      return items
+    },
+    sortItems (items) {
+      const sortBy = this.localSortBy
+      const sortDesc = this.localSortDesc
+      const sortCompare = this.sortCompare
+      const localSorting = this.localSorting
       if (sortBy && localSorting) {
-        items = stableSort(items, function sortItemsFn (a, b) {
+        return stableSort(items, (a, b) => {
           let ret = null
           if (typeof sortCompare === 'function') {
             // Call user provided sortCompare routine
@@ -837,21 +843,19 @@ export default {
           return (ret || 0) * (sortDesc ? -1 : 1)
         })
       }
-      // Apply local pagination
-      if (Boolean(perPage) && localPaging) {
-        // Grab the current page of data (which may be past filtered items)
-        items = items.slice((currentPage - 1) * perPage, currentPage * perPage)
-      }
-      // Update the value model with the filtered/sorted/paginated data set
-      this.$emit('input', items)
       return items
     },
-    computedBusy () {
-      return this.busy || this.localBusy
-    }
-  },
-  methods: {
-    keys,
+    paginateItems (items) {
+      const currentPage = this.currentPage
+      const perPage = this.perPage
+      const localPaging = this.localPaging
+      // Apply local pagination
+      if (!!perPage && localPaging) {
+        // Grab the current page of data (which may be past filtered items)
+        return items.slice((currentPage - 1) * perPage, currentPage * perPage)
+      }
+      return items
+    },
     fieldClasses (field) {
       return [
         field.sortable ? 'sorting' : '',
@@ -877,15 +881,29 @@ export default {
           : '',
         cellVariant,
         field.class ? field.class : '',
-        t.getTdClasses(item, field)
+        this.getTdValues(item, field.key, field.tdClass, '')
       ]
+    },
+    tdAttrs (field, item, colIndex) {
+      let attrs = {}
+      attrs['aria-colindex'] = String(colIndex + 1)
+      if (this.isStacked) {
+        // Generate the "header cell" label content in stacked mode
+        attrs['data-label'] = field.label
+        if (field.isRowHeader) {
+          attrs['role'] = 'rowheader'
+        } else {
+          attrs['role'] = 'cell'
+        }
+      }
+      return assign({}, attrs, this.getTdValues(item, field.key, field.tdAttr, {}))
     },
     rowClasses (item) {
       return [
         item._rowVariant
           ? `${this.dark ? 'bg' : 'table'}-${item._rowVariant}`
           : '',
-        this.tbodyTrClass
+        typeof this.tbodyTrClass === 'function' ? this.tbodyTrClass(item, 'row') : this.tbodyTrClass
       ]
     },
     rowClicked (e, item, index) {
@@ -915,6 +933,14 @@ export default {
         return
       }
       let sortChanged = false
+      const toggleLocalSortDesc = () => {
+        const sortDirection = field.sortDirection || this.sortDirection
+        if (sortDirection === 'asc') {
+          this.localSortDesc = false
+        } else if (sortDirection === 'desc') {
+          this.localSortDesc = true
+        }
+      }
       if (field.sortable) {
         if (field.key === this.localSortBy) {
           // Change sorting direction on current column
@@ -922,12 +948,12 @@ export default {
         } else {
           // Start sorting this column ascending
           this.localSortBy = field.key
-          this.localSortDesc = false
+          toggleLocalSortDesc()
         }
         sortChanged = true
-      } else if (this.localSortBy) {
+      } else if (this.localSortBy && !this.noSortReset) {
         this.localSortBy = null
-        this.localSortDesc = false
+        toggleLocalSortDesc()
         sortChanged = true
       }
       this.$emit('head-clicked', field.key, field, e)
@@ -982,21 +1008,19 @@ export default {
         this._providerSetLocal(data)
       }
     },
-    getTdClasses (item, field) {
-      const key = field.key
-      const tdClass = field.tdClass
+    getTdValues (item, key, tdValue, defValue) {
       const parent = this.$parent
-      if (tdClass) {
-        if (typeof tdClass === 'function') {
+      if (tdValue) {
+        if (typeof tdValue === 'function') {
           let value = get(item, key)
-          return tdClass(value, key, item)
-        } else if (typeof tdClass === 'string' && typeof parent[tdClass] === 'function') {
+          return tdValue(value, key, item)
+        } else if (typeof tdValue === 'string' && typeof parent[tdValue] === 'function') {
           let value = get(item, key)
-          return parent[tdClass](value, key, item)
+          return parent[tdValue](value, key, item)
         }
-        return tdClass
+        return tdValue
       }
-      return ''
+      return defValue
     },
     getFormattedValue (item, field) {
       const key = field.key

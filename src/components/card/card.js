@@ -36,7 +36,7 @@ export const props = assign(
 export default {
   functional: true,
   props,
-  render (h, { props, data, slots }) {
+  render (h, { props, data, slots, children }) {
     // The order of the conditionals matter.
     // We are building the component markup in order.
     let childNodes = []
