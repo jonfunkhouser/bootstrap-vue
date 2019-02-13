@@ -1,10 +1,10 @@
 /**
- * Register a component plugin as being loaded. returns true if compoent plugin already registered
+ * Register a component plugin as being loaded. returns true if component plugin already registered
  * @param {object} Vue
  * @param {string} Component name
  * @param {object} Component definition
  */
-export function registerComponent (Vue, name, def) {
+export function registerComponent(Vue, name, def) {
   Vue._bootstrap_vue_components_ = Vue._bootstrap_vue_components_ || {}
   const loaded = Vue._bootstrap_vue_components_[name]
   if (!loaded && def && name) {
@@ -19,7 +19,7 @@ export function registerComponent (Vue, name, def) {
  * @param {object} Vue
  * @param {object} Object of component definitions
  */
-export function registerComponents (Vue, components) {
+export function registerComponents(Vue, components) {
   for (let component in components) {
     registerComponent(Vue, component, components[component])
   }
@@ -31,7 +31,7 @@ export function registerComponents (Vue, components) {
  * @param {string} Directive name
  * @param {object} Directive definition
  */
-export function registerDirective (Vue, name, def) {
+export function registerDirective(Vue, name, def) {
   Vue._bootstrap_vue_directives_ = Vue._bootstrap_vue_directives_ || {}
   const loaded = Vue._bootstrap_vue_directives_[name]
   if (!loaded && def && name) {
@@ -46,7 +46,7 @@ export function registerDirective (Vue, name, def) {
  * @param {object} Vue
  * @param {object} Object of directive definitions
  */
-export function registerDirectives (Vue, directives) {
+export function registerDirectives(Vue, directives) {
   for (let directive in directives) {
     registerDirective(Vue, directive, directives[directive])
   }
@@ -56,7 +56,7 @@ export function registerDirectives (Vue, directives) {
  * Install plugin if window.Vue available
  * @param {object} Plugin definition
  */
-export function vueUse (VuePlugin) {
+export function vueUse(VuePlugin) {
   if (typeof window !== 'undefined' && window.Vue) {
     window.Vue.use(VuePlugin)
   }
