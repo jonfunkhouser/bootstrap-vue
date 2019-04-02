@@ -1,4 +1,5 @@
 import listenOnRootMixin from '../../mixins/listen-on-root'
+import { inBrowser } from '../../utils/env'
 import { closest, matches, reflow, getCS, getBCR, eventOn, eventOff } from '../../utils/dom'
 
 // Events we emit on $root
@@ -70,28 +71,40 @@ export default {
   created() {
     // Listen for toggle events to open/close us
     this.listenOnRoot(EVENT_TOGGLE, this.handleToggleEvt)
-    // Listen to otehr collapses for accordion events
+    // Listen to other collapses for accordion events
     this.listenOnRoot(EVENT_ACCORDION, this.handleAccordionEvt)
   },
   mounted() {
-    if (this.isNav && typeof document !== 'undefined') {
+    if (this.isNav && inBrowser) {
       // Set up handlers
-      eventOn(window, 'resize', this.handleResize, EventOptions)
-      eventOn(window, 'orientationchange', this.handleResize, EventOptions)
+      this.setWindowEvents(true)
       this.handleResize()
     }
     this.emitState()
   },
-  updated() {
-    this.$root.$emit(EVENT_STATE, this.id, this.show)
+  deactivated() /* istanbul ignore next */ {
+    if (this.isNav && inBrowser) {
+      this.setWindowEvents(false)
+    }
+  },
+  activated() /* istanbul ignore next */ {
+    if (this.isNav && inBrowser) {
+      this.setWindowEvents(true)
+    }
   },
   beforeDestroy() /* istanbul ignore next */ {
-    if (this.isNav && typeof document !== 'undefined') {
-      eventOff(window, 'resize', this.handleResize, EventOptions)
-      eventOff(window, 'orientationchange', this.handleResize, EventOptions)
+    // Trigger state emit if needed
+    this.show = false
+    if (this.isNav && inBrowser) {
+      this.setWindowEvents(false)
     }
   },
   methods: {
+    setWindowEvents(on) {
+      const method = on ? eventOn : eventOff
+      method(window, 'resize', this.handleResize, EventOptions)
+      method(window, 'orientationchange', this.handleResize, EventOptions)
+    },
     toggle() {
       this.show = !this.show
     },
@@ -136,6 +149,7 @@ export default {
       // If we are in a nav/navbar, close the collapse when non-disabled link clicked
       const el = evt.target
       if (!this.isNav || !el || getCS(this.$el).display !== 'block') {
+        /* istanbul ignore next: can't test getComputedStyle in JSDOM */
         return
       }
       if (matches(el, '.nav-link,.dropdown-item') || closest('.nav-link,.dropdown-item', el)) {

@@ -1,6 +1,7 @@
 import { loadFixture, testVM } from '../../../tests/utils'
+import { propsFactory, pickLinkProps, omitLinkProps, props as linkProps } from './link'
 
-describe('link', async () => {
+describe('link', () => {
   beforeEach(loadFixture(__dirname, 'link'))
   testVM()
 
@@ -49,6 +50,16 @@ describe('link', async () => {
     expect(app.$refs.disabled).toHaveClass('disabled')
   })
 
+  it('should set href to string `to` prop', async () => {
+    const { app } = window
+    expect(app.$refs.to_string.getAttribute('href')).toBe(app.href)
+  })
+
+  it('should set href to path from `to` prop', async () => {
+    const { app } = window
+    expect(app.$refs.to_path.getAttribute('href')).toBe(app.href)
+  })
+
   it('should NOT invoke click handler bound by Vue when disabled and clicked on', async () => {
     const { app } = window
     app.$refs.click_disabled.click()
@@ -79,11 +90,48 @@ describe('link', async () => {
     expect(firstCallArguments[0]).toBeInstanceOf(Event)
   })
 
+  it('btn with href should invoke click handler when clicked on', async () => {
+    // https://github.com/bootstrap-vue/bootstrap-vue/issues/2938
+    const { app } = window
+    app.$refs.href.click()
+    expect(app.btnHrefClick).toHaveBeenCalled()
+  })
+
   it("should emit 'clicked::link' on $root when clicked on", async () => {
     const { app } = window
     const spy = jest.fn()
     app.$root.$on('clicked::link', spy)
     app.$refs.click.click()
     expect(spy).toHaveBeenCalled()
+  })
+
+  describe('propsFactory() helper', () => {
+    it('works', async () => {
+      expect(propsFactory()).toEqual(linkProps)
+      expect(propsFactory()).not.toBe(linkProps)
+    })
+  })
+
+  describe('pickLinkProps() helper', () => {
+    it('works', async () => {
+      expect(pickLinkProps([])).toEqual({})
+      expect(pickLinkProps(['append'])).toEqual({ append: linkProps.append })
+      expect(pickLinkProps('to')).toEqual({ to: linkProps.to })
+      expect(pickLinkProps(['append', 'routerTag'])).toEqual({
+        append: linkProps.append,
+        routerTag: linkProps.routerTag
+      })
+    })
+  })
+
+  describe('omitLinkProps() helper', () => {
+    it('works', async () => {
+      expect(omitLinkProps([])).toEqual({ ...linkProps })
+      const propsOmitted = Object.keys(linkProps).filter(p => p !== 'to' && p !== 'append')
+      expect(omitLinkProps(propsOmitted)).toEqual({
+        to: linkProps.to,
+        append: linkProps.append
+      })
+    })
   })
 })

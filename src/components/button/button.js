@@ -1,9 +1,12 @@
 import { mergeData } from 'vue-functional-data-merge'
+import { getComponentConfig } from '../../utils/config'
 import pluckProps from '../../utils/pluck-props'
 import { concat } from '../../utils/array'
-import { assign, keys } from '../../utils/object'
+import { keys } from '../../utils/object'
 import { addClass, removeClass } from '../../utils/dom'
 import BLink, { propsFactory as linkPropsFactory } from '../link/link'
+
+const NAME = 'BButton'
 
 const btnProps = {
   block: {
@@ -20,7 +23,7 @@ const btnProps = {
   },
   variant: {
     type: String,
-    default: null
+    default: () => getComponentConfig(NAME, 'variant')
   },
   type: {
     type: String,
@@ -43,7 +46,7 @@ delete linkProps.href.default
 delete linkProps.to.default
 const linkPropKeys = keys(linkProps)
 
-export const props = assign(linkProps, btnProps)
+export const props = { ...linkProps, ...btnProps }
 
 // Focus handler for toggle buttons.  Needs class of 'focus' when focused.
 function handleFocus(evt) {
@@ -85,7 +88,7 @@ function isNonStandardTag(props) {
 // Compute required classes (non static classes)
 function computeClass(props) {
   return [
-    props.variant ? `btn-${props.variant}` : `btn-secondary`,
+    `btn-${props.variant || getComponentConfig(NAME, 'variant')}`,
     {
       [`btn-${props.size}`]: Boolean(props.size),
       'btn-block': props.block,
@@ -127,8 +130,8 @@ function computeAttrs(props, data) {
     // remembering the previous setting when using the back button.
     autocomplete: toggle ? 'off' : null,
     // Tab index is used when the component is not a button.
-    // Links are tabable, but don't allow disabled, while non buttons or links
-    // are not tabable, so we mimic that functionality by disabling tabbing
+    // Links are tabbable, but don't allow disabled, while non buttons or links
+    // are not tabbable, so we mimic that functionality by disabling tabbing
     // when disabled, and adding a tabindex of '0' to non buttons or non links.
     tabindex: props.disabled && !button ? '-1' : tabindex
   }
@@ -136,7 +139,7 @@ function computeAttrs(props, data) {
 
 // @vue/component
 export default {
-  name: 'BButton',
+  name: NAME,
   functional: true,
   props,
   render(h, { props, data, listeners, children }) {
@@ -144,6 +147,7 @@ export default {
     const link = isLink(props)
     const on = {
       click(e) {
+        /* istanbul ignore if: blink/button disabled should handle this */
         if (props.disabled && e instanceof Event) {
           e.stopPropagation()
           e.preventDefault()

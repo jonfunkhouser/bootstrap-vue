@@ -11,9 +11,13 @@ import { htmlOrText } from '../../utils/html'
 export default {
   name: 'BFormSelect',
   mixins: [idMixin, formMixin, formSizeMixin, formStateMixin, formCustomMixin, formOptionsMixin],
+  model: {
+    prop: 'value',
+    event: 'input'
+  },
   props: {
     value: {
-      // type: Object,
+      // type: [Object, Array, String, Number, Boolean],
       // default: undefined
     },
     multiple: {
@@ -22,7 +26,7 @@ export default {
     },
     selectSize: {
       // Browsers default size to 0, which shows 4 rows in most browsers in multiple mode
-      // Size of 1 can bork out firefox
+      // Size of 1 can bork out Firefox
       type: Number,
       default: 0
     },

@@ -1,9 +1,36 @@
 import BButtonClose from '../button/button-close'
+import { getComponentConfig } from '../../utils/config'
+import { requestAF } from '../../utils/dom'
+
+const NAME = 'BAlert'
+
+// Convert `show` value to a number
+const parseCountDown = show => {
+  if (show === '' || typeof show === 'boolean') {
+    return 0
+  }
+  show = parseInt(show, 10)
+  return show > 0 ? show : 0
+}
+
+// Convert `show` value to a boolean
+const parseShow = show => {
+  if (show === '' || show === true) {
+    return true
+  }
+  if (parseInt(show, 10) < 1) {
+    // Boolean will always return false for the above comparison
+    return false
+  }
+  return Boolean(show)
+}
+
+// Is a value number like (i.e. a number or a number as string)
+const isNumericLike = value => !isNaN(parseInt(value, 10))
 
 // @vue/component
 export default {
-  name: 'BAlert',
-  components: { BButtonClose },
+  name: NAME,
   model: {
     prop: 'show',
     event: 'input'
@@ -11,7 +38,7 @@ export default {
   props: {
     variant: {
       type: String,
-      default: 'info'
+      default: () => getComponentConfig(NAME, 'variant')
     },
     dismissible: {
       type: Boolean,
@@ -19,10 +46,10 @@ export default {
     },
     dismissLabel: {
       type: String,
-      default: 'Close'
+      default: () => getComponentConfig(NAME, 'dismissLabel')
     },
     show: {
-      type: [Boolean, Number],
+      type: [Boolean, Number, String],
       default: false
     },
     fade: {
@@ -33,95 +60,129 @@ export default {
   data() {
     return {
       countDownTimerId: null,
-      dismissed: false
-    }
-  },
-  computed: {
-    classObject() {
-      return ['alert', this.alertVariant, this.dismissible ? 'alert-dismissible' : '']
-    },
-    alertVariant() {
-      const variant = this.variant
-      return `alert-${variant}`
-    },
-    localShow() {
-      return !this.dismissed && (this.countDownTimerId || this.show)
+      countDown: 0,
+      // If initially shown, we need to set these for SSR
+      localShow: parseShow(this.show),
+      showClass: this.fade && this.show
     }
   },
   watch: {
-    show() {
-      this.showChanged()
+    show(newVal) {
+      this.countDown = parseCountDown(newVal)
+      this.localShow = parseShow(newVal)
+    },
+    countDown(newVal) {
+      this.clearTimer()
+      this.$emit('dismiss-count-down', newVal)
+      if (this.show !== newVal) {
+        // Update the v-model if needed
+        this.$emit('input', newVal)
+      }
+      if (newVal > 0) {
+        this.localShow = true
+        this.countDownTimerId = setTimeout(() => {
+          this.countDown--
+        }, 1000)
+      } else {
+        // Slightly delay the hide to allow any UI updates
+        this.$nextTick(() => {
+          requestAF(() => {
+            this.localShow = false
+          })
+        })
+      }
+    },
+    localShow(newVal) {
+      if (!newVal && (this.dismissible || isNumericLike(this.show))) {
+        // Only emit dismissed events for dismissible or auto dismissing alerts
+        this.$emit('dismissed')
+      }
+      if (!isNumericLike(this.show) && this.show !== newVal) {
+        // Only emit booleans if we weren't passed a number via `this.show`
+        this.$emit('input', newVal)
+      }
     }
   },
-  mounted() {
-    this.showChanged()
+  created() {
+    this.countDown = parseCountDown(this.show)
+    this.localShow = parseShow(this.show)
   },
-  destroyed /* istanbul ignore next */() {
-    this.clearCounter()
+  mounted() {
+    this.countDown = parseCountDown(this.show)
+    this.localShow = parseShow(this.show)
+  },
+  beforeDestroy() {
+    this.clearTimer()
   },
   methods: {
     dismiss() {
-      this.clearCounter()
-      this.dismissed = true
-      this.$emit('dismissed')
-      this.$emit('input', false)
-      if (typeof this.show === 'number') {
-        this.$emit('dismiss-count-down', 0)
-        this.$emit('input', 0)
-      } else {
-        this.$emit('input', false)
-      }
+      this.clearTimer()
+      this.countDown = 0
+      this.localShow = false
     },
-    clearCounter() {
+    clearTimer() {
       if (this.countDownTimerId) {
         clearInterval(this.countDownTimerId)
         this.countDownTimerId = null
       }
     },
-    showChanged() {
-      // Reset counter status
-      this.clearCounter()
-      // Reset dismiss status
-      this.dismissed = false
-      // No timer for boolean values
-      if (this.show === true || this.show === false || this.show === null || this.show === 0) {
-        return
+    onBeforeEnter() {
+      if (this.fade) {
+        requestAF(() => {
+          this.showClass = true
+        })
       }
-      // Start counter (ensure we have an integer value)
-      let dismissCountDown = parseInt(this.show, 10) || 1
-      this.countDownTimerId = setInterval(() => {
-        if (dismissCountDown < 1) {
-          this.dismiss()
-          return
-        }
-        dismissCountDown--
-        this.$emit('dismiss-count-down', dismissCountDown)
-        this.$emit('input', dismissCountDown)
-      }, 1000)
+    },
+    onBeforeLeave() /* istanbul ignore next: does not appear to be called in vue-test-utils */ {
+      this.showClass = false
     }
   },
   render(h) {
-    if (!this.localShow) {
-      // If not showing, render placeholder
-      return h(false)
-    }
-    let dismissBtn = h(false)
-    if (this.dismissible) {
-      // Add dismiss button
-      dismissBtn = h(
-        'b-button-close',
-        { attrs: { 'aria-label': this.dismissLabel }, on: { click: this.dismiss } },
-        [this.$slots.dismiss]
+    const $slots = this.$slots
+    let $alert // undefined
+    if (this.localShow) {
+      let $dismissBtn = h(false)
+      if (this.dismissible) {
+        // Add dismiss button
+        $dismissBtn = h(
+          BButtonClose,
+          { attrs: { 'aria-label': this.dismissLabel }, on: { click: this.dismiss } },
+          [$slots.dismiss]
+        )
+      }
+      $alert = h(
+        'div',
+        {
+          staticClass: 'alert',
+          class: {
+            fade: this.fade,
+            show: this.showClass,
+            'alert-dismissible': this.dismissible,
+            [`alert-${this.variant}`]: this.variant
+          },
+          attrs: { role: 'alert', 'aria-live': 'polite', 'aria-atomic': true }
+        },
+        [$dismissBtn, $slots.default]
       )
+      $alert = [$alert]
     }
-    const alert = h(
-      'div',
+    return h(
+      'transition',
       {
-        class: this.classObject,
-        attrs: { role: 'alert', 'aria-live': 'polite', 'aria-atomic': true }
+        props: {
+          'enter-class': '',
+          'enter-active-class': '',
+          'enter-to-class': '',
+          'leave-class': 'show',
+          'leave-active-class': '',
+          'leave-to-class': ''
+        },
+        on: {
+          beforeEnter: this.onBeforeEnter,
+          beforeLeave: this.onBeforeLeave
+        }
       },
-      [dismissBtn, this.$slots.default]
+      $alert
     )
-    return !this.fade ? alert : h('transition', { props: { name: 'fade', appear: true } }, [alert])
   }
 }

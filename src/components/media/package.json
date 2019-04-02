@@ -3,16 +3,19 @@
   "version": "1.0.0",
   "meta": {
     "title": "Media",
-    "component": "BMedia",
+    "description": "The media object helps build complex and repetitive components where some media is positioned alongside content that doesn’t wrap around said media.",
     "components": [
+      {
+        "component": "BMedia",
+        "slots": [
+          {
+            "name": "aside",
+            "description": "Media Aside"
+          }
+        ]
+      },
       "BMediaAside",
       "BMediaBody"
-    ],
-    "slots": [
-      {
-        "name": "aside",
-        "description": "Media Aside"
-      }
     ]
   }
 }

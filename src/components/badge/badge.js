@@ -1,31 +1,33 @@
 import { mergeData } from 'vue-functional-data-merge'
-
+import { getComponentConfig } from '../../utils/config'
 import pluckProps from '../../utils/pluck-props'
-import { assign } from '../../utils/object'
 import Link, { propsFactory as linkPropsFactory } from '../link/link'
+
+const NAME = 'BBadge'
 
 let linkProps = linkPropsFactory()
 delete linkProps.href.default
 delete linkProps.to.default
 
-export const props = assign(linkProps, {
+export const props = {
+  ...linkProps,
   tag: {
     type: String,
     default: 'span'
   },
   variant: {
     type: String,
-    default: 'secondary'
+    default: () => getComponentConfig(NAME, 'variant')
   },
   pill: {
     type: Boolean,
     default: false
   }
-})
+}
 
 // @vue/component
 export default {
-  name: 'BBadge',
+  name: NAME,
   functional: true,
   props,
   render(h, { props, data, children }) {
@@ -34,7 +36,7 @@ export default {
     const componentData = {
       staticClass: 'badge',
       class: [
-        !props.variant ? 'badge-secondary' : `badge-${props.variant}`,
+        `badge-${props.variant || getComponentConfig(NAME, 'variant')}`,
         {
           'badge-pill': Boolean(props.pill),
           active: props.active,

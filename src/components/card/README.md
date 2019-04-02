@@ -8,7 +8,7 @@ control and customization. Built with flexbox, they offer easy alignment and mix
 components.
 
 `<b-card>` has no fixed width to start, so they’ll naturally fill the full width of its parent
-element. This is easily customized via styles or standard Bootstrap V4 sizing clases.
+element. This is easily customized via styles or standard Bootstrap V4 sizing classes.
 
 Change the default `div` root tag to any other HTML element by specifying via the `tag` prop
 
@@ -44,7 +44,7 @@ following are examples of what’s supported inside a `<b-card>`
 The building block of a `<b-card>` is the `<b-card-body>` section which provides a padded section
 within a card.
 
-By default the `<b-card>` content is automatically placed in a`<b-card-body>` section:
+By default the `<b-card>` content is automatically placed in a `<b-card-body>` section:
 
 ```html
 <div>
@@ -79,7 +79,7 @@ on the `<b-card>`.
 Note that with `no-body` enabled, the content of the `title` and `sub-title` props will not be
 rendered.
 
-Use the `<b-card-body>` sub-componet to place your own card body anywhere in a `<b-card>` component
+Use the `<b-card-body>` sub-component to place your own card body anywhere in a `<b-card>` component
 that has `no-body` set.
 
 #### Titles, text, and links
@@ -89,7 +89,7 @@ The title is rendered using the sub-component `<b-card-title>` while the Sub Tit
 the sub-component `<b-card-sub-title>`.
 
 With sub-component `<b-card-text>`, paragraph text can be added to the card. The last
-`<b-card-text>` in the card body will have it's bottom margin automaticaly remvoed (via CSS). Text
+`<b-card-text>` in the card body will have it's bottom margin automatically removed (via CSS). Text
 within `<b-card-text>` can also be styled with the standard HTML tags.
 
 Links can be added and placed next to each other by adding the `.card-link` class to a `<a>` tag (or
@@ -115,9 +115,12 @@ Links can be added and placed next to each other by adding the `.card-link` clas
 
 ### Images
 
-The prop `img-src` places an image on the top of the card, and use the `img-alt` prop to specify a
-string to be placed in the image's `alt` attribute. The image specified by the `img-src` prop will
-be responsive and will adjust it's width when the width of the card is changed.
+The `<b-card>` prop `img-src` places an image on the top of the card, and use the `img-alt` prop to
+specify a string to be placed in the image's `alt` attribute. The image specified by the `img-src`
+prop will be responsive and will adjust it's width when the width of the card is changed.
+
+Alternatively you can manually place images inside `<b-card>` using the sub-component
+`<b-card-img>`. See the kitchen sink example below for usage.
 
 ```html
 <div>
@@ -157,7 +160,7 @@ be responsive and will adjust it's width when the width of the card is changed.
 ```
 
 **Note:** For left and right images, you may need to apply additional styles to classes
-`.card-img-left` and `.card-img-right`, as images will "strech" in height if you have content that
+`.card-img-left` and `.card-img-right`, as images will "stretch" in height if you have content that
 is taller than your image. Note headers and footers are not supported when images are left or right
 aligned. You may find the [Horizontal Card Layout](#horizontal-card-layout) example to be more
 flexible when creating a responsive horizontal card.
@@ -184,6 +187,12 @@ Place the image in the background of the card by setting the boolean prop `overl
 
 <!-- b-card-overlay-img-.vue -->
 ```
+
+#### Lazy loaded images
+
+Use the `<b-card-img-lazy>` sub-component to lazy load images as they scroll into view.
+`<b-card-img-lazy>` supports the same props as `<b-card-img>` as well as many of the props of the
+[`<b-img-lazy>`](/docs/components/image#lazy-loaded-images) component.
 
 ### Header and footer
 
@@ -256,7 +265,7 @@ card.
 
     <b-card-footer>This is a footer</b-card-footer>
 
-    <b-card-img src="https://placekitten.com/480/210" alt="Image" bottom />
+    <b-card-img src="https://placekitten.com/480/210" alt="Image" bottom></b-card-img>
   </b-card>
 </div>
 
@@ -265,8 +274,8 @@ card.
 
 ## Horizontal card layout
 
-Using a combination of grid components, utility classes and idividual card sub-components, cards can
-be made horizontal in a mobile-friendly and responsive way.
+Using a combination of grid components, utility classes and individual card sub-components, cards
+can be made horizontal in a mobile-friendly and responsive way.
 
 In the example below, we remove the row grid gutters with the `no-gutters` prop on `<b-row>` and use
 `md` props on `<b-col>` to make the card horizontal at the `md` breakpoint. Class `rounded-0`
@@ -279,7 +288,7 @@ may be needed depending on your card content.
   <b-card no-body class="overflow-hidden" style="max-width: 540px;">
     <b-row no-gutters>
       <b-col md="6">
-        <b-card-img src="https://picsum.photos/400/400/?image=20" class="rounded-0" />
+        <b-card-img src="https://picsum.photos/400/400/?image=20" class="rounded-0"></b-card-img>
       </b-col>
       <b-col md="6">
         <b-card-body title="Horizontal Card">
@@ -597,12 +606,7 @@ set them to display: inline-block as column-break-inside: avoid isn’t a bullet
       </blockquote>
     </b-card>
 
-    <b-card
-      title="Title"
-      img-src="https://placekitten.com/500/350"
-      img-alt="Image"
-      img-top
-    >
+    <b-card title="Title" img-src="https://placekitten.com/500/350" img-alt="Image" img-top>
       <b-card-text>
         This card has supporting text below as a natural lead-in to additional content.
       </b-card-text>
@@ -626,7 +630,7 @@ set them to display: inline-block as column-break-inside: avoid isn’t a bullet
       <b-card-text class="small text-muted">Last updated 3 mins ago</b-card-text>
     </b-card>
 
-    <b-card img-src="https://picsum.photos/400/400/?image=41" img-alt="Image" overlay />
+    <b-card img-src="https://picsum.photos/400/400/?image=41" img-alt="Image" overlay></b-card>
 
     <b-card img-src="https://picsum.photos/400/200/?image=41" img-alt="Image" img-top>
       <b-card-text>

@@ -6,8 +6,8 @@
 ```html
 <template>
   <div>
-    <b-form-input v-model="text1" type="text" placeholder="Enter your name" />
-    <div class="mt-2">Value: {{ text1 }}</div>
+    <b-form-input v-model="text" placeholder="Enter your name"></b-form-input>
+    <div class="mt-2">Value: {{ text }}</div>
   </div>
 </template>
 
@@ -15,7 +15,7 @@
   export default {
     data() {
       return {
-        text1: ''
+        text: ''
       }
     }
   }
@@ -38,7 +38,7 @@ native browser HTML5 types: `text`, `password`, `email`, `number`, `url`, `tel`,
         <label :for="`type-${type}`">Type {{ type }}:</label>
       </b-col>
       <b-col sm="9">
-        <b-form-input :id="`type-${type}`" :type="type" />
+        <b-form-input :id="`type-${type}`" :type="type"></b-form-input>
       </b-col>
     </b-row>
   </b-container>
@@ -76,19 +76,19 @@ rendered and a console warning will be issued.
 - Not all browsers support all input types, nor do some types render in the same format across
   browser types/versions.
 - Browsers that do not support a particular type will fall back to a `text` input type (event
-  thoough the rendered `type` attribute markup shows the requested type).
+  through the rendered `type` attribute markup shows the requested type).
 - No testing is performed to see if the requested input type is supported by the browser.
 - Chrome lost support for `datetime` in version 26, Opera in version 15, and Safari in iOS 7.
   Instead of using `datetime`, since support should be deprecated, use `date` and `time` as two
   separate inputs.
-- `date` and `time` inputs are native borwser types, and are not a custom date/time picker.
+- `date` and `time` inputs are native browser types, and are not a custom date/time picker.
 - For date and time style inputs, where supported, the displayed value in the GUI may be different
   than what is returned by it's value (i.e. ordering of year-month-date).
 - Regardless of input type, the value is **always** returned as a string representation.
-- `v-model.lazy` is not supported by `<b-form-input>` (nor any custom vue component).
+- `v-model.lazy` is not supported by `<b-form-input>` (nor any custom Vue component).
 - `v-model` modifiers `.number` and `.trim` can cause unexpected cursor jumps when the user is
   typing (this is a Vue issue with `v-model` on custom components). _Avoid using these modifiers_.
-- Older version of firefox may not support `readonly` for `range` type inputs.
+- Older version of Firefox may not support `readonly` for `range` type inputs.
 - Input types that do not support `min`, `max` and `step` (i.e. `text`, `password`, `tel`, `email`,
   `url`, etc) will silently ignore these values (although they will still be rendered on the input
   markup).
@@ -105,7 +105,7 @@ new values for those using the `min` and `max` props.
 <template>
   <div>
     <label for="range-1">Example range with min and max</label>
-    <b-form-input type="range" id="range-1" v-model="value" min="0" max="5" />
+    <b-form-input id="range-1" v-model="value" type="range" min="0" max="5"></b-form-input>
     <div class="mt-2">Value: {{ value }}</div>
   </div>
 </template>
@@ -130,7 +130,7 @@ In the example below, we double the number of steps by using step="0.5".
 <template>
   <div>
     <label for="range-2">Example range with step value</label>
-    <b-form-input type="range" id="range-2" v-model="value" min="0" max="5" step="0.5" />
+    <b-form-input id="range-2" v-model="value" type="range" min="0" max="5" step="0.5"></b-form-input>
     <div class="mt-2">Value: {{ value }}</div>
   </div>
 </template>
@@ -152,7 +152,7 @@ In the example below, we double the number of steps by using step="0.5".
 convert the value to a native number by using `Number(value)`, `parseInt(value, 10)`,
 `parseFloat(value)`, or use the `number` prop.
 
-**Note:** Bootsttrap V4.1 CSS does not include styling for range inputs inside input groups, nor
+**Note:** Bootstrap V4.1 CSS does not include styling for range inputs inside input groups, nor
 validation styling on range inputs. However, BootstrapVue includes custom styling to handle these
 situations until styling is included in Bootstrap V4.
 
@@ -169,7 +169,7 @@ To control width, place the input inside standard Bootstrap grid column.
       <label for="input-small">Small:</label>
     </b-col>
     <b-col sm="10">
-      <b-form-input id="input-small" size="sm" type="text" placeholder="Enter your name" />
+      <b-form-input id="input-small" size="sm" placeholder="Enter your name"></b-form-input>
     </b-col>
   </b-row>
 
@@ -178,7 +178,7 @@ To control width, place the input inside standard Bootstrap grid column.
       <label for="input-default">Default:</label>
     </b-col>
     <b-col sm="10">
-      <b-form-input id="input-default" type="text" placeholder="Enter your name" />
+      <b-form-input id="input-default" placeholder="Enter your name"></b-form-input>
     </b-col>
   </b-row>
 
@@ -187,7 +187,7 @@ To control width, place the input inside standard Bootstrap grid column.
       <label for="input-large">Large:</label>
     </b-col>
     <b-col sm="10">
-      <b-form-input id="input-large" size="lg" type="text" placeholder="Enter your name" />
+      <b-form-input id="input-large" size="lg" placeholder="Enter your name"></b-form-input>
     </b-col>
   </b-row>
 </b-container>
@@ -227,7 +227,7 @@ To apply one of the contextual state icons on `<b-form-input>`, set the `state` 
       <label for="input-none">No State:</label>
     </b-col>
     <b-col sm="9">
-      <b-form-input id="input-none" :state="null" type="text" placeholder="No validation" />
+      <b-form-input id="input-none" :state="null" placeholder="No validation"></b-form-input>
     </b-col>
   </b-row>
 
@@ -236,7 +236,7 @@ To apply one of the contextual state icons on `<b-form-input>`, set the `state` 
       <label for="input-valid">Valid State:</label>
     </b-col>
     <b-col sm="9">
-      <b-form-input id="input-valid" :state="true" type="text" placeholder="Valid input" />
+      <b-form-input id="input-valid" :state="true" placeholder="Valid input"></b-form-input>
     </b-col>
   </b-row>
 
@@ -245,7 +245,7 @@ To apply one of the contextual state icons on `<b-form-input>`, set the `state` 
       <label for="input-invalid">Invalid State:</label>
     </b-col>
     <b-col sm="9">
-      <b-form-input id="input-invalid" :state="false" type="text" placeholder="Invalid input" />
+      <b-form-input id="input-invalid" :state="false" placeholder="Invalid input"></b-form-input>
     </b-col>
   </b-row>
 </b-container>
@@ -258,24 +258,23 @@ To apply one of the contextual state icons on `<b-form-input>`, set the `state` 
 ```html
 <template>
   <div role="group">
-    <label for="inputLive">Name:</label>
+    <label for="input-live">Name:</label>
     <b-form-input
-      id="inputLive"
+      id="input-live"
       v-model="name"
-      trim
-      type="text"
       :state="nameState"
-      aria-describedby="inputLiveHelp inputLiveFeedback"
+      aria-describedby="input-live-help input-live-feedback"
       placeholder="Enter your name"
-    />
+      trim
+    ></b-form-input>
 
-    <!-- This will only be shown if the preceeding input has an invalid state -->
-    <b-form-invalid-feedback id="inputLiveFeedback">
+    <!-- This will only be shown if the preceding input has an invalid state -->
+    <b-form-invalid-feedback id="input-live-feedback">
       Enter at least 3 letters
     </b-form-invalid-feedback>
 
     <!-- This is a form text block (formerly known as help block) -->
-    <b-form-text id="inputLiveHelp">Your full name.</b-form-text>
+    <b-form-text id="input-live-help">Your full name.</b-form-text>
   </div>
 </template>
 
@@ -331,12 +330,12 @@ If `aria-invalid` is not explicitly set and `state` is set to `false` (or `'inva
 `<b-form-input>` and `<b-form-textarea>` optionally supports formatting by passing a function
 reference to the `formatter` prop.
 
-Formatting (when a formatter funtion is supplied) occurs when the control's native `input` and
+Formatting (when a formatter function is supplied) occurs when the control's native `input` and
 `change` events fire. You can use the boolean prop `lazy-formatter` to restrict the formatter
 function to being called on the control's native `blur` event.
 
 The `formatter` function receives two arguments: the raw `value` of the input element, and the
-native `event` object that triggered teh format (if available).
+native `event` object that triggered the format (if available).
 
 The `formatter` function should return the formatted value as a _string_.
 
@@ -345,31 +344,29 @@ Formatting does not occur if a `formatter` is not provided.
 ```html
 <template>
   <div>
-    <label for="inputFormatter">Text input with formatter (on input)</label>
+    <label for="input-formatter">Text input with formatter (on input)</label>
     <b-form-input
-      id="inputFormatter"
+      id="input-formatter"
       v-model="text1"
-      type="text"
-      placeholder="Enter your name"
-      aria-describedby="inputFormatterHelp"
       :formatter="format"
-    />
-    <b-form-text id="inputFormatterHelp">
+      placeholder="Enter your name"
+      aria-describedby="input-formatter-help"
+    ></b-form-input>
+    <b-form-text id="input-formatter-help">
       We will convert your name to lowercase instantly
     </b-form-text>
     <div>Value: {{ text1 }}</div>
 
-    <label for="inputLazy">Text input with lazy formatter (on blur)</label>
+    <label for="input-lazy">Text input with lazy formatter (on blur)</label>
     <b-form-input
-      id="inputLazy"
+      id="input-lazy"
       v-model="text2"
-      type="text"
-      placeholder="Enter your name"
-      aria-describedby="inputLazyHelp"
       :formatter="format"
+      placeholder="Enter your name"
+      aria-describedby="input-lazy-help"
       lazy-formatter
-    />
-    <b-form-text id="inputLazyHelp">This one is a little lazy!</b-form-text>
+    ></b-form-input>
+    <b-form-text id="input-lazy-help">This one is a little lazy!</b-form-text>
     <div>Value: {{ text2 }}</div>
   </div>
 </template>
@@ -413,15 +410,62 @@ The `plaintext` option is not supported by input types `color` or `range`.
 ## Disabling mousewheel events on numeric-like inputs
 
 On some browsers, scrolling the mousewheel while a numeric-like input is focused will increment or
-decrement the input's value. To disable this browser feture, just set the `no-wheel` prop to `true`.
+decrement the input's value. To disable this browser feature, just set the `no-wheel` prop to
+`true`.
+
+## Datalist support
+
+Datalists are a native HTML tag `<datalist>` that contains a list of `<option>` tags. By assigning
+an ID to the datalist tag, the list can be references from a text input by adding a `list`
+attribute.
+
+This gives the input the behavior of a combo box or auto-complete, allowing existing values to be
+chosen, or new values to be entered.
+
+```html
+<template>
+  <b-form-input list="my-list-id"></b-form-input>
+
+  <datalist id="my-list-id">
+    <option>Manual Option</option>
+    <option v-for="size in sizes">{{ size }}</option>
+  </datalist>
+</template>
+
+<script>
+  export default {
+    data() {
+      return {
+        sizes: ['Small', 'Medium', 'Large', 'Extra Large']
+      }
+    }
+  }
+</script>
+
+<!-- b-form-input-datalist.vue -->
+```
+
+BootstrapVue provides the form helper component
+[`<b-form-datalist>`](/docs/components/form/#datalist-helper) for quickly creating a `<datalist>`
+from an array of options.
+
+**Notes:**
+
+- Datalists work in conjunction with the browser's built in auto-complete, displaying datalist
+  options first, followed by auto-complete options. To only display datalist options, set
+  `autocomplete="off"`.
+- Datalists cannot be applied to input fields with `type="password"`.
+- Not all browsers fully support `<datalist>` and implementations can be buggy. It is recommended
+  that datalists be treated as an enhancement and not be relied upon at this time. Check
+  [Can I Use](https://caniuse.com/#feat=datalist) for full support details on all browsers.
 
 ## `v-model` modifiers
 
 Vue does not officially support `.lazy`, `.trim`, and `.number` modifiers on the `v-model` of custom
 component based inputs, and may generate a bad user experience. Avoid using Vue's native modifiers.
 
-To get around this, `<b-form-input>` and `<b-for-textarea>` have two boolean props `trim` and
-`number` which emulate the native Vue `v-model` modifiers `.trim` and `.number` respectivley.
+To get around this, `<b-form-input>` and `<b-form-textarea>` have two boolean props `trim` and
+`number` which emulate the native Vue `v-model` modifiers `.trim` and `.number` respectively.
 Emulation of the `.lazy` modifier is _not_ supported (listen for `change` or `blur` events instead).
 
 **Notes:**
@@ -432,7 +476,7 @@ Emulation of the `.lazy` modifier is _not_ supported (listen for `change` or `bl
   will return a value of type `Number` to the `v-model`, otherwise the original input value is
   returned as type `String`. This is the same behaviour as the native `.number` modifier.
 - The `trim` and `number` modifier props do not affect the value returned by the `input` or `change`
-  events. These events will aways return the string value of the content of `<textarea>` after
+  events. These events will always return the string value of the content of `<textarea>` after
   optional formatting (which may not match the value returned via the `v-model` `update` event,
   which handles the modifiers).
 
@@ -442,9 +486,9 @@ All native events (other than the custom `input` and `change` events) are suppor
 need for the `.native` modifier.
 
 The custom `input` and `change` events receive a single argument of the current `value` (after any
-formatting has been applied), and are triggerd by user interaction.
+formatting has been applied), and are triggered by user interaction.
 
-The custom `update` event is passed the input value, and is emitted wehenever the `v-model` needs
+The custom `update` event is passed the input value, and is emitted whenever the `v-model` needs
 updating (it is emitted before `input`, `change`. and `blur` as needed).
 
 You can always access the native `input` and `change` events by using the `.native` modifier.

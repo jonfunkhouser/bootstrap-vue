@@ -1,6 +1,6 @@
 import { mergeData } from 'vue-functional-data-merge'
 import { isArray } from '../../utils/array'
-import { assign } from '../../utils/object'
+import toString from '../../utils/to-string'
 import BBreadcrumbItem from './breadcrumb-item'
 
 export const props = {
@@ -22,7 +22,7 @@ export default {
       let activeDefined = false
       childNodes = props.items.map((item, idx) => {
         if (typeof item !== 'object') {
-          item = { text: item }
+          item = { text: toString(item) }
         }
         // Copy the value here so we can normalize it.
         let active = item.active
@@ -34,7 +34,7 @@ export default {
           active = idx + 1 === props.items.length
         }
 
-        return h(BBreadcrumbItem, { props: assign({}, item, { active }) })
+        return h(BBreadcrumbItem, { props: { ...item, active } })
       })
     }
 

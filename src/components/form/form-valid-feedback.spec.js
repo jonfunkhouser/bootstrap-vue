@@ -1,7 +1,7 @@
 import Feedback from './form-valid-feedback'
 import { mount } from '@vue/test-utils'
 
-describe('form-valid-feedback', async () => {
+describe('form-valid-feedback', () => {
   it('default should have tag div', async () => {
     const feedback = mount(Feedback)
     expect(feedback.is('div')).toBe(true)
@@ -54,6 +54,62 @@ describe('form-valid-feedback', async () => {
       context: {
         props: {
           forceShow: true
+        }
+      }
+    })
+    expect(feedback.classes()).toContain('d-block')
+  })
+
+  it('should contain class d-block when state is true', async () => {
+    const feedback = mount(Feedback, {
+      context: {
+        props: {
+          state: true
+        }
+      }
+    })
+    expect(feedback.classes()).toContain('d-block')
+  })
+
+  it('should contain class d-block when state is "valid"', async () => {
+    const feedback = mount(Feedback, {
+      context: {
+        props: {
+          state: 'valid'
+        }
+      }
+    })
+    expect(feedback.classes()).toContain('d-block')
+  })
+
+  it('should not contain class d-block when state is false', async () => {
+    const feedback = mount(Feedback, {
+      context: {
+        props: {
+          state: false
+        }
+      }
+    })
+    expect(feedback.classes()).not.toContain('d-block')
+  })
+
+  it('should not contain class d-block when state is "invalid"', async () => {
+    const feedback = mount(Feedback, {
+      context: {
+        props: {
+          state: 'invalid'
+        }
+      }
+    })
+    expect(feedback.classes()).not.toContain('d-block')
+  })
+
+  it('should contain class d-block when force-show is true and state is false', async () => {
+    const feedback = mount(Feedback, {
+      context: {
+        props: {
+          forceShow: true,
+          state: false
         }
       }
     })

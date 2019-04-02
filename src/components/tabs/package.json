@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "meta": {
     "title": "Tabs",
+    "description": "Create a widget of tabbable panes of local content. The tabs component is built upon navs and cards internally, and provides full keyboard navigation control of the tabs.",
     "components": [
       {
         "component": "BTabs",
@@ -11,8 +12,8 @@
             "event": "input",
             "description": "Emits when a tab is shown. Used to update the v-model",
             "args": [
-              { 
-                "arg": "tab_index",
+              {
+                "arg": "tabIndex",
                 "description": "Current selected tab index (0-based index)"
               }
             ]
@@ -29,14 +30,14 @@
           }
         ]
       },
-      { 
+      {
         "component": "BTab",
         "events": [
           {
             "event": "click",
-            "description": "Emited when a tab is clicked, or is activated by keyboard navigation",
+            "description": "Emitted when a tab is clicked, or is activated by keyboard navigation",
             "args": [
-              { 
+              {
                 "arg": "evt",
                 "description": "Original event object"
               }

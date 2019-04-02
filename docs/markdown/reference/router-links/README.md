@@ -41,12 +41,12 @@ Denotes the target route of the link. When clicked, the value of the `to` prop w
   <b-link :to="{ path: 'home' }">Home</b-link>
 
   <!-- Named route -->
-  <b-link :to="{ name: 'user', params: { userId: 123 }}">User</b-link>
+  <b-link :to="{ name: 'user', params: { userId: 123 } }">User</b-link>
 
   <!-- With query, resulting in `/register?plan=private` -->
-  <b-link :to="{path:'register', query:{ plan:'private'}}">Register</b-link>
+  <b-link :to="{ path: 'register', query: { plan: 'private' } }">Register</b-link>
 
-  <!-- Render a non-router link iby omitting 'to'and specifying an href -->
+  <!-- Render a non-router link by omitting `to` and specifying an `href` -->
   <b-link href="/home">Home</b-link>
 </div>
 ```
@@ -61,7 +61,7 @@ navigation will not leave a history record.
 
 ```html
 <div>
-  <b-link :to="{ path: '/abc'}" replace />
+  <b-link :to="{ path: '/abc'}" replace></b-link>
 </div>
 ```
 
@@ -76,7 +76,7 @@ are navigating from `/a` to a relative link `b`, without `append` we will end up
 
 ```html
 <div>
-  <b-link :to="{ path: 'relative/path'}" append />
+  <b-link :to="{ path: 'relative/path'}" append></b-link>
 </div>
 ```
 
@@ -123,7 +123,7 @@ into "exact match mode", use the `exact` prop:
 ```html
 <div>
   <!-- This link will only be active at `/` -->
-  <b-link to="/" exact />
+  <b-link to="/" exact></b-link>
 </div>
 ```
 
@@ -133,7 +133,7 @@ Check out more examples explaining active link class [live](https://jsfiddle.net
 
 - type: `string`
 - default: `'router-link-exact-active'` (`'nuxt-link-exact-active'` when using Nuxt.js)
-- availablity: Vue-Router 2.5.0+
+- availability: Vue-Router 2.5.0+
 
 Configure the active CSS class applied when the link is active with exact match. Note the default
 value can also be configured globally via the `linkExactActiveClass` router constructor option.
@@ -149,14 +149,14 @@ additional Nuxt specific props.
 
 - type: `boolean`
 - default: `false`
-- availablity: Nuxt 2.4.0+
+- availability: Nuxt 2.4.0+
 
 To improve the responsiveness of your Nuxt.js applications, when the link will be displayed within
 the viewport, Nuxt.js will automatically prefetch the code splitted page. Setting `no-prefetch` will
 disabled this feature for the specific link.
 
 **Note:** If you have prefetching disabled in your `nuxt.config.js` configuration
-(`router: { prefetchLinks: false}`), or are using a version of Nuxt.JS `< 2.4.0`, then this prop
+(`router: { prefetchLinks: false}`), or are using a version of Nuxt.js `< 2.4.0`, then this prop
 will have no effect.
 
 Prefetching support requires

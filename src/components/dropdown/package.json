@@ -3,10 +3,13 @@
   "version": "1.0.0",
   "meta": {
     "title": "Dropdown",
+    "description": "Dropdowns are toggleable, contextual overlays for displaying lists of links and actions in a dropdown menu format.",
     "components": [
       {
         "component": "BDropdown",
-        "aliases": [ "BDd" ],
+        "aliases": [
+          "BDd"
+        ],
         "events": [
           {
             "event": "show",
@@ -58,45 +61,65 @@
       },
       {
         "component": "BDropdownItem",
-        "aliases": [ "BDdItem" ],
+        "aliases": [
+          "BDdItem"
+        ],
         "events": [
           {
             "event": "click",
             "description": "Emitted when item is clicked.",
             "args": [
-              { "name": "event", "description": "Native click event object" }
+              {
+                "name": "event",
+                "description": "Native click event object"
+              }
             ]
           }
         ]
       },
       {
         "component": "BDropdownItemButton",
-        "aliases": [ "BDropdownItemBtn", "BDdItemButton", "BDdItemBtn" ],
+        "aliases": [
+          "BDropdownItemBtn",
+          "BDdItemButton",
+          "BDdItemBtn"
+        ],
         "events": [
           {
             "event": "click",
             "description": "Emitted when button item is clicked.",
             "args": [
-              { "name": "event", "description": "Native click event object" }
+              {
+                "name": "event",
+                "description": "Native click event object"
+              }
             ]
           }
         ]
       },
       {
         "component": "BDropdownHeader",
-        "aliases": [ "BDdHeader" ]
+        "aliases": [
+          "BDdHeader"
+        ]
       },
       {
         "component": "BDropdownDivider",
-        "aliases": [ "BDdDivider" ]
+        "aliases": [
+          "BDdDivider"
+        ]
       },
       {
         "component": "BDropdownForm",
-        "aliases": [ "BDdForm" ]
+        "aliases": [
+          "BDdForm"
+        ]
       },
       {
         "component": "BDropdownText",
-        "aliases": [ "BDdText" ]
+        "aliases": [
+          "BDdText"
+        ]
       }
     ]
   }

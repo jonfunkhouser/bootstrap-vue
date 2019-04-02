@@ -1,7 +1,7 @@
 <template>
-  <div class="container">
-    <div v-play class="bd-content" v-html="readme" />
-  </div>
+  <main class="container">
+    <div v-play class="bd-content" v-html="readme"></div>
+  </main>
 </template>
 
 <script>
@@ -9,7 +9,7 @@ import { reference as _meta } from '~/content'
 import docsMixin from '~/plugins/docs-mixin'
 
 const getReadMe = name =>
-  import('~/markdown/reference/' + name + '/README.md' /* webpackChunkName: "docs/reference" */)
+  import(`~/markdown/reference/${name}/README.md` /* webpackChunkName: "docs/reference" */)
 
 export default {
   mixins: [docsMixin],

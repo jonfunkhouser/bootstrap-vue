@@ -5,9 +5,9 @@ validation plugins. Below are some examples of plugins and how they may be integ
 
 ## Vuelidate
 
-[Vuelidate](https://monterail.github.io/vuelidate/) provides "Simple, lightweight model-based
+[Vuelidate](https://github.com/vuelidate/vuelidate/) provides "Simple, lightweight model-based
 validation for Vue.js". Installation instructions and other documentation can be found at
-https://monterail.github.io/vuelidate/.
+https://vuelidate.netlify.com/.
 
 ### Vuelidate Example
 
@@ -22,30 +22,29 @@ error message component.
 <template>
   <div>
     <b-form @submit="onSubmit">
-      <b-form-group id="exampleInputGroup1" label="Name" label-for="exampleInput1">
+      <b-form-group id="example-input-group-1" label="Name" label-for="example-input-1">
         <b-form-input
-          id="exampleInput1"
-          type="text"
+          id="example-input-1"
           v-model="form.name"
           :state="$v.form.name.$dirty ? !$v.name.$error : null"
-          aria-describedby="input1LiveFeedback"
+          aria-describedby="input-1-live-feedback"
           placeholder="Enter name"
-        />
+        ></b-form-input>
 
-        <b-form-invalid-feedback id="input1LiveFeedback">
+        <b-form-invalid-feedback id="input-1-live-feedback">
           This is a required field and must be at least 3 characters
         </b-form-invalid-feedback>
       </b-form-group>
 
-      <b-form-group id="exampleInputGroup2" label="Food" label-for="exampleInput2">
+      <b-form-group id="example-input-group-2" label="Food" label-for="example-input-2">
         <b-form-select
-          id="exampleInput2"
+          id="example-input-2"
+          v-model="form.food"
           :options="foods"
           :state="$v.form.food.$dirty ? !$v.name.$error : null"
-          v-model="form.food"
-        />
+        ></b-form-select>
 
-        <b-form-invalid-feedback id="input2LiveFeedback">
+        <b-form-invalid-feedback id="input-2-live-feedback">
           This is a required field
         </b-form-invalid-feedback>
       </b-form-group>
@@ -119,32 +118,31 @@ Same example as above, just modified for VeeValidate:
 <template>
   <div>
     <b-form @submit="onSubmit">
-      <b-form-group id="exampleInputGroup1" label="Name" label-for="exampleInput1">
+      <b-form-group id="example-input-group-1" label="Name" label-for="example-input-1">
         <b-form-input
-          id="exampleInput1"
-          type="text"
+          id="example-input-1"
           v-model="form.name"
           v-validate="{ required: true, min:2 }"
           :state="validateState('form.name')"
-          aria-describedby="input1LiveFeedback"
+          aria-describedby="input-1-live-feedback"
           placeholder="Enter name"
-        />
+        ></b-form-input>
 
-        <b-form-invalid-feedback id="input1LiveFeedback">
+        <b-form-invalid-feedback id="input-1-live-feedback">
           This is a required field and must be at least 3 characters
         </b-form-invalid-feedback>
       </b-form-group>
 
-      <b-form-group id="exampleInputGroup2" label="Food" label-for="exampleInput2">
+      <b-form-group id="example-input-group-2" label="Food" label-for="example-input-2">
         <b-form-select
-          id="exampleInput2"
-          :options="foods"
-          v-validate="{ required: true }"
-          :state="validateState('form.foods')"
+          id="example-input-2"
           v-model="form.food"
-        />
+          v-validate="{ required: true }"
+          :options="foods"
+          :state="validateState('form.foods')"
+        ></b-form-select>
 
-        <b-form-invalid-feedback id="input2LiveFeedback">
+        <b-form-invalid-feedback id="input-2-live-feedback">
           This is a required field
         </b-form-invalid-feedback>
       </b-form-group>

@@ -8,8 +8,8 @@ Generate your select options by passing an array or object to the `options` prop
 ```html
 <template>
   <div>
-    <b-form-select v-model="selected" :options="options" />
-    <b-form-select v-model="selected" :options="options" size="sm" class="mt-3" />
+    <b-form-select v-model="selected" :options="options"></b-form-select>
+    <b-form-select v-model="selected" :options="options" size="sm" class="mt-3"></b-form-select>
 
     <div class="mt-3">Selected: <strong>{{ selected }}</strong></div>
   </div>
@@ -67,7 +67,7 @@ Or manually provide your options and optgroups:
 <!-- b-form-select-manual.vue -->
 ```
 
-Feel free to mix the `options` prop with `<option>` and `<optgroup>`. Manully placed options and
+Feel free to mix the `options` prop with `<option>` and `<optgroup>`. Manually placed options and
 optgroups will appear _below_ the options generated via the `options` prop. To place manual options
 and optgroups _above_ the options specified by the `options` prop, use the named slot `first`.
 
@@ -107,45 +107,123 @@ and optgroups _above_ the options specified by the `options` prop, use the named
 
 ## Options property
 
-`options` can be an array or a key-value object. Available fields:
+`options` can be an array of strings or objects, or a key-value object. Available fields:
 
-- **`text`** Display text
-- **`value`** The selected text which will be set on `v-model`
+- **`value`** The selected value which will be set on `v-model`
 - **`disabled`** Disables item for selection
+- **`text`** Display text, or **`html`** Display html
+
+`value` can be a string, number, or simple object. Avoid using complex types in values.
+
+If both `html` and `text` are provided, `html` will take precedence. Only basic/native HTML is
+supported in the `html` field (components will not work).
+
+<p class="alert alert-danger">
+  <strong>Be cautious</strong> of placing user supplied content in the <code>html</code> field,
+  as it may make you vulnerable to
+  <a class="alert-link" href="https://en.wikipedia.org/wiki/Cross-site_scripting">
+  <abbr title="Cross Site Scripting Attacks">XSS attacks</abbr></a>, if you do not first
+  <a class="alert-link" href="https://en.wikipedia.org/wiki/HTML_sanitization">sanitize</a> the
+  user supplied string.
+</p>
 
 If you want to customize fields (for example using `name` field for display text) you can easily
-change them using `text-field` and `value-field` props.
+change them using `text-field`, `html-field`, `value-field`, and `disabled-field` props.
 
 ### Array
 
+<!-- eslint-disable no-unused-vars -->
+
 ```js
-const options = ['A', 'B', 'C', { text: 'D', value: 'd', disabled: true }, 'E', 'F']
+const options = ['A', 'B', 'C', { text: 'D', value: { d: 1 }, disabled: true }, 'E', 'F']
+```
+
+If an array entry is a string, it will be used for both the generated `value` and `text` fields.
+
+You can mix using strings and [objects](#objects) in the array.
+
+Internally, BootstrapVue will convert the above array to the following array (the
+[Array of Objects](#array-of-objects) format:
+
+<!-- eslint-disable no-unused-vars -->
+
+```js
+const options = [
+  { text: 'A', value: 'A', disabled: false },
+  { text: 'B', value: 'B', disabled: false },
+  { text: 'C', value: 'C', disabled: false },
+  { text: 'D', value: { d: 1 }, disabled: true },
+  { text: 'E', value: 'E', disabled: false },
+  { text: 'F', value: 'F', disabled: false }
+]
 ```
 
 ### Array of objects
 
+<!-- eslint-disable no-unused-vars -->
+
 ```js
 const options = [
-  {text: 'Item 1', value: 'first'},
-  {text: 'Item 2', value: 'second'},
-  {text: 'Item 3', value: 'third', disabled: true}
-  {text: 'Item 3', value: { foo:'bar', baz:true}}
+  { text: 'Item 1', value: 'first' },
+  { text: 'Item 2', value: 'second' },
+  { html: '<b>Item</b> 3', value: 'third', disabled: true },
+  { text: 'Item 4' },
+  { text: 'Item 5', value: { foo: 'bar', baz: true } }
+]
+```
+
+If `value` is missing, then `text` will be used as both the `value` and `text` fields. If you use
+the `html` property, you **must** supply a `value` property.
+
+Internally, BootstrapVue will convert the above array to the following array (the
+[Array of Objects](#array-of-objects) format:
+
+<!-- eslint-disable no-unused-vars -->
+
+```js
+const options = [
+  { text: 'Item 1', value: 'first', disabled: false },
+  { text: 'Item 2', value: 'second', disabled: false },
+  { html: '<b>Item</b> 3', value: 'third', disabled: true },
+  { text: 'Item 4', value: 'Item 4', disabled: false },
+  { text: 'Item 5', value: 'E', disabled: false },
+  { text: 'F', value: { foo: 'bar', baz: true }, disabled: false }
 ]
 ```
 
 ### Object
 
-Keys are mapped to value and values are mapped to option object.
+Keys are mapped to `value` and values are mapped to option `text`.
+
+<!-- eslint-disable no-unused-vars -->
 
 ```js
 const options = {
   a: 'Item A',
   b: 'Item B',
-  c: { text: 'Item C', disabled: true },
+  c: { html: 'Item C', disabled: true },
   d: { text: 'Item D', value: 'overridden_value' },
   e: { text: 'Item E', value: { foo: 'bar', baz: true } }
 }
 ```
+
+Internally, BootstrapVue will convert the above object to the following array (the
+[Array of Objects](#array-of-objects) format:
+
+<!-- eslint-disable no-unused-vars -->
+
+```js
+const options = [
+  { text: 'Item A', value: 'a', disabled: false },
+  { text: 'Item B', value: 'b', disabled: false },
+  { html: 'Item C', value: 'c', disabled: false },
+  { text: 'Item D', value: 'overridden_value', disabled: true },
+  { text: 'E', value: { foo: 'bar', baz: true }, disabled: false }
+]
+```
+
+**Note:** When using the [Object](#object) format, the order of the final array is **not**
+guaranteed. For this reason, it is recommended to use the above array formats.
 
 ## Standard (single) select
 
@@ -159,7 +237,7 @@ option.
 ```html
 <template>
   <div>
-    <b-form-select v-model="selected" :options="options" />
+    <b-form-select v-model="selected" :options="options"></b-form-select>
     <div class="mt-3">Selected: <strong>{{ selected }}</strong></div>
   </div>
 </template>
@@ -198,7 +276,7 @@ Note: not all mobile browsers will show a the select as a list-box.
 ```html
 <template>
   <div>
-    <b-form-select v-model="selected" :options="options" :select-size="4" />
+    <b-form-select v-model="selected" :options="options" :select-size="4"></b-form-select>
     <div class="mt-3">Selected: <strong>{{ selected }}</strong></div>
   </div>
 </template>
@@ -239,7 +317,7 @@ an array reference as your `v-model` when in `multiple` mode.
 ```html
 <template>
   <div>
-    <b-form-select multiple :select-size="4" v-model="selected" :options="options" />
+    <b-form-select v-model="selected" :options="options" multiple :select-size="4"></b-form-select>
     <div class="mt-3">Selected: <strong>{{ selected }}</strong></div>
   </div>
 </template>

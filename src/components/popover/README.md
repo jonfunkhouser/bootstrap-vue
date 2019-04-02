@@ -31,7 +31,7 @@ Things to know when using popover component:
 The `<b-popover>` component inserts a hidden (`display: none;`) `<div>` intermediate container
 element at the point in the DOM where the `<b-popover>` component is placed. This may affect layout
 and/or styling of components such as `<b-button-group>`, `<b-button-toolbar>`, and
-`<b-input-group>`. To avoid these posible layout issues, place the `<b-popover>` component
+`<b-input-group>`. To avoid these possible layout issues, place the `<b-popover>` component
 **outside** of these types of components.
 
 The target element **must** exist in the document before `<b-popover>` is mounted. If the target
@@ -42,7 +42,8 @@ component lower in the DOM than your target element.
 > from those slots into the popover's markup when shown, and returns them back to the `<b-popover>`
 > component when hidden. This may cause some issues in rare circumstances, so please test your
 > implementation accordingly! The `title` and `content` props do not have this behavior. For simple
-> popovers, we recommend using the `v-b-popover` directive and enable the `html` modifer if needed._
+> popovers, we recommend using the `v-b-popover` directive and enable the `html` modifier if
+> needed._
 
 ## Positioning
 
@@ -188,32 +189,32 @@ The special `blur` trigger must be used in combination with the `click` trigger.
         md="4"
         class="py-4 text-center"
       >
-        <b-button :id="'exPopover1-'+placement" variant="primary">{{ placement }}</b-button>
+        <b-button :id="`popover-1-${placement}`" variant="primary">{{ placement }}</b-button>
         <b-popover
-          :target="'exPopover1-'+placement"
+          :target="`popover-1-${placement}`"
           :placement="placement"
           title="Popover!"
           triggers="hover focus"
           :content="`Placement ${placement}`"
-        />
+        ></b-popover>
       </b-col>
     </b-row>
 
     <h5 class="my-3">Content via properties or slots</h5>
     <b-row>
       <b-col md="6" class="py-4 text-center">
-        <b-button id="exPopover2" variant="primary">Using properties</b-button>
+        <b-button id="popover-2" variant="primary">Using properties</b-button>
         <b-popover
-          target="exPopover2"
+          target="popover-2"
           title="Prop Examples"
           triggers="hover focus"
           content="Embedding content using properties is easy"
-        />
+        ></b-popover>
       </b-col>
 
       <b-col md="6" class="py-4 text-center">
-        <b-button id="exPopover3" variant="primary">Using slots</b-button>
-        <b-popover target="exPopover3" triggers="hover focus">
+        <b-button id="popover-3" variant="primary">Using slots</b-button>
+        <b-popover target="popover-3" triggers="hover focus">
           <template slot="title">Content via Slots</template>
           Embedding content <span class="text-danger">using slots</span> affords you
           <em>greater <strong>control.</strong></em> and basic HTML support.
@@ -263,7 +264,7 @@ The special `blur` trigger must be used in combination with the `click` trigger.
 | `delay`           | `0`              | Delay showing and hiding of popover by specified number of milliseconds. Can also be defined as an object in the form of `{ show: 100, hide: 400 }` allowing different show and hide delays                | `0` and up, integers only.                                                                                                                       |
 | `offset`          | `0`              | Shift the center of the popover by specified number of pixels. Also affects the position of the popover arrow.                                                                                             | Any negative or positive integer                                                                                                                 |
 | `container`       | `null`           | Element string ID to append rendered popover into. If `null` or element not found, popover is appended to `<body>` (default)                                                                               | Any valid in-document unique element ID.                                                                                                         |
-| `boundary`        | `'scrollParent'` | The container that the popover will be constrained visually. The default should suffice in most cases, but you may need to chagne this if your target element is in a small container with overflow scroll | `'scrollParent'` (default), `'viewport'`, `'window'`, or a reference to an HTML element.                                                         |
+| `boundary`        | `'scrollParent'` | The container that the popover will be constrained visually. The default should suffice in most cases, but you may need to change this if your target element is in a small container with overflow scroll | `'scrollParent'` (default), `'viewport'`, `'window'`, or a reference to an HTML element.                                                         |
 | `boundaryPadding` | `5`              | Amount of pixel used to define a minimum distance between the boundaries and the popover. This makes sure the popover always has a little padding between the edges of its container.                      | Any positive number                                                                                                                              |
 
 ### Programmatically show and hide popover
@@ -275,13 +276,13 @@ it to `true` will show the popover, while setting it to `false` will hide the po
 <template>
   <div class="d-flex flex-column text-md-center">
     <div class="p-2">
-      <b-button id="popoverButton-sync" variant="primary">I have a popover</b-button>
+      <b-button id="popover-button-sync" variant="primary">I have a popover</b-button>
     </div>
 
     <div class="p-2">
       <b-button class="px-1" @click="show = !show">Toggle Popover</b-button>
 
-      <b-popover :show.sync="show" target="popoverButton-sync" title="Popover">
+      <b-popover :show.sync="show" target="popover-button-sync" title="Popover">
         Hello <strong>World!</strong>
       </b-popover>
     </div>
@@ -308,7 +309,7 @@ by reference.
 <template>
   <div class="d-flex flex-column text-md-center">
     <div class="p-2">
-      <b-button id="popoverButton-event" variant="primary">I have a popover</b-button>
+      <b-button id="popover-button-event" variant="primary">I have a popover</b-button>
     </div>
 
     <div class="p-2">
@@ -316,7 +317,7 @@ by reference.
       <b-button class="px-1" @click="onClose">Close</b-button>
     </div>
 
-    <b-popover ref="popover" target="popoverButton-event" title="Popover">
+    <b-popover ref="popover" target="popover-button-event" title="Popover">
       Hello <strong>World!</strong>
     </b-popover>
   </div>
@@ -342,9 +343,9 @@ To make the popover shown on initial render, simply add the `show` prop on `<b-p
 
 ```html
 <div class="text-center">
-  <b-button id="popoverButton-open" variant="primary">Button</b-button>
+  <b-button id="popover-button-open" variant="primary">Button</b-button>
 
-  <b-popover show target="popoverButton-open" title="Popover">
+  <b-popover show target="popover-button-open" title="Popover">
     I start <strong>open</strong>
   </b-popover>
 </div>
@@ -353,7 +354,7 @@ To make the popover shown on initial render, simply add the `show` prop on `<b-p
 ```
 
 A popover which is opened programmatically via the 'show' property or by an event call can only be
-closed programmatically. Built-in triggers will work inadequatly, because trigger event will try to
+closed programmatically. Built-in triggers will work inadequately, because trigger event will try to
 open the popover even though it is already opened.
 
 In the below example, when the first Popover is opened with the 'open' event, it will take two
@@ -366,19 +367,19 @@ Popover.
 <template>
   <div class="d-flex flex-column text-md-center">
     <div class="p-2">
-      <b-button id="exPopoverManual1" variant="primary" ref="button">Unreliable</b-button>
+      <b-button id="popover-manual-1" variant="primary" ref="button">Unreliable</b-button>
 
-      <b-popover target="exPopoverManual1" :show.sync="pop1" triggers="click" ref="popover1">
+      <b-popover target="popover-manual-1" :show.sync="pop1" triggers="click">
         I can be stubborn sometimes.
       </b-popover>
     </div>
 
     <div class="p-2">
-      <b-button id="exPopoverManual2" variant="primary" ref="button" @click="pop2 = !pop2">
+      <b-button id="popover-manual-2" variant="primary" ref="button" @click="pop2 = !pop2">
         Comfortably Numb
       </b-button>
 
-      <b-popover target="exPopoverManual2" :show.sync="pop2" triggers="" ref="popover2">
+      <b-popover target="popover-manual-2" :show.sync="pop2" triggers="">
         I do believe it's working, good.
       </b-popover>
     </div>
@@ -422,7 +423,7 @@ and showing popovers via \$root events** section below for details.
 
 ### Programmatically disabling popover
 
-You can disable popover via the syncable Boolean prop `disabled` (default vlaue is `false`) Setting
+You can disable popover via the syncable Boolean prop `disabled` (default value is `false`) Setting
 it to `true` will disable the popover. If the popover is currently visible when disabled is set to
 `false`, it will remain visible until it is enabled or programmatically closed. If the popover is
 disabled/enabled via \$root events (see below), your `disabled` value will be updated as long as you
@@ -432,7 +433,7 @@ have provided the `.sync` prop modifier.
 <template>
   <div class="d-flex flex-column text-md-center">
     <div class="p-2">
-      <b-button id="popoverButton-disable" variant="primary">I have a popover</b-button>
+      <b-button id="popover-button-disable" variant="primary">I have a popover</b-button>
     </div>
 
     <div class="p-2">
@@ -445,7 +446,7 @@ have provided the `.sync` prop modifier.
 
       <b-popover
         :disabled.sync="disabled"
-        target="popoverButton-disable"
+        target="popover-button-disable"
         title="Popover"
         ref="popover"
       >
@@ -484,7 +485,7 @@ popover by reference.
 <template>
   <div class="d-flex flex-column text-md-center">
     <div class="p-2">
-      <b-button id="popoverButton-disableevent" variant="primary">I have a popover</b-button>
+      <b-button id="popover-button-disable-event" variant="primary">I have a popover</b-button>
     </div>
 
     <div class="p-2">
@@ -492,7 +493,7 @@ popover by reference.
       <b-button class="px-1" @click="onDisable">Disable</b-button>
     </div>
 
-    <b-popover ref="popover" target="popoverButton-disableevent" title="Popover">
+    <b-popover ref="popover" target="popover-button-disable-event" title="Popover">
       Hello <strong>World!</strong>
     </b-popover>
   </div>
@@ -574,18 +575,18 @@ to deal with on mobile devices (such as smart-phones).
 
 ```html
 <template>
-  <div id="myContainer">
+  <div id="my-container">
     <div class="my-3">
       <!-- Our triggering (target) element -->
-      <b-button id="exPopoverReactive1" :disabled="popoverShow" variant="primary" ref="button">
+      <b-button id="popover-reactive-1" :disabled="popoverShow" variant="primary" ref="button">
         Reactive Content Using Slots
       </b-button>
     </div>
 
     <!-- Output from the popover interaction -->
     <b-card title="Returned values:" v-if="input1Return && input2Return">
-      <p class="card-text" style="max-width:20rem;">
-        Name: <strong>{{ input1Return }}</strong><br />
+      <p class="card-text" style="max-width: 20rem;">
+        Name: <strong>{{ input1Return }}</strong><br>
         Color: <strong>{{ input2Return }}</strong>
       </p>
     </b-card>
@@ -594,11 +595,11 @@ to deal with on mobile devices (such as smart-phones).
     <!-- We use placement 'auto' so popover fits in the best spot on viewport -->
     <!-- We specify the same container as the trigger button, so that popover is close to button -->
     <b-popover
-      target="exPopoverReactive1"
+      target="popover-reactive-1"
       triggers="click"
       :show.sync="popoverShow"
       placement="auto"
-      container="myContainer"
+      container="my-container"
       ref="popover"
       @show="onShow"
       @shown="onShown"
@@ -614,19 +615,25 @@ to deal with on mobile devices (such as smart-phones).
       <div>
         <b-form-group
           label="Name"
-          label-for="pop1"
+          label-for="popover-input-1"
           label-cols="3"
           :state="input1state"
           class="mb-1"
           description="Enter your name"
           invalid-feedback="This field is required"
         >
-          <b-form-input ref="input1" id="pop1" :state="input1state" size="sm" v-model="input1" />
+          <b-form-input
+            ref="input1"
+            id="popover-input-1"
+            v-model="input1"
+            :state="input1state"
+            size="sm"
+          ></b-form-input>
         </b-form-group>
 
         <b-form-group
           label="Color"
-          label-for="pop2"
+          label-for="popover-input-2"
           label-cols="3"
           :state="input2state"
           class="mb-1"
@@ -634,17 +641,17 @@ to deal with on mobile devices (such as smart-phones).
           invalid-feedback="This field is required"
         >
           <b-form-select
-            size="sm"
-            id="pop2"
-            :state="input2state"
+            id="popover-input-2"
             v-model="input2"
+            :state="input2state"
             :options="options"
-          />
+            size="sm"
+          ></b-form-input>
         </b-form-group>
 
         <b-alert show class="small">
-          <strong>Current Values:</strong><br />
-          Name: <strong>{{ input1 }}</strong><br />
+          <strong>Current Values:</strong><br>
+          Name: <strong>{{ input1 }}</strong><br>
           Color: <strong>{{ input2 }}</strong>
         </b-alert>
 
@@ -809,10 +816,12 @@ These events work for both the component and directive versions of popover.
 To listen to any popover opening, use:
 
 ```js
-mounted () {
-  this.$root.$on('bv::popover::show', (bvEventObj) => {
-    console.log('bvEventObj:', bvEventObj);
-  })
+export default {
+  mounted() {
+    this.$root.$on('bv::popover::show', bvEventObj => {
+      console.log('bvEventObj:', bvEventObj)
+    })
+  }
 }
 ```
 

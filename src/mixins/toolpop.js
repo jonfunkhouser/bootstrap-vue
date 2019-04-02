@@ -3,7 +3,6 @@
  * Common props
  */
 import { isArray } from '../utils/array'
-import { assign } from '../utils/object'
 import { isElement, getById } from '../utils/dom'
 import { HTMLElement } from '../utils/ssr'
 import observeDom from '../utils/observe-dom'
@@ -115,13 +114,17 @@ export default {
   },
   watch: {
     show(show, old) {
+      /* istanbul ignore if */
       if (show === old) {
+        /* istanbul ignore next */
         return
       }
       show ? this.onOpen() : this.onClose()
     },
     disabled(disabled, old) {
+      /* istanbul ignore if */
       if (disabled === old) {
+        /* istanbul ignore next */
         return
       }
       disabled ? this.onDisable() : this.onEnable()
@@ -162,7 +165,7 @@ export default {
   },
   updated() {
     // If content/props changes, etc
-    /* istanbul ignore if: can't test in JSDOM */
+    /* istanbul ignore next: can't test in JSDOM */
     if (this._toolpop) {
       this._toolpop.updateConfig(this.getConfig())
     }
@@ -174,7 +177,7 @@ export default {
   },
   deactivated() {
     // Called when component is inside a <keep-alive> and component taken offline
-    /* istanbul ignore if: can't test in JSDOM */
+    /* istanbul ignore next: can't test in JSDOM */
     if (this._toolpop) {
       this.setObservers(false)
       this._toolpop.hide()
@@ -196,7 +199,7 @@ export default {
   },
   methods: {
     getConfig() {
-      const cfg = assign({}, this.baseConfig)
+      const cfg = { ...this.baseConfig }
       if (this.$refs.title && this.$refs.title.innerHTML.trim()) {
         // If slot has content, it overrides 'title' prop
         // We use the DOM node as content to allow components!
@@ -224,19 +227,19 @@ export default {
       }
     },
     onDisable() {
-      /* istanbul ignore if: can't test in JSDOM */
+      /* istanbul ignore next: can't test in JSDOM */
       if (this._toolpop) {
         this._toolpop.disable()
       }
     },
     onEnable() {
-      /* istanbul ignore if: can't test in JSDOM */
+      /* istanbul ignore next: can't test in JSDOM */
       if (this._toolpop) {
         this._toolpop.enable()
       }
     },
     updatePosition() {
-      /* istanbul ignore if: can't test in JSDOM */
+      /* istanbul ignore next: can't test in JSDOM */
       if (this._toolpop) {
         // Instruct popper to reposition popover if necessary
         this._toolpop.update()

@@ -1,6 +1,6 @@
 <template>
   <b-navbar toggleable="md" class="navbar-dark bd-navbar" sticky>
-    <b-navbar-toggle target="bd-main-nav" />
+    <b-navbar-toggle target="bd-main-nav"></b-navbar-toggle>
 
     <b-navbar-brand to="/" exact>
       <svg
@@ -42,11 +42,11 @@
 
       <b-navbar-nav>
         <b-nav-item-dropdown :text="`v${version}`" right>
-          <b-dropdown-item href="http://dev.bootstrap-vue.netlify.com">
-            Development
-          </b-dropdown-item>
           <b-dropdown-item href="https://bootstrap-vue.js.org">
             Latest (v{{ version }})
+          </b-dropdown-item>
+          <b-dropdown-item href="https://bootstrap-vue.netlify.com">
+            Development
           </b-dropdown-item>
         </b-nav-item-dropdown>
 
@@ -110,7 +110,7 @@
             scrolling="0"
             width="100px"
             height="20px"
-          />
+          ></iframe>
         </div>
       </b-navbar-nav>
     </b-collapse>

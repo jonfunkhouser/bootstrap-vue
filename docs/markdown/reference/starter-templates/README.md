@@ -105,12 +105,12 @@ references will be handy starting points:
 - Article on
   [Integrating and Customising Bootstrap 4 in vue-js](https://medium.com/@_Dreamstream/integrating-and-customising-bootstrap-4-in-vue-js-cbc29ba7688e)
   hosted on medium.com
-- Official Bootstrap [Theming Bootstrap](https://getbootstrap.com/docs/4.2/getting-started/theming/)
+- Official Bootstrap [Theming Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/theming/)
   guide
 
 ## Individual component import
 
-There are a few methods that you can use to import individual components and directvies.
+There are a few methods that you can use to import individual components and directives.
 
 You will need `vue-loader` configured to handle the compiling any components that are internally
 single file `.vue` components.
@@ -128,27 +128,27 @@ can import `<b-card>` (plus it's sub components) and `<b-table>` as follows:
 ```js
 // Import the individual components
 import BCard from 'bootstrap-vue/es/components/card/card'
-import BCardHeader from 'bootstrap-vue/es/components/card/card-header'
 import BCardBody from 'bootstrap-vue/es/components/card/card-body'
 import BCardFooter from 'bootstrap-vue/es/components/card/card-footer'
-import BCardImage from 'bootstrap-vue/es/components/card/card-footer'
+import BCardHeader from 'bootstrap-vue/es/components/card/card-header'
+import BCardImg from 'bootstrap-vue/es/components/card/card-img'
 import BTable from 'bootstrap-vue/es/components/table/table'
 
-// Add components globally:
+// Add components globally
 Vue.component('b-card', BCard)
-Vue.component('b-card-header', BCardHeader)
 Vue.component('b-card-body', BCardBody)
 Vue.component('b-card-footer', BCardFooter)
+Vue.component('b-card-header', BCardHeader)
 Vue.component('b-card-img', BCardImg)
 Vue.component('b-table', BTable)
 
-// Or make available to your component or app:
+// Or make available to your component or app
 export default {
   components: {
     BCard,
-    BCardHeader,
     BCardBody,
     BCardFooter,
+    BCardHeader,
     BCardImg,
     BTable
   }

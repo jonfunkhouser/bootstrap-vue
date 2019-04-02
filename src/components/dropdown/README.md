@@ -10,11 +10,11 @@ enter when focused), not by hovering; this is an
 
 ```html
 <div>
-  <b-dropdown id="ddown1" text="Dropdown Button" class="m-md-2">
+  <b-dropdown id="dropdown-1" text="Dropdown Button" class="m-md-2">
     <b-dropdown-item>First Action</b-dropdown-item>
     <b-dropdown-item>Second Action</b-dropdown-item>
     <b-dropdown-item>Third Action</b-dropdown-item>
-    <b-dropdown-divider />
+    <b-dropdown-divider></b-dropdown-divider>
     <b-dropdown-item active>Active action</b-dropdown-item>
     <b-dropdown-item disabled>Disabled action</b-dropdown-item>
   </b-dropdown>
@@ -53,7 +53,7 @@ precedence.
 
 ## Positioning
 
-Dropdown supports various positioning such as left and right aligned, drodown and dropup, and
+Dropdown supports various positioning such as left and right aligned, dropdown and dropup, and
 supports auto-flipping (dropdown to dropup, and vice-versa) when the menu would overflow off of the
 visible screen area.
 
@@ -64,13 +64,13 @@ above it. To have the dropdown aligned on the right, set the `right` prop.
 
 ```html
 <div>
-  <b-dropdown id="ddown-left" text="Left align" variant="primary" class="m-2">
+  <b-dropdown id="dropdown-left" text="Left align" variant="primary" class="m-2">
     <b-dropdown-item href="#">Action</b-dropdown-item>
     <b-dropdown-item href="#">Another action</b-dropdown-item>
     <b-dropdown-item href="#">Something else here</b-dropdown-item>
   </b-dropdown>
 
-  <b-dropdown id="ddown-right" right text="Right align" variant="primary" class="m-2">
+  <b-dropdown id="dropdown-right" right text="Right align" variant="primary" class="m-2">
     <b-dropdown-item href="#">Action</b-dropdown-item>
     <b-dropdown-item href="#">Another action</b-dropdown-item>
     <b-dropdown-item href="#">Something else here</b-dropdown-item>
@@ -86,7 +86,7 @@ Turn your dropdown menu into a drop-up menu by setting the `dropup` prop.
 
 ```html
 <div>
-  <b-dropdown id="ddown-dropup" dropup text="Drop-Up" variant="primary" class="m-2">
+  <b-dropdown id="dropdown-dropup" dropup text="Drop-Up" variant="primary" class="m-2">
     <b-dropdown-item href="#">Action</b-dropdown-item>
     <b-dropdown-item href="#">Another action</b-dropdown-item>
     <b-dropdown-item href="#">Something else here</b-dropdown-item>
@@ -106,20 +106,20 @@ drop-left menu by setting the `dropleft` right prop to true.
 
 ```html
 <div>
-  <b-dropdown id="ddown-dropright" dropright text="Drop-Right" variant="primary" class="m-2">
+  <b-dropdown id="dropdown-dropright" dropright text="Drop-Right" variant="primary" class="m-2">
     <b-dropdown-item href="#">Action</b-dropdown-item>
     <b-dropdown-item href="#">Another action</b-dropdown-item>
     <b-dropdown-item href="#">Something else here</b-dropdown-item>
   </b-dropdown>
 
-  <b-dropdown id="ddown-dropleft" dropleft text="Drop-Left" variant="primary" class="m-2">
+  <b-dropdown id="dropdown-dropleft" dropleft text="Drop-Left" variant="primary" class="m-2">
     <b-dropdown-item href="#">Action</b-dropdown-item>
     <b-dropdown-item href="#">Another action</b-dropdown-item>
     <b-dropdown-item href="#">Something else here</b-dropdown-item>
   </b-dropdown>
 </div>
 
-<!-- b-dropdown-droprightleft.vue -->
+<!-- b-dropdown-dropright-dropleft.vue -->
 ```
 
 ### Auto "flipping"
@@ -137,7 +137,7 @@ number of pixels to push right (or left when negative) from the toggle button:
 
 ```html
 <div>
-  <b-dropdown id="ddown-offset" offset="25" text="Offset Dropdown" class="m-2">
+  <b-dropdown id="dropdown-offset" offset="25" text="Offset Dropdown" class="m-2">
     <b-dropdown-item href="#">Action</b-dropdown-item>
     <b-dropdown-item href="#">Another action</b-dropdown-item>
     <b-dropdown-item href="#">Something else here</b-dropdown-item>
@@ -195,7 +195,7 @@ variants.
 <!-- b-dropdown-variants.vue -->
 ```
 
-You can also apply abritrary classes to the toggle button via the `toggle-class` prop. This prop
+You can also apply arbitrary classes to the toggle button via the `toggle-class` prop. This prop
 accepts either a string or array of strings.
 
 ## Split button support
@@ -217,7 +217,7 @@ support, while the right hand side is the dropdown menu toggle button.
 
 ### Split button color variant
 
-By default the left split button uses the same `variant` as teh `toggle` button. You can give the
+By default the left split button uses the same `variant` as the `toggle` button. You can give the
 split button its own variant via the `split-variant` prop.
 
 ```html
@@ -242,7 +242,7 @@ split button its own variant via the `split-variant` prop.
 
 The left split button defaults to an element of type `<button>` (a `<b-button>` to be exact). To
 convert this button into a link or `<router-link>`, specify the href via the `split-href` prop or a
-router link `to` value via the `split-to` prop, while manitaining the look of a button.
+router link `to` value via the `split-to` prop, while maintaining the look of a button.
 
 ```html
 <div>
@@ -355,7 +355,7 @@ Disabled the dropdown item button by setting the `disabled` prop.
 
 ```html
 <div>
-  <b-dropdown id="ddown-buttons" text="Dropdown using buttons as menu items" class="m-2">
+  <b-dropdown id="dropdown-buttons" text="Dropdown using buttons as menu items" class="m-2">
     <b-dropdown-item-button>I'm a button</b-dropdown-item-button>
     <b-dropdown-item-button active>I'm a active button</b-dropdown-item-button>
     <b-dropdown-item-button disabled>I'm a button, but disabled!</b-dropdown-item-button>
@@ -375,10 +375,10 @@ Separate groups of related menu items with `<b-dropdown-divider>`.
 
 ```html
 <div>
-  <b-dropdown id="ddown-divider" text="Dropdown with divider" class="m-2">
+  <b-dropdown id="dropdown-divider" text="Dropdown with divider" class="m-2">
     <b-dropdown-item-button>First item</b-dropdown-item-button>
     <b-dropdown-item-button>Second item</b-dropdown-item-button>
-    <b-dropdown-divider />
+    <b-dropdown-divider></b-dropdown-divider>
     <b-dropdown-item-button>Separated Item</b-dropdown-item-button>
   </b-dropdown>
 </div>
@@ -392,7 +392,7 @@ Add a header to label sections of actions in any dropdown menu.
 
 ```html
 <div>
-  <b-dropdown id="ddown-header" text="Dropdown with header" class="m-2">
+  <b-dropdown id="dropdown-header" text="Dropdown with header" class="m-2">
     <b-dropdown-header>Dropdown header</b-dropdown-header>
     <b-dropdown-item-button>First item</b-dropdown-item-button>
     <b-dropdown-item-button>Second Item</b-dropdown-item-button>
@@ -413,12 +413,12 @@ constrain/set the menu width.
 
 ```html
 <div>
-  <b-dropdown id="ddown-text" text="Dropdown with text" class="m-2">
+  <b-dropdown id="dropdown-text" text="Dropdown with text" class="m-2">
     <b-dropdown-text style="width: 240px;">
       Some example text that's free-flowing within the dropdown menu.
     </b-dropdown-text>
     <b-dropdown-text>And this is more example text.</b-dropdown-text>
-    <b-dropdown-divider />
+    <b-dropdown-divider></b-dropdown-divider>
     <b-dropdown-item-button>First item</b-dropdown-item-button>
     <b-dropdown-item-button>Second Item</b-dropdown-item-button>
   </b-dropdown>
@@ -437,7 +437,7 @@ the `tag` prop to any valid HTML5 tag on the `<b-dropdown-text>` sub-component.
 
 ### `<b-dropdown-form>`
 
-Dropdowns suupport basic forms. Put a `<b-dropdown-form>` within a dropdown menu and place form
+Dropdowns support basic forms. Put a `<b-dropdown-form>` within a dropdown menu and place form
 controls within the `<b-dropdown-form>`. The `<b-dropdown-form>` is based on the
 [`<b-form>`](/docs/components/form) component, and supports the same props and attributes as a
 regular form.
@@ -445,22 +445,29 @@ regular form.
 ```html
 <template>
   <div>
-    <b-dropdown id="ddown-form" text="Dropdown with form" ref="ddown" class="m-2">
+    <b-dropdown id="dropdown-form" text="Dropdown with form" ref="dropdown" class="m-2">
       <b-dropdown-form>
-        <b-form-group label="Email" label-for="ddown-form-email">
-          <b-form-input size="sm" placeholder="email@example.com" id="ddown-form-email">
-          </b-form-input>
+        <b-form-group label="Email" label-for="dropdown-form-email">
+          <b-form-input
+            id="dropdown-form-email"
+            size="sm"
+            placeholder="email@example.com"
+          ></b-form-input>
         </b-form-group>
 
-        <b-form-group label="Password" label-for="ddown-form-passwd">
-          <b-form-input type="password" size="sm" placeholder="Password" id="ddown-form-passwd">
-          </b-form-input>
+        <b-form-group label="Password" label-for="dropdown-form-password">
+          <b-form-input
+            id="dropdown-form-password"
+            type="password"
+            size="sm"
+            placeholder="Password"
+          ></b-form-input>
         </b-form-group>
 
         <b-form-checkbox class="mb-3">Remember me</b-form-checkbox>
         <b-button variant="primary" size="sm" @click="onClick">Sign In</b-button>
       </b-dropdown-form>
-      <b-dropdown-divider />
+      <b-dropdown-divider></b-dropdown-divider>
       <b-dropdown-item-button>New around here? Sign up</b-dropdown-item-button>
       <b-dropdown-item-button>Forgot Password?</b-dropdown-item-button>
     </b-dropdown>
@@ -472,7 +479,7 @@ regular form.
     methods: {
       onClick() {
         // Close the menu and (by passing true) return focus to the toggle button
-        this.$refs.ddown.hide(true)
+        this.$refs.dropdown.hide(true)
       }
     }
   }
@@ -495,6 +502,23 @@ to close the menu using a button (or via the form submit event), call the `hide(
 The `hide()` method accepts a single boolean argument. If the argument is `true`, then focus will be
 returned to the dropdown toggle button after the menu has closed. Otherwise the document will gain
 focus once the menu is closed.
+
+## Listening to dropdown changes via \$root events
+
+To listen to any dropdown opening, use:
+
+```js
+export default {
+  mounted() {
+    this.$root.$on('bv::dropdown::show', bvEvent => {
+      console.log('Dropdown is about to be shown', bvEvent)
+    })
+  }
+}
+```
+
+Refer to the [Events](/docs/components/dropdown#component-reference) section of documentation for
+the full list of events.
 
 ## Accessibility
 
@@ -519,18 +543,18 @@ item:
 
 ```html
 <div>
-  <b-dropdown id="ddown-aria" text="Dropdown ARIA" variant="primary" class="m-2">
-    <div role="group" aria-labelledby="header1">
-      <b-dropdown-header id="header1">Groups</b-dropdown-header>
-      <b-dropdown-item-button aria-describedby="header1">Add</b-dropdown-item-button>
-      <b-dropdown-item-button aria-describedby="header1">Delete</b-dropdown-item-button>
+  <b-dropdown id="dropdown-aria" text="Dropdown ARIA" variant="primary" class="m-2">
+    <div role="group" aria-labelledby="dropdown-header-1">
+      <b-dropdown-header id="dropdown-header-1">Groups</b-dropdown-header>
+      <b-dropdown-item-button aria-describedby="dropdown-header-1">Add</b-dropdown-item-button>
+      <b-dropdown-item-button aria-describedby="dropdown-header-1">Delete</b-dropdown-item-button>
     </div>
-    <div role="group" aria-labelledby="header2">
-      <b-dropdown-header id="header2">Users</b-dropdown-header>
-      <b-dropdown-item-button aria-describedby="header2">Add</b-dropdown-item-button>
-      <b-dropdown-item-button aria-describedby="header2">Delete</b-dropdown-item-button>
+    <div role="group" aria-labelledby="dropdown-header-2">
+      <b-dropdown-header id="dropdown-header-2">Users</b-dropdown-header>
+      <b-dropdown-item-button aria-describedby="dropdown-header-2">Add</b-dropdown-item-button>
+      <b-dropdown-item-button aria-describedby="dropdown-header-2">Delete</b-dropdown-item-button>
     </div>
-    <b-dropdown-divider />
+    <b-dropdown-divider></b-dropdown-divider>
     <b-dropdown-item-button>
       Something <strong>not</strong> associated with user
     </b-dropdown-item-button>

@@ -1,10 +1,14 @@
 # Getting Started
 
+- [Vue.js](https://vuejs.org) version {{ vueVersion }} (or greater) is recommended
+- BootstrapVue requires [Bootstrap](https://getbootstrap.com) version {{ bootstrapVersion }} (or
+  greater) SCSS/CSS
+
 ## General
 
 If you are using module bundlers like [webpack](https://webpack.js.org/),
 [rollup.js](https://rollupjs.org), etc you may prefer to directly include the package into your
-project. To get started, use `yarn` or `npm` to get the latest version of Vue, BootstrapVue and
+project. To get started, use `yarn` or `npm` to get the latest version of Vue.js, BootstrapVue and
 Bootstrap 4:
 
 ```bash
@@ -54,6 +58,8 @@ _after_ Bootstrap SCSS to ensure variables are set up correctly.
 
 ## Nuxt.js plugin module
 
+[Nuxt.js](https://nuxtjs.org) version {{ nuxtVersion }} (or greater) is recommended.
+
 Install dependencies:
 
 ```bash
@@ -69,21 +75,25 @@ Add `bootstrap-vue/nuxt` to modules section of **nuxt.config.js**.
 This will include both `boostrap.css` and `bootstrap-vue.css` default CSS.
 
 ```js
-{
+module.exports = {
   modules: ['bootstrap-vue/nuxt']
 }
 ```
 
 If you are using custom Bootstrap SCSS, you can disable automatic inclusion of Bootstrap and
-BootstrapVue pre-compiled CSS files by setting the folliwing option(s) to `false`:
+BootstrapVue pre-compiled CSS files by setting the following option(s) to `false`:
 
 ```js
-{
-  modules: [['bootstrap-vue/nuxt', { bootstrapCss: false, bootstrapVueCss: false }]]
+module.exports = {
+  modules: ['bootstrap-vue/nuxt'],
+  bootstrapVue: {
+    bootstrapCSS: false, // or `css`
+    bootstrapVueCSS: false // or `bvCSS`
+  }
 }
 ```
 
-BootstrapVue's custom CSS relies on some Boostrap SCSS variables. You can include Bootstrap and
+BootstrapVue's custom CSS relies on some Bootstrap SCSS variables. You can include Bootstrap and
 BootstrapVue SCSS in your project's custom SCSS file:
 
 ```scss
@@ -99,8 +109,8 @@ $grid-breakpoints: (
 );
 
 // Then include the following
-@include 'bootstrap/scss/bootstrap';
-@include 'bootstrap-vue/src/index.scss';
+@import 'bootstrap/scss/bootstrap.scss';
+@import 'bootstrap-vue/src/index.scss';
 ```
 
 In your app main entry point include the single custom SCSS file (when using `sass-loader`):
@@ -108,6 +118,39 @@ In your app main entry point include the single custom SCSS file (when using `sa
 ```js
 // app.js
 import 'custom.scss'
+```
+
+### Tree shaking with Nuxt.js
+
+If you wish to reduce your bundle size because you only use a subset of the available BootstrapVue
+plugins, you can configure the list of BootstrapVue `componentPlugins` or `directivePlugins` you
+want to globally install in your Nuxt.js project.
+
+```js
+module.exports = {
+  modules: ['bootstrap-vue/nuxt'],
+  bootstrapVue: {
+    componentPlugins: ['Form', 'FormCheckbox', 'FormInput', 'FormRadio'],
+    directivePlugins: ['Popover']
+  }
+}
+```
+
+### Passing custom BootstrapVue config with Nuxt.js
+
+If you need to pass a custom
+[BootstrapVue configuration](/docs/misc/settings#default-bootstrapvue-configuration), you may due so
+by setting the `config` property in your `nuxt.config.js`:
+
+```js
+module.exports = {
+  modules: ['bootstrap-vue/nuxt'],
+  bootstrapVue: {
+    config: {
+      // Custom config options here
+    }
+  }
+}
 ```
 
 ## Vue CLI 2
@@ -162,10 +205,10 @@ instructions.
 import Vue from 'vue'
 import BootstrapVue from 'bootstrap-vue'
 
-Vue.use(BootstrapVue)
-
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+
+Vue.use(BootstrapVue)
 ```
 
 Optionally, you can import components individually, as
@@ -197,12 +240,16 @@ directly importing those components.
 
 To cherry pick a component/directive, start by importing it in the file where it is being used:
 
+<!-- eslint-disable no-unused-vars -->
+
 ```js
 import BModal from 'bootstrap-vue/es/components/modal/modal'
 import BModalDirective from 'bootstrap-vue/es/directives/modal/modal'
 ```
 
 Then add it to your component definition:
+
+<!-- eslint-disable no-undef -->
 
 ```js
 Vue.component('my-component', {
@@ -218,6 +265,8 @@ Vue.component('my-component', {
 
 Or register them globally:
 
+<!-- eslint-disable no-undef -->
+
 ```js
 Vue.component('b-modal', BModal)
 Vue.directive('b-modal', BModalDirective)
@@ -230,6 +279,8 @@ camelCasing, PascalCasing, and/or object property shorthand.
 
 You can also import component groups and directives as Vue plugins by importing the component group
 or directive directory:
+
+<!-- eslint-disable import/first, import/no-duplicates -->
 
 ```js
 // This imports all the layout components such as <b-container>, <b-row>, <b-col>:
@@ -263,7 +314,6 @@ babel loader rule in webpack.
 
 ```js
 // webpack.config.js
-const webpack = require('webpack')
 const path = require('path')
 
 module.exports = {
@@ -330,12 +380,12 @@ your project:
 ### CSS
 
 BootstrapVue is to be used with Bootstrap 4 CSS/SCSS. Please see
-[Browsers and devices](https://getbootstrap.com/docs/4.2/getting-started/browsers-devices) for more
+[Browsers and devices](https://getbootstrap.com/docs/4.3/getting-started/browsers-devices) for more
 information about browsers currently supported by Bootstrap 4.
 
 ### JS
 
-BootstrapVue is written in Vue! So this is up to your project and bundler which browsers are
+BootstrapVue is written in Vue.js! So this is up to your project and bundler which browsers are
 supported.
 
 If you want to support older IE, Android and IOS devices, you may want to use

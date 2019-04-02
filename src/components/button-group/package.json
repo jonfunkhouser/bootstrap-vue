@@ -3,9 +3,14 @@
   "version": "1.0.0",
   "meta": {
     "title": "Button Group",
-    "component": "BButtonGroup",
-    "aliases": [
-      "BBtnGroup"
+    "description": "Group a series of buttons together on a single line with <b-button-group>.",
+    "components": [
+      {
+        "component": "BButtonGroup",
+        "aliases": [
+          "BBtnGroup"
+        ]
+      }
     ]
   }
 }

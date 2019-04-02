@@ -1,17 +1,21 @@
 import DropdownItemBtn from './dropdown-item-button'
 import { mount } from '@vue/test-utils'
 
-describe('dropdown-item-button', async () => {
+describe('dropdown-item-button', () => {
   it('renders with tag "button" and type="button" by default', async () => {
     const wrapper = mount(DropdownItemBtn)
     expect(wrapper.is('button')).toBe(true)
     expect(wrapper.attributes('type')).toBe('button')
+
+    wrapper.destroy()
   })
 
   it('has class "dropdown-item"', async () => {
     const wrapper = mount(DropdownItemBtn)
     expect(wrapper.classes()).toContain('dropdown-item')
     expect(wrapper.classes()).not.toContain('active')
+
+    wrapper.destroy()
   })
 
   it('has class "active" when active=true', async () => {
@@ -20,6 +24,8 @@ describe('dropdown-item-button', async () => {
     })
     expect(wrapper.classes()).toContain('active')
     expect(wrapper.classes()).toContain('dropdown-item')
+
+    wrapper.destroy()
   })
 
   it('has attribute "disabled" when disabled=true', async () => {
@@ -27,6 +33,8 @@ describe('dropdown-item-button', async () => {
       propsData: { disabled: true }
     })
     expect(wrapper.attributes('disabled')).toBeDefined()
+
+    wrapper.destroy()
   })
 
   it('calls dropdown hide(true) method when clicked', async () => {
@@ -34,7 +42,7 @@ describe('dropdown-item-button', async () => {
     let refocus = null
     const wrapper = mount(DropdownItemBtn, {
       provide: {
-        dropdown: {
+        bvDropdown: {
           hide(arg) {
             called = true
             refocus = arg
@@ -48,6 +56,8 @@ describe('dropdown-item-button', async () => {
     await wrapper.vm.$nextTick()
     expect(called).toBe(true)
     expect(refocus).toBe(true)
+
+    wrapper.destroy()
   })
 
   it('does not call dropdown hide(true) method when clicked and disabled', async () => {
@@ -55,7 +65,7 @@ describe('dropdown-item-button', async () => {
     let refocus = null
     const wrapper = mount(DropdownItemBtn, {
       provide: {
-        dropdown: {
+        bvDropdown: {
           hide(arg) {
             called = true
             refocus = arg
@@ -70,5 +80,7 @@ describe('dropdown-item-button', async () => {
     await wrapper.vm.$nextTick()
     expect(called).toBe(false)
     expect(refocus).toBe(null)
+
+    wrapper.destroy()
   })
 })

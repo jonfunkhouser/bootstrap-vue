@@ -149,7 +149,7 @@ Use both `click` and `blur` if you would like a tooltip that opens only on click
 will close when anything else in the document is clicked or receives focus.
 
 Note that your element **must** be in the document tab sequence for this to work. If your element is
-not tabable, add the `tabindex="0"` attribute to the element.
+not tabbable, add the `tabindex="0"` attribute to the element.
 
 ## Title content
 
@@ -158,20 +158,24 @@ There are several options for providing the title of a tooltip.
 By default, tooltip will use the `title` attribute of the element as the tooltip content. The title
 can also be passed as an object to `v-b-tooltip` in the form of
 
+<!-- eslint-disable no-unused-vars -->
+
 ```js
-{
-   title: 'This is the title',
+const options = {
+  title: 'This is the title'
 }
 ```
 
 If your title content has basic HTML markup, then you will also need to set the `html` property to
-true, or use the diretive modifier `html`
+true, or use the directive modifier `html`
+
+<!-- eslint-disable no-unused-vars -->
 
 ```js
-// Object format with HTML:
-{
-   title: 'This is the <string>title</strong>',
-   html: true
+// Object format with HTML
+const options = {
+  title: 'This is the <string>title</strong>',
+  html: true
 }
 ```
 

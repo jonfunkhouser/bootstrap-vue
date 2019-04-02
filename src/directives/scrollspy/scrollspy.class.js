@@ -2,7 +2,6 @@
  * ScrollSpy class definition
  */
 
-import { assign } from '../../utils/object'
 import observeDom from '../../utils/observe-dom'
 import warn from '../../utils/warn'
 import {
@@ -65,8 +64,10 @@ const OffsetMethod = {
   POSITION: 'position'
 }
 
-// HREFs must start with # but can be === '#', or start with '#/' or '#!' (which can be router links)
-const HREF_REGEX = /^#[^/!]+/
+// HREFs must end with a hash followed by at least one non-hash character.
+// HREFs in the links are assumed to point to non-external links.
+// Comparison to the current page base URL is not performed!
+const HREF_REGEX = /^.*(#[^#]+)$/
 
 // Transition Events
 const TransitionEndEvents = [
@@ -106,6 +107,7 @@ function typeCheckConfig(
       valueType = value && value._isVue ? 'component' : valueType
 
       if (!new RegExp(expectedTypes).test(valueType)) {
+        /* istanbul ignore next */
         warn(
           `${componentName}: Option "${property}" provided type "${valueType}" but expected type "${expectedTypes}"`
         )
@@ -158,7 +160,7 @@ class ScrollSpy /* istanbul ignore next: not easy to test */ {
       this.unlisten()
       this.$scroller = null
     }
-    const cfg = assign({}, this.constructor.Default, config)
+    const cfg = { ...this.constructor.Default, ...config }
     if ($root) {
       this.$root = $root
     }
@@ -302,24 +304,34 @@ class ScrollSpy /* istanbul ignore next: not easy to test */ {
 
     this.$scrollHeight = this.getScrollHeight()
 
-    // Find all the unique link href's
+    // Find all the unique link href's that we will control
     selectAll(this.$selector, this.$el)
+      // Get HREF value
       .map(link => getAttr(link, 'href'))
-      .filter(href => HREF_REGEX.test(href || ''))
+      // Filter out HREFs taht do not match our RegExp
+      .filter(href => href && HREF_REGEX.test(href || ''))
+      // Find all elements with ID that match HREF hash
       .map(href => {
-        const el = select(href, scroller)
-        if (isVisible(el)) {
+        // Convert HREF into an ID (including # at begining)
+        const id = href.replace(HREF_REGEX, '$1').trim()
+        if (!id) {
+          return null
+        }
+        // Find the element with the ID specified by id
+        const el = select(id, scroller)
+        if (el && isVisible(el)) {
           return {
             offset: parseInt(methodFn(el).top, 10) + offsetBase,
-            target: href
+            target: id
           }
         }
         return null
       })
-      .filter(item => item)
+      .filter(Boolean)
+      // Sort them by their offsets (smallest first)
       .sort((a, b) => a.offset - b.offset)
+      // record only unique targets/offsets
       .reduce((memo, item) => {
-        // record only unique targets/offfsets
         if (!memo[item.target]) {
           this.$offsets.push(item.offset)
           this.$targets.push(item.target)
@@ -328,6 +340,7 @@ class ScrollSpy /* istanbul ignore next: not easy to test */ {
         return memo
       }, {})
 
+    // Return this for easy chaining
     return this
   }
 
@@ -410,8 +423,11 @@ class ScrollSpy /* istanbul ignore next: not easy to test */ {
     // Grab the list of target links (<a href="{$target}">)
     const links = selectAll(
       this.$selector
+        // Split out the base selectors
         .split(',')
-        .map(selector => `${selector}[href="${target}"]`)
+        // Map to a selector that matches links with HREF ending in the ID (including '#')
+        .map(selector => `${selector}[href$="${target}"]`)
+        // Join back into a single selector string
         .join(','),
       this.$el
     )
@@ -438,11 +454,11 @@ class ScrollSpy /* istanbul ignore next: not easy to test */ {
         while (el) {
           el = closest(Selector.NAV_LIST_GROUP, el)
           const sibling = el ? el.previousElementSibling : null
-          if (matches(sibling, `${Selector.NAV_LINKS}, ${Selector.LIST_ITEMS}`)) {
+          if (sibling && matches(sibling, `${Selector.NAV_LINKS}, ${Selector.LIST_ITEMS}`)) {
             this.setActiveState(sibling, true)
           }
           // Handle special case where nav-link is inside a nav-item
-          if (matches(sibling, Selector.NAV_ITEMS)) {
+          if (sibling && matches(sibling, Selector.NAV_ITEMS)) {
             this.setActiveState(select(Selector.NAV_LINKS, sibling), true)
             // Add active state to nav-item as well
             this.setActiveState(sibling, true)

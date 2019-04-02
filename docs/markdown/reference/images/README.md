@@ -1,7 +1,9 @@
-# Project relative image URLs for BootstrapVue custom components
+# Component img src resolving
 
-> vue-loader automatically converts project relative `src` attributes on `<img>` tags, but doesn't
-> automatically for BootstrapVue custom components that accept image src url tags.
+## Using project relative image URLs for BootstrapVue custom components
+
+vue-loader automatically converts project relative `src` attributes on `<img>` tags, but doesn't
+automatically for BootstrapVue custom components that accept image src url tags.
 
 ## Vue-loader `transformAssetUrls` to resolve img paths
 
@@ -11,38 +13,47 @@ for `vue-loader` in your webpack config.
 
 The default value for `transformAssetUrls` is:
 
+<!-- eslint-disable no-unused-vars -->
+
 ```js
-transformAssetUrls: {
-  video: ['src', 'poster'],
-  source: 'src',
-  img: 'src',
-  image: 'xlink:href'
+const options = {
+  transformAssetUrls: {
+    video: ['src', 'poster'],
+    source: 'src',
+    img: 'src',
+    image: 'xlink:href'
+  }
 }
 ```
 
 To allow BootstrapVue components to use project relative URLs, use the following configuration:
 
+<!-- eslint-disable no-unused-vars -->
+
 ```js
-transformAssetUrls: {
-  video: ['src', 'poster'],
-  source: 'src',
-  img: 'src',
-  image: 'xlink:href',
-  'b-img': 'src',
-  'b-img-lazy': ['src', 'blank-src'],
-  'b-card': 'img-src',
-  'b-card-img': 'img-src',
-  'b-carousel-slide': 'img-src',
-  'b-embed': 'src'
+const options = {
+  transformAssetUrls: {
+    video: ['src', 'poster'],
+    source: 'src',
+    img: 'src',
+    image: 'xlink:href',
+    'b-img': 'src',
+    'b-img-lazy': ['src', 'blank-src'],
+    'b-card': 'img-src',
+    'b-card-img': 'img-src',
+    'b-card-img-lazy': ['src', 'blank-src'],
+    'b-carousel-slide': 'img-src',
+    'b-embed': 'src'
+  }
 }
 ```
 
 This will allow you to use the following format in your `.vue` files:
 
 ```html
-<b-img src="~/static/picture.jpg" />
+<b-img src="~/static/picture.jpg"></b-img>
 
-<b-card-img img-src="~/static/picture.jpg" />
+<b-card-img img-src="~/static/picture.jpg"></b-card-img>
 ```
 
 ### Vue CLI 3 Support
@@ -68,6 +79,7 @@ module.exports = {
           'b-img-lazy': ['src', 'blank-src'],
           'b-card': 'img-src',
           'b-card-img': 'img-src',
+          'b-card-img-lazy': ['src', 'blank-src'],
           'b-carousel-slide': 'img-src',
           'b-embed': 'src'
         }
@@ -83,20 +95,23 @@ module.exports = {
 In your `nuxt.config.js` file, add the following to your build section:
 
 ```js
-build: {
-  extend (config, ctx) {
-    const vueLoader = config.module.rules.find((rule) => rule.loader === 'vue-loader')
-    vueLoader.options.transformAssetUrls = {
-      video: ['src', 'poster'],
-      source: 'src',
-      img: 'src',
-      image: 'xlink:href',
-      'b-img': 'src',
-      'b-img-lazy': ['src', 'blank-src'],
-      'b-card': 'img-src',
-      'b-card-img': 'img-src',
-      'b-carousel-slide': 'img-src',
-      'b-embed': 'src'
+module.exports = {
+  build: {
+    extend(config, ctx) {
+      const vueLoader = config.module.rules.find(rule => rule.loader === 'vue-loader')
+      vueLoader.options.transformAssetUrls = {
+        video: ['src', 'poster'],
+        source: 'src',
+        img: 'src',
+        image: 'xlink:href',
+        'b-img': 'src',
+        'b-img-lazy': ['src', 'blank-src'],
+        'b-card': 'img-src',
+        'b-card-img': 'img-src',
+        'b-card-img-lazy': ['src', 'blank-src'],
+        'b-carousel-slide': 'img-src',
+        'b-embed': 'src'
+      }
     }
   }
 }
@@ -108,7 +123,7 @@ If you cannot set the `transformAssetUrls` in your view-loader config, you can a
 `require` method:
 
 ```html
-<b-img :src="require('../static/picture.jpg')" />
+<b-img :src="require('../static/picture.jpg')"></b-img>
 
-<b-card-img :img-src="require('../static/picture.jpg')" />
+<b-card-img :img-src="require('../static/picture.jpg')"></b-card-img>
 ```

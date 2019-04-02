@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 
 const testItems = [{ a: 1, b: 2, c: 3 }, { a: 5, b: 5, c: 6 }, { a: 7, b: 8, c: 9 }]
 
-describe('b-table busy state', async () => {
+describe('table > busy state', () => {
   it('default should have attribute aria-busy=false', async () => {
     const wrapper = mount(Table, {
       propsData: {
@@ -12,6 +12,8 @@ describe('b-table busy state', async () => {
     })
     expect(wrapper.attributes('aria-busy')).toBeDefined()
     expect(wrapper.attributes('aria-busy')).toEqual('false')
+
+    wrapper.destroy()
   })
 
   it('default should have item rows rendered', async () => {
@@ -28,6 +30,8 @@ describe('b-table busy state', async () => {
         .exists()
     ).toBe(true)
     expect(wrapper.find('tbody').findAll('tr').length).toBe(testItems.length)
+
+    wrapper.destroy()
   })
 
   it('should have attribute aria-busy=true when prop busy=true', async () => {
@@ -39,6 +43,8 @@ describe('b-table busy state', async () => {
     })
     expect(wrapper.attributes('aria-busy')).toBeDefined()
     expect(wrapper.attributes('aria-busy')).toEqual('true')
+
+    wrapper.destroy()
   })
 
   it('should have attribute aria-busy=true when data localBusy=true', async () => {
@@ -56,6 +62,8 @@ describe('b-table busy state', async () => {
 
     expect(wrapper.attributes('aria-busy')).toBeDefined()
     expect(wrapper.attributes('aria-busy')).toEqual('true')
+
+    wrapper.destroy()
   })
 
   it('should emit update:busy event when data localBusy is toggled', async () => {
@@ -72,6 +80,8 @@ describe('b-table busy state', async () => {
 
     expect(wrapper.emitted('update:busy')).toBeDefined()
     expect(wrapper.emitted('update:busy')[0][0]).toEqual(true)
+
+    wrapper.destroy()
   })
 
   it('should render table-busy slot when prop busy=true and slot provided', async () => {
@@ -134,5 +144,7 @@ describe('b-table busy state', async () => {
         .exists()
     ).toBe(true)
     expect(wrapper.find('tbody').findAll('tr').length).toBe(testItems.length)
+
+    wrapper.destroy()
   })
 })

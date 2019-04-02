@@ -12,7 +12,7 @@ const testItems = [
 
 const testFields = Object.keys(testItems[0]).sort()
 
-describe('b-table provider functions', async () => {
+describe('table > provider functions', () => {
   it('syncronous items provider works', async () => {
     function provider(ctx) {
       return testItems.slice()
@@ -38,6 +38,8 @@ describe('b-table provider functions', async () => {
         .exists()
     ).toBe(true)
     expect(wrapper.find('tbody').findAll('tr').length).toBe(testItems.length)
+
+    wrapper.destroy()
   })
 
   it('promise items provider works', async () => {
@@ -85,6 +87,8 @@ describe('b-table provider functions', async () => {
         .exists()
     ).toBe(true)
     expect(wrapper.find('tbody').findAll('tr').length).toBe(testItems.length)
+
+    wrapper.destroy()
   })
 
   it('callback items provider works', async () => {
@@ -130,6 +134,8 @@ describe('b-table provider functions', async () => {
         .exists()
     ).toBe(true)
     expect(wrapper.find('tbody').findAll('tr').length).toBe(testItems.length)
+
+    wrapper.destroy()
   })
 
   it('callback items provider expects 2 arguments', async () => {
@@ -173,6 +179,8 @@ describe('b-table provider functions', async () => {
         .exists()
     ).toBe(true)
     expect(wrapper.find('tbody').findAll('tr').length).toBe(1)
+
+    wrapper.destroy()
   })
 
   it('provider refreshing works', async () => {
@@ -203,6 +211,8 @@ describe('b-table provider functions', async () => {
     wrapper.vm.$root.$emit('bv::refresh::table', 'thetable')
     await Vue.nextTick()
     expect(wrapper.emitted('refreshed').length).toBe(3)
+
+    wrapper.destroy()
   })
 
   it('refresh debouncing works', async () => {
@@ -250,5 +260,57 @@ describe('b-table provider functions', async () => {
     expect(wrapper.emitted('refreshed').length).toBe(1)
     await Vue.nextTick()
     expect(wrapper.emitted('refreshed').length).toBe(1)
+
+    wrapper.destroy()
+  })
+
+  it('reacts to items provider function change', async () => {
+    function provider1(ctx) {
+      return testItems.slice()
+    }
+
+    function provider2(ctx) {
+      return testItems.slice(testItems.length - 1)
+    }
+
+    const wrapper = mount(Table, {
+      propsData: {
+        fields: testFields,
+        items: provider1
+      }
+    })
+    expect(wrapper).toBeDefined()
+
+    await Vue.nextTick()
+
+    expect(wrapper.emitted('update:busy')).toBeDefined()
+    expect(wrapper.emitted('input')).toBeDefined()
+
+    expect(wrapper.find('tbody').exists()).toBe(true)
+    expect(
+      wrapper
+        .find('tbody')
+        .findAll('tr')
+        .exists()
+    ).toBe(true)
+    expect(wrapper.find('tbody').findAll('tr').length).toBe(testItems.length)
+
+    wrapper.setProps({
+      items: provider2
+    })
+
+    await Vue.nextTick()
+
+    expect(wrapper.find('tbody').exists()).toBe(true)
+    expect(
+      wrapper
+        .find('tbody')
+        .findAll('tr')
+        .exists()
+    ).toBe(true)
+
+    expect(wrapper.find('tbody').findAll('tr').length).toBe(1)
+
+    wrapper.destroy()
   })
 })

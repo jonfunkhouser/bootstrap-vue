@@ -40,6 +40,8 @@ export default {
     formValidityMixin
   ],
   props: {
+    // value prop defined in form-text mixin
+    // value: { },
     type: {
       type: String,
       default: 'text',
@@ -60,6 +62,10 @@ export default {
     },
     step: {
       type: [String, Number],
+      default: null
+    },
+    list: {
+      type: String,
       default: null
     }
   },
@@ -141,6 +147,7 @@ export default {
         min: self.min,
         max: self.max,
         step: self.step,
+        list: self.localType !== 'password' ? self.list : null,
         'aria-required': self.required ? 'true' : null,
         'aria-invalid': self.computedAriaInvalid
       },

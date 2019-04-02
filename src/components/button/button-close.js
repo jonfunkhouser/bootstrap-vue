@@ -1,4 +1,7 @@
 import { mergeData } from 'vue-functional-data-merge'
+import { getComponentConfig } from '../../utils/config'
+
+const NAME = 'BButtonClose'
 
 const props = {
   disabled: {
@@ -7,17 +10,17 @@ const props = {
   },
   ariaLabel: {
     type: String,
-    default: 'Close'
+    default: () => getComponentConfig(NAME, 'ariaLabel')
   },
   textVariant: {
     type: String,
-    default: null
+    default: () => getComponentConfig(NAME, 'textVariant')
   }
 }
 
 // @vue/component
 export default {
-  name: 'BButtonClose',
+  name: NAME,
   functional: true,
   props,
   render(h, { props, data, listeners, slots }) {
@@ -34,6 +37,7 @@ export default {
       on: {
         click(e) {
           // Ensure click on button HTML content is also disabled
+          /* istanbul ignore if: bug in JSDOM still emits click on inner element */
           if (props.disabled && e instanceof Event) {
             e.stopPropagation()
             e.preventDefault()

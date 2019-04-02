@@ -1,23 +1,81 @@
 import kebabCase from 'lodash/kebabCase'
 import startCase from 'lodash/startCase'
 
-// Remove any HTML tags, but leave entities alone
-function stripHTML(str = '') {
-  return str.replace(/<[^>]+>/g, '')
+// Parse a fully qualified version from a string
+export const parseVersion = version => {
+  const matches = version.match(/([0-9]+\.[0-9]+\.[0-9]+)/g)
+  const matchesCount = matches.length
+  return matchesCount > 0 ? matches[matchesCount - 1] : ''
 }
 
+// Remove any HTML tags, but leave entities alone
+const stripHTML = (str = '') => str.replace(/<[^>]+>/g, '')
+
 // Remove any double quotes from a string
-function stripQuotes(str = '') {
-  return str.replace(/"/g, '')
+const stripQuotes = (str = '') => str.replace(/"/g, '')
+
+export const parseUrl = value => {
+  let anchor = document.createElement('a')
+  anchor.href = value
+
+  // We need to add the anchor to the document to make sure the
+  // `pathname` is correctly detected in any browser
+  document.body.appendChild(anchor)
+
+  let result = ['hash', 'host', 'hostname', 'pathname', 'port', 'protocol', 'search'].reduce(
+    (result, prop) => {
+      result[prop] = anchor[prop] || null
+      return result
+    },
+    {}
+  )
+
+  // Make sure to remove the anchor from document as soon as possible
+  document.body.removeChild(anchor)
+
+  // Normalize port
+  if (!result.port && result.protocol) {
+    if (result.protocol === 'https:') {
+      result.port = '443'
+    }
+    if (result.protocol === 'http:') {
+      result.port = '80'
+    }
+  }
+
+  // Return early for browsers that resolved a non-existing `hostname` correctly
+  if (result.hostname) {
+    return result
+  }
+
+  // Handle relative URL's
+  if (value.charAt(0) === '/') {
+    return parseUrl(window.location.origin + value)
+  }
+
+  // Handle all other URL's
+  let baseUrl = window.location.href
+  baseUrl = baseUrl.substring(0, baseUrl.lastIndexOf('/'))
+
+  return parseUrl(`${baseUrl}/${value}`)
+}
+
+export const relativeUrl = url => {
+  const { pathname, hash } = parseUrl(url)
+  if (!pathname) {
+    return url
+  }
+
+  return pathname + (hash || '')
 }
 
 // Process an HTML readme and create a page TOC array
 // IDs are the only attribute on auto generated heading tags, so we take
 // advantage of that when using our RegExpr matches
-// Note IDs may not have quotes when the readme's are parsed in production mode !?!?
+// Note IDs may not have quotes when the README's are parsed in production mode !?!?
 // Expected format: <h(1|2|3) id="?id-string"?>heading content</h(1|2|3)>
 // Also grabs meta data if available to generate auto headings
-export function makeTOC(readme, meta = null) {
+export const makeTOC = (readme, meta = null) => {
   if (!readme) {
     return {}
   }
@@ -32,7 +90,7 @@ export function makeTOC(readme, meta = null) {
     title = stripHTML(h1[2])
   }
 
-  // Grab all the H2 and H3 deadings with ID's from readme
+  // Grab all the H2 and H3 headings with ID's from readme
   const headings = readme.match(/<h([23]) id=[^> ]+>.+?<\/h\1>/g) || []
 
   let idx = 0
@@ -55,10 +113,10 @@ export function makeTOC(readme, meta = null) {
     }
   })
 
-  // Process meta inforamtion for component pages
+  // Process meta information for component pages
   // IDs for headings are defined in componentdoc.vue and importdoc.vue
   if (meta && (meta.component || (meta.components && meta.components.length))) {
-    // Addpend component reference info to the TOC
+    // Append component reference info to the TOC
     const comps = [].concat(meta, meta.components).filter(m => m)
     if (comps.length) {
       // Add the reference heading
@@ -88,7 +146,7 @@ export function makeTOC(readme, meta = null) {
           href: '#importing-individual-directives'
         })
       }
-      // add plugin import sub entry
+      // Add plugin import sub entry
       toc[toc.length - 1].push({
         label: `Importing ${startCase(meta.title)} as a Vue Plugin`,
         href: '#importing-as-a-plugin'
@@ -96,7 +154,7 @@ export function makeTOC(readme, meta = null) {
     }
   }
 
-  // Process meta inforamtion for directive pages.
+  // Process meta information for directive pages.
   // Directive pages only reference a single directive
   // IDs for headings are defined in importdoc.vue
   if (meta && meta.directive && !meta.directives) {
@@ -112,7 +170,7 @@ export function makeTOC(readme, meta = null) {
         href: '#importing-individual-directives'
       }
     ])
-    // add plugin import sub entry
+    // Add plugin import sub entry
     toc[toc.length - 1].push({
       label: `Importing ${startCase(meta.title)} as a Vue Plugin`,
       href: '#importing-as-a-plugin'
@@ -122,20 +180,16 @@ export function makeTOC(readme, meta = null) {
   return { toc, title, top }
 }
 
-export function importAll(r) {
+export const importAll = r => {
   const obj = {}
 
   r.keys()
     .map(r)
     .map(m => m.meta || m)
-    .map(m =>
-      Object.assign(
-        {
-          slug: m.slug || (m.title || '').replace(' ', '-').toLowerCase()
-        },
-        m
-      )
-    )
+    .map(m => ({
+      slug: m.slug || (m.title || '').replace(' ', '-').toLowerCase(),
+      ...m
+    }))
     .sort((a, b) => {
       if (a.slug < b.slug) return -1
       else if (a.slug > b.slug) return 1
@@ -153,14 +207,14 @@ export function importAll(r) {
 }
 
 // Smooth Scroll handler methods
-function easeInOutQuad(t, b, c, d) {
+const easeInOutQuad = (t, b, c, d) => {
   t /= d / 2
   if (t < 1) return (c / 2) * t * t + b
   t--
   return (-c / 2) * (t * (t - 2) - 1) + b
 }
 
-export function scrollTo(scroller, to, duration, cb) {
+export const scrollTo = (scroller, to, duration, cb) => {
   const start = scroller.scrollTop
   const change = to - start
   const increment = 20
@@ -180,7 +234,7 @@ export function scrollTo(scroller, to, duration, cb) {
 
 // Return an element's offset wrt document element
 // https://j11y.io/jquery/#v=git&fn=jQuery.fn.offset
-export function offsetTop(el) {
+export const offsetTop = el => {
   if (!el.getClientRects().length) {
     return 0
   }

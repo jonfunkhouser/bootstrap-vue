@@ -13,7 +13,7 @@ auto-dismissing).
 
     <b-alert variant="success" show>Success Alert</b-alert>
 
-    <b-alert variant="danger" dismissible v-model="showDismissibleAlert">
+    <b-alert v-model="showDismissibleAlert" variant="danger" dismissible>
       Dismissible Alert!
     </b-alert>
 
@@ -25,7 +25,12 @@ auto-dismissing).
       @dismiss-count-down="countDownChanged"
     >
       <p>This alert will dismiss after {{ dismissCountDown }} seconds...</p>
-      <b-progress variant="warning" :max="dismissSecs" :value="dismissCountDown" height="4px" />
+      <b-progress
+        variant="warning"
+        :max="dismissSecs"
+        :value="dismissCountDown"
+        height="4px"
+      ></b-progress>
     </b-alert>
 
     <b-button @click="showAlert" variant="info" class="m-1">
@@ -63,7 +68,7 @@ auto-dismissing).
 ## Visible state
 
 Use the `show` prop to control the visibility state of the alert. By default alerts are **not**
-shown. Set the prop `show` to explicity display them.
+shown. Set the prop `show` to explicitly display them.
 
 The `show` prop accepts boolean `true` or `false` to show and hide the alert respectively. It can
 also be set to a positive integer (representing seconds) to create a self dismissing alert. See the
@@ -117,7 +122,7 @@ styled with the appropriate color matching the variant.
       run a bit longer so that you can see how spacing within an alert works with this kind of
       content.
     </p>
-    <hr />
+    <hr>
     <p class="mb-0">
       Whenever you need to, be sure to use margin utilities to keep things nice and tidy.
     </p>
@@ -233,7 +238,6 @@ Use the `fade` prop to enable animation. By default alerts are not animated.
       dismissible
       fade
       variant="warning"
-      @dismissed="dismissCountDown=0"
       @dismiss-count-down="countDownChanged"
     >
       This alert will dismiss after {{ dismissCountDown }} seconds...

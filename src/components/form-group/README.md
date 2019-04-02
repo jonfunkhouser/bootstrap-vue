@@ -8,15 +8,15 @@
 <template>
   <div>
     <b-form-group
-      id="fieldset1"
+      id="fieldset-1"
       description="Let us know your name."
       label="Enter your name"
-      label-for="input1"
+      label-for="input-1"
       :invalid-feedback="invalidFeedback"
       :valid-feedback="validFeedback"
       :state="state"
     >
-      <b-form-input id="input1" :state="state" v-model="name" trim />
+      <b-form-input id="input-1" v-model="name" :state="state" trim></b-form-input>
     </b-form-group>
   </div>
 </template>
@@ -95,14 +95,14 @@ of the width of the rendered row (handy if you have custom Bootstrap with an odd
 <div>
   <div>
     <b-form-group
-      id="fieldsetHorizontal"
+      id="fieldset-horizontal"
       label-cols-sm="4"
       label-cols-lg="3"
       description="Let us know your name."
       label="Enter your name"
-      label-for="inputHorizontal"
+      label-for="input-horizontal"
     >
-      <b-form-input id="inputHorizontal" />
+      <b-form-input id="input-horizontal"></b-form-input>
     </b-form-group>
   </div>
 </div>
@@ -121,16 +121,16 @@ for both `horizontal` and non-horizontal form groups.
 
 ```html
 <div>
-  <b-form-group label-cols="4" label-cols-lg="2" label-size="sm" label="Small" label-for="input_sm">
-    <b-form-input id="input_sm" size="sm" />
+  <b-form-group label-cols="4" label-cols-lg="2" label-size="sm" label="Small" label-for="input-sm">
+    <b-form-input id="input-sm" size="sm"></b-form-input>
   </b-form-group>
 
-  <b-form-group label-cols="4" label-cols-lg="2" label="Default" label-for="input_default">
-    <b-form-input id="input_default" />
+  <b-form-group label-cols="4" label-cols-lg="2" label="Default" label-for="input-default">
+    <b-form-input id="input-default"></b-form-input>
   </b-form-group>
 
-  <b-form-group label-cols="4" label-cols-lg="2" label-size="lg" label="Large" label-for="input_lg">
-    <b-form-input id="input_lg" size="lg" />
+  <b-form-group label-cols="4" label-cols-lg="2" label-size="lg" label="Large" label-for="input-lg">
+    <b-form-input id="input-lg" size="lg"></b-form-input>
   </b-form-group>
 </div>
 
@@ -177,30 +177,47 @@ of related form controls:
         label-cols-sm="3"
         label="Street:"
         label-align-sm="right"
-        label-for="nestedStreet"
+        label-for="nested-street"
       >
-        <b-form-input id="nestedStreet" />
+        <b-form-input id="nested-street"></b-form-input>
       </b-form-group>
 
-      <b-form-group label-cols-sm="3" label="City:" label-align-sm="right" label-for="nestedCity">
-        <b-form-input id="nestedCity" />
+      <b-form-group
+        label-cols-sm="3"
+        label="City:"
+        label-align-sm="right"
+        label-for="nested-city"
+      >
+        <b-form-input id="nested-city"></b-form-input>
       </b-form-group>
 
-      <b-form-group label-cols-sm="3" label="State:" label-align-sm="right" label-for="nestedState">
-        <b-form-input id="nestedState" />
+      <b-form-group
+        label-cols-sm="3"
+        label="State:"
+        label-align-sm="right"
+        label-for="nested-state"
+      >
+        <b-form-input id="nested-state"></b-form-input>
       </b-form-group>
 
       <b-form-group
         label-cols-sm="3"
         label="Country:"
         label-align-sm="right"
-        label-for="nestedCountry"
+        label-for="nested-country"
       >
-        <b-form-input id="nestedCountry" />
+        <b-form-input id="nested-country"></b-form-input>
       </b-form-group>
 
-      <b-form-group label-cols-sm="3" label="Ship via:" label-align-sm="right" class="mb-0">
-        <b-form-radio-group class="pt-2" :options="['Air', 'Courier', 'Mail']" />
+      <b-form-group
+        label-cols-sm="3"
+        label="Ship via:"
+        label-align-sm="right" class="mb-0"
+      >
+        <b-form-radio-group
+          class="pt-2"
+          :options="['Air', 'Courier', 'Mail']"
+        ></b-form-radio-group>
       </b-form-group>
     </b-form-group>
   </b-card>
@@ -229,10 +246,10 @@ Generally speaking, you’ll want to use a particular state for specific types o
 - `null` Displays no validation state
 
 To apply one of the contextual states on `<b-form-group>`, set the `state` prop to `'invalid'` (or
-`false`), `'valid'` (or `true`), or `null`. This will programmatically show the apropriate feedback
+`false`), `'valid'` (or `true`), or `null`. This will programmatically show the appropriate feedback
 text.
 
-Boostrap V4 uses sibling CSS slectors of `:invalid` or `:valid` inputs to show the feedback text.
+Bootstrap V4 uses sibling CSS selectors of `:invalid` or `:valid` inputs to show the feedback text.
 Some form controls (such as checkboxes, radios, and file inputs, or inputs inside input-groups) are
 wrapped in additional markup that will no longer make the feedback text a sibling of the input, and
 hence the feedback will not show. In these situations you will need to set the validity `state` on
@@ -253,7 +270,7 @@ Show optional invalid state feedback text to provide textual state feedback (htm
 setting the prop `invalid-feedback` or using the named slot `invalid-feedback`.
 
 Invalid feedback is rendered using the
-[`<b-form-invalid-feedback>`](/docs/components/form#helper-components) form sub-componment.
+[`<b-form-invalid-feedback>`](/docs/components/form#helper-components) form sub-component.
 
 **Note:** The prop `feedback` has been deprecated in favor of the `invalid-feedback` prop.
 
@@ -263,7 +280,7 @@ Show optional valid state feedback text to provide textual state feedback (html 
 setting the prop `valid-feedback` or using the named slot `valid-feedback`.
 
 Valid feedback is rendered using the
-[`<b-form-valid-feedback>`](/docs/components/form#helper-components) form sub-componment.
+[`<b-form-valid-feedback>`](/docs/components/form#helper-components) form sub-component.
 
 ### Feedback style
 
@@ -276,9 +293,9 @@ the feedback so that it shows as a static tooltip when visible, by setting the p
 **Note:** When using `<b-input-group>`, `<b-form-file>`, `<b-form-radio-group>`, `<b-form-radio>`,
 `<b-form-checkbox-group>` or `<b-form-checkbox>` inside a `<b-form-group>`, setting an invalid (or
 valid) `state` on the `input` alone will **not** trigger the invalid (or valid) feedback to show
-(due to limitations with the new Bootsrap V4 validation CSS). To get around this, **you must also**
+(due to limitations with the new Bootstrap V4 validation CSS). To get around this, **you must also**
 set the invalid/valid `state` on `<b-form-group>`. Native browser validation will **not** trigger
-the invalid feedback to show when using one of the above mentiond form controls.
+the invalid feedback to show when using one of the above mentioned form controls.
 
 ## Accessibility
 

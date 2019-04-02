@@ -6,8 +6,8 @@ import observeDom from '../../utils/observe-dom'
 import warn from '../../utils/warn'
 import KeyCodes from '../../utils/key-codes'
 import BvEvent from '../../utils/bv-event.class'
+import { getComponentConfig } from '../../utils/config'
 import { stripTags } from '../../utils/html'
-
 import {
   addClass,
   contains,
@@ -25,6 +25,8 @@ import {
   selectAll,
   setAttr
 } from '../../utils/dom'
+
+const NAME = 'BModal'
 
 // Selectors for padding/margin adjustments
 const Selector = {
@@ -82,7 +84,7 @@ function getModalNextZIndex() {
 
 // @vue/component
 export default {
-  name: 'BModal',
+  name: NAME,
   components: { BButton, BButtonClose },
   mixins: [idMixin, listenOnRootMixin],
   model: {
@@ -94,7 +96,7 @@ export default {
       type: String,
       default: ''
     },
-    titleHTML: {
+    titleHtml: {
       type: String
     },
     titleTag: {
@@ -146,6 +148,10 @@ export default {
       default: null
     },
     headerTextVariant: {
+      type: String,
+      default: null
+    },
+    headerCloseVariant: {
       type: String,
       default: null
     },
@@ -231,29 +237,29 @@ export default {
     },
     headerCloseLabel: {
       type: String,
-      default: 'Close'
+      default: () => getComponentConfig(NAME, 'headerCloseLabel')
     },
     cancelTitle: {
       type: String,
-      default: 'Cancel'
+      default: () => getComponentConfig(NAME, 'cancelTitle')
     },
-    cancelTitleHTML: {
+    cancelTitleHtml: {
       type: String
     },
     okTitle: {
       type: String,
-      default: 'OK'
+      default: () => getComponentConfig(NAME, 'okTitle')
     },
-    okTitleHTML: {
+    okTitleHtml: {
       type: String
     },
     cancelVariant: {
       type: String,
-      default: 'secondary'
+      default: () => getComponentConfig(NAME, 'cancelVariant')
     },
     okVariant: {
       type: String,
-      default: 'primary'
+      default: () => getComponentConfig(NAME, 'okVariant')
     },
     lazy: {
       type: Boolean,
@@ -342,7 +348,7 @@ export default {
     modalOuterStyle() {
       return {
         // We only set these styles on the stacked modals (ones with next z-index > 0).
-        position: 'relative',
+        position: 'absolute',
         zIndex: this.zIndex
       }
     }
@@ -350,6 +356,7 @@ export default {
   watch: {
     visible(newVal, oldVal) {
       if (newVal === oldVal) {
+        /* istanbul ignore next */
         return
       }
       this[newVal ? 'show' : 'hide']()
@@ -366,6 +373,7 @@ export default {
     this.listenOnRoot('bv::modal::shown', this.shownHandler)
     this.listenOnRoot('bv::hide::modal', this.hideHandler)
     this.listenOnRoot('bv::modal::hidden', this.hiddenHandler)
+    this.listenOnRoot('bv::toggle::modal', this.toggleHandler)
     // Listen for bv:modal::show events, and close ourselves if the opening modal not us
     this.listenOnRoot('bv::modal::show', this.modalListener)
     // Initially show modal?
@@ -373,7 +381,7 @@ export default {
       this.show()
     }
   },
-  beforeDestroy() /* instanbul ignore next */ {
+  beforeDestroy() /* istanbul ignore next */ {
     // Ensure everything is back to normal
     if (this._observer) {
       this._observer.disconnect()
@@ -451,7 +459,7 @@ export default {
         relatedTarget: null,
         isOK: trigger || null,
         trigger: trigger || null,
-        cancel() {
+        cancel() /* istanbul ignore next */ {
           // Backwards compatibility
           warn('b-modal: evt.cancel() is deprecated. Please use evt.preventDefault().')
           this.preventDefault()
@@ -475,6 +483,17 @@ export default {
       }
       this.is_visible = false
       this.$emit('change', false)
+    },
+    // Public method to toggle modal visibility
+    toggle(triggerEl) {
+      if (triggerEl) {
+        this.return_focus = triggerEl
+      }
+      if (this.is_visible) {
+        this.hide('toggle')
+      } else {
+        this.show()
+      }
     },
     // Private method to finish showing modal
     doShow() {
@@ -501,9 +520,9 @@ export default {
       const count = incrementModalOpenCount()
       if (count === 1) {
         this.setScrollbar()
+        this.setModalOpenClass(true)
       }
       this.adjustDialog()
-      this.setModalOpenClass(true)
       this.setResizeEvent(true)
     },
     onEnter() {
@@ -566,8 +585,13 @@ export default {
     },
     // UI Event Handlers
     onClickOut(evt) {
+      // Do nothing if not visible, backdrop click disabled, or element that generated
+      // click event is no longer in document
+      if (!this.is_visible || this.noCloseOnBackdrop || !contains(document, evt.target)) {
+        return
+      }
       // If backdrop clicked, hide modal
-      if (this.is_visible && !this.noCloseOnBackdrop && !contains(this.$refs.content, evt.target)) {
+      if (!contains(this.$refs.content, evt.target)) {
         this.hide('backdrop')
       }
     },
@@ -621,7 +645,12 @@ export default {
     },
     hideHandler(id) {
       if (id === this.id) {
-        this.hide()
+        this.hide('event')
+      }
+    },
+    toggleHandler(id, triggerEl) {
+      if (id === this.id) {
+        this.toggle(triggerEl)
       }
     },
     shownHandler() {
@@ -803,7 +832,7 @@ export default {
               props: {
                 disabled: this.is_transitioning,
                 ariaLabel: this.headerCloseLabel,
-                textVariant: this.headerTextVariant
+                textVariant: this.headerCloseVariant || this.headerTextVariant
               },
               on: {
                 click: evt => {
@@ -816,7 +845,7 @@ export default {
         }
         modalHeader = [
           h(this.titleTag, { class: ['modal-title'] }, [
-            $slots['modal-title'] || this.titleHTML || stripTags(this.title)
+            $slots['modal-title'] || this.titleHtml || stripTags(this.title)
           ]),
           closeButton
         ]
@@ -864,7 +893,7 @@ export default {
                 }
               }
             },
-            [$slots['modal-cancel'] || this.cancelTitleHTML || stripTags(this.cancelTitle)]
+            [$slots['modal-cancel'] || this.cancelTitleHtml || stripTags(this.cancelTitle)]
           )
         }
         const okButton = h(
@@ -881,7 +910,7 @@ export default {
               }
             }
           },
-          [$slots['modal-ok'] || this.okTitleHTML || stripTags(this.okTitle)]
+          [$slots['modal-ok'] || this.okTitleHtml || stripTags(this.okTitle)]
         )
         modalFooter = [cancelButton, okButton]
       }
@@ -938,8 +967,8 @@ export default {
           'aria-modal': this.is_visible ? 'true' : null
         },
         on: {
-          click: this.onClickOut,
-          keydown: this.onEsc
+          keydown: this.onEsc,
+          click: this.onClickOut
         }
       },
       [modalDialog]
@@ -969,12 +998,18 @@ export default {
     )
     // Modal Backdrop
     let backdrop = h(false)
-    if (!this.hideBackdrop && (this.is_visible || this.is_transitioning)) {
-      backdrop = h('div', {
-        staticClass: 'modal-backdrop',
-        class: this.backdropClasses,
-        attrs: { id: this.safeId('__BV_modal_backdrop_') }
-      })
+    if (!this.hideBackdrop && (this.is_visible || this.is_transitioning || this.is_block)) {
+      backdrop = h(
+        'div',
+        {
+          staticClass: 'modal-backdrop',
+          class: this.backdropClasses,
+          attrs: {
+            id: this.safeId('__BV_modal_backdrop_')
+          }
+        },
+        [$slots['modal-backdrop']]
+      )
     }
     // Tab trap to prevent page from scrolling to next element in tab index during enforce focus tab cycle
     let tabTrap = h(false)
