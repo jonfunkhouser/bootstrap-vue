@@ -1,29 +1,55 @@
+import Vue from '../../utils/vue'
 import PopOver from '../../utils/popover.class'
 import warn from '../../utils/warn'
+import { isArray, arrayIncludes } from '../../utils/array'
+import { getComponentConfig } from '../../utils/config'
+import { HTMLElement } from '../../utils/safe-types'
+import normalizeSlotMixin from '../../mixins/normalize-slot'
 import toolpopMixin from '../../mixins/toolpop'
 
-// @vue/component
-export default {
-  name: 'BPopover',
-  mixins: [toolpopMixin],
-  props: {
-    title: {
-      type: String,
-      default: ''
-    },
-    content: {
-      type: String,
-      default: ''
-    },
-    triggers: {
-      type: [String, Array],
-      default: 'click'
-    },
-    placement: {
-      type: String,
-      default: 'right'
+const NAME = 'BPopover'
+
+export const props = {
+  title: {
+    type: String,
+    default: ''
+  },
+  content: {
+    type: String,
+    default: ''
+  },
+  triggers: {
+    type: [String, Array],
+    default: 'click'
+  },
+  placement: {
+    type: String,
+    default: 'right'
+  },
+  fallbackPlacement: {
+    type: [String, Array],
+    default: 'flip',
+    validator(value) {
+      return isArray(value) || arrayIncludes(['flip', 'clockwise', 'counterclockwise'], value)
     }
   },
+  boundary: {
+    // String: scrollParent, window, or viewport
+    // Element: element reference
+    type: [String, HTMLElement],
+    default: () => getComponentConfig(NAME, 'boundary')
+  },
+  boundaryPadding: {
+    type: Number,
+    default: () => getComponentConfig(NAME, 'boundaryPadding')
+  }
+}
+
+// @vue/component
+export default Vue.extend({
+  name: NAME,
+  mixins: [toolpopMixin, normalizeSlotMixin],
+  props,
   data() {
     return {}
   },
@@ -31,6 +57,7 @@ export default {
     createToolpop() {
       // getTarget is in toolpop mixin
       const target = this.getTarget()
+      /* istanbul ignore else */
       if (target) {
         this._toolpop = new PopOver(target, this.getConfig(), this.$root)
       } else {
@@ -49,9 +76,9 @@ export default {
         attrs: { 'aria-hidden': true }
       },
       [
-        h('div', { ref: 'title' }, this.$slots.title),
-        h('div', { ref: 'content' }, this.$slots.default)
+        h('div', { ref: 'title' }, this.normalizeSlot('title')),
+        h('div', { ref: 'content' }, this.normalizeSlot('default'))
       ]
     )
   }
-}
+})

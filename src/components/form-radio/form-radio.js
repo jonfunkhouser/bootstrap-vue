@@ -1,3 +1,4 @@
+import Vue from '../../utils/vue'
 import idMixin from '../../mixins/id'
 import formMixin from '../../mixins/form'
 import formStateMixin from '../../mixins/form-state'
@@ -6,7 +7,7 @@ import formRadioCheckMixin from '../../mixins/form-radio-check'
 import looseEqual from '../../utils/loose-equal'
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BFormRadio',
   mixins: [
     idMixin,
@@ -30,14 +31,14 @@ export default {
   },
   computed: {
     // Radio Groups can only have a single value, so determining if checked is simple
-    is_Checked() {
+    isChecked() {
       return looseEqual(this.value, this.computedLocalChecked)
     },
     // Flags for form-radio-check mixin
-    is_Radio() {
+    isRadio() {
       return true
     },
-    is_Check() {
+    isCheck() {
       return false
     }
   },
@@ -54,9 +55,9 @@ export default {
       // Change is only emitted on user interaction
       this.$emit('change', checked ? value : null)
       // If this is a child of form-radio-group, we emit a change event on it as well
-      if (this.is_Group) {
+      if (this.isGroup) {
         this.bvGroup.$emit('change', checked ? value : null)
       }
     }
   }
-}
+})

@@ -1,9 +1,9 @@
-import Nav from './nav'
 import { mount } from '@vue/test-utils'
+import BNav from './nav'
 
 describe('nav', () => {
   it('has expected default structure', async () => {
-    const wrapper = mount(Nav)
+    const wrapper = mount(BNav)
 
     expect(wrapper.is('ul')).toBe(true)
     expect(wrapper.classes()).toContain('nav')
@@ -12,7 +12,7 @@ describe('nav', () => {
   })
 
   it('renders custom root element when prop tag set', async () => {
-    const wrapper = mount(Nav, {
+    const wrapper = mount(BNav, {
       propsData: {
         tag: 'ol'
       }
@@ -25,7 +25,7 @@ describe('nav', () => {
   })
 
   it('renders default slot content', async () => {
-    const wrapper = mount(Nav, {
+    const wrapper = mount(BNav, {
       slots: {
         default: 'foobar'
       }
@@ -37,8 +37,21 @@ describe('nav', () => {
     expect(wrapper.text()).toBe('foobar')
   })
 
+  it('supports "is-navbar-nav" mode', async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        isNavBar: true
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('navbar-nav')
+    expect(wrapper.classes().length).toBe(1)
+    expect(wrapper.text()).toBe('')
+  })
+
   it('applies pill style', async () => {
-    const wrapper = mount(Nav, {
+    const wrapper = mount(BNav, {
       propsData: {
         pills: true
       }
@@ -51,8 +64,22 @@ describe('nav', () => {
     expect(wrapper.text()).toBe('')
   })
 
+  it("doesn't apply pill style when in 'is-navbar-nav' mode", async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        pills: true,
+        isNavBar: true
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('navbar-nav')
+    expect(wrapper.classes().length).toBe(1)
+    expect(wrapper.text()).toBe('')
+  })
+
   it('applies tab style', async () => {
-    const wrapper = mount(Nav, {
+    const wrapper = mount(BNav, {
       propsData: {
         tabs: true
       }
@@ -65,8 +92,22 @@ describe('nav', () => {
     expect(wrapper.text()).toBe('')
   })
 
-  it('applies flex-column style when vertical', async () => {
-    const wrapper = mount(Nav, {
+  it("doesn't apply tab style when in 'is-navbar-nav' mode", async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        tabs: true,
+        isNavBar: true
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('navbar-nav')
+    expect(wrapper.classes().length).toBe(1)
+    expect(wrapper.text()).toBe('')
+  })
+
+  it('applies vertical style', async () => {
+    const wrapper = mount(BNav, {
       propsData: {
         vertical: true
       }
@@ -79,8 +120,22 @@ describe('nav', () => {
     expect(wrapper.text()).toBe('')
   })
 
+  it("doesn't apply vertical style when in 'is-navbar-nav' mode", async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        vertical: true,
+        isNavBar: true
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('navbar-nav')
+    expect(wrapper.classes().length).toBe(1)
+    expect(wrapper.text()).toBe('')
+  })
+
   it('applies justify style when justified', async () => {
-    const wrapper = mount(Nav, {
+    const wrapper = mount(BNav, {
       propsData: {
         justified: true
       }
@@ -93,8 +148,23 @@ describe('nav', () => {
     expect(wrapper.text()).toBe('')
   })
 
+  it("doesn't apply justify style when vertical", async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        justified: true,
+        vertical: true
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('nav')
+    expect(wrapper.classes()).toContain('flex-column')
+    expect(wrapper.classes().length).toBe(2)
+    expect(wrapper.text()).toBe('')
+  })
+
   it('applies fill style style when fill set', async () => {
-    const wrapper = mount(Nav, {
+    const wrapper = mount(BNav, {
       propsData: {
         fill: true
       }
@@ -103,6 +173,64 @@ describe('nav', () => {
     expect(wrapper.is('ul')).toBe(true)
     expect(wrapper.classes()).toContain('nav')
     expect(wrapper.classes()).toContain('nav-fill')
+    expect(wrapper.classes().length).toBe(2)
+    expect(wrapper.text()).toBe('')
+  })
+
+  it("doesn't apply fill style when vertical", async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        fill: true,
+        vertical: true
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('nav')
+    expect(wrapper.classes()).toContain('flex-column')
+    expect(wrapper.classes().length).toBe(2)
+    expect(wrapper.text()).toBe('')
+  })
+
+  it('applies alignment correctly', async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        align: 'center'
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('nav')
+    expect(wrapper.classes()).toContain('justify-content-center')
+    expect(wrapper.classes().length).toBe(2)
+    expect(wrapper.text()).toBe('')
+  })
+
+  it("doesn't apply alignment when vertical", async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        align: 'center',
+        vertical: true
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('nav')
+    expect(wrapper.classes()).toContain('flex-column')
+    expect(wrapper.classes().length).toBe(2)
+    expect(wrapper.text()).toBe('')
+  })
+
+  it('applies small style', async () => {
+    const wrapper = mount(BNav, {
+      propsData: {
+        small: true
+      }
+    })
+
+    expect(wrapper.is('ul')).toBe(true)
+    expect(wrapper.classes()).toContain('nav')
+    expect(wrapper.classes()).toContain('small')
     expect(wrapper.classes().length).toBe(2)
     expect(wrapper.text()).toBe('')
   })

@@ -1,8 +1,10 @@
+import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
 import InputGroupPrepend from './input-group-prepend'
 import InputGroupAppend from './input-group-append'
 import InputGroupText from './input-group-text'
 import { htmlOrText } from '../../utils/html'
+import { hasNormalizedSlot, normalizeSlot } from '../../utils/normalize-slot'
 
 export const props = {
   id: {
@@ -30,58 +32,51 @@ export const props = {
 }
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BInputGroup',
   functional: true,
   props: props,
-  render(h, { props, data, slots }) {
+  render(h, { props, data, slots, scopedSlots }) {
     const $slots = slots()
+    const $scopedSlots = scopedSlots || {}
 
     const childNodes = []
 
-    // Prepend prop
-    if (props.prepend) {
+    // Prepend prop/slot
+    if (props.prepend || props.prependHTML || hasNormalizedSlot('prepend', $scopedSlots, $slots)) {
       childNodes.push(
         h(InputGroupPrepend, [
-          h(InputGroupText, {
-            domProps: htmlOrText(props.prependHTML, props.prepend)
-          })
+          // Prop
+          props.prepend || props.prependHTML
+            ? h(InputGroupText, { domProps: htmlOrText(props.prependHTML, props.prepend) })
+            : h(false),
+          // Slot
+          normalizeSlot('prepend', {}, $scopedSlots, $slots) || h(false)
         ])
       )
-    } else {
-      childNodes.push(h(false))
-    }
-
-    // Prepend slot
-    if ($slots.prepend) {
-      childNodes.push(h(InputGroupPrepend, $slots.prepend))
     } else {
       childNodes.push(h(false))
     }
 
     // Default slot
-    if ($slots.default) {
-      childNodes.push(...$slots.default)
+    if (hasNormalizedSlot('default', $scopedSlots, $slots)) {
+      childNodes.push(...normalizeSlot('default', {}, $scopedSlots, $slots))
     } else {
       childNodes.push(h(false))
     }
 
     // Append prop
-    if (props.append) {
+    if (props.append || props.appendHTML || hasNormalizedSlot('append', $scopedSlots, $slots)) {
       childNodes.push(
         h(InputGroupAppend, [
-          h(InputGroupText, {
-            domProps: htmlOrText(props.appendHTML, props.append)
-          })
+          // prop
+          props.append || props.appendHTML
+            ? h(InputGroupText, { domProps: htmlOrText(props.appendHTML, props.append) })
+            : h(false),
+          // Slot
+          normalizeSlot('append', {}, $scopedSlots, $slots) || h(false)
         ])
       )
-    } else {
-      childNodes.push(h(false))
-    }
-
-    // Append slot
-    if ($slots.append) {
-      childNodes.push(h(InputGroupAppend, $slots.append))
     } else {
       childNodes.push(h(false))
     }
@@ -101,4 +96,4 @@ export default {
       childNodes
     )
   }
-}
+})

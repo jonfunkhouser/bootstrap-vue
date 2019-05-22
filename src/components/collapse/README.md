@@ -1,6 +1,7 @@
 # Collapse
 
-toggle content visibility on your pages. Includes support for making accordions.
+> Easily toggle visibility of almost any content on your pages. Includes support for making
+> accordions.
 
 ```html
 <div>
@@ -116,7 +117,7 @@ multiple target IDs using modifiers:
 <!-- b-collapse-trigger-multiple.vue -->
 ```
 
-## Accordion Support
+## Accordion support
 
 Turn a group of `<b-collapse>` components into an accordion by supplying an accordion group
 identifier via the `accordion` prop:

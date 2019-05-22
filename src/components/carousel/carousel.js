@@ -1,6 +1,8 @@
-import observeDom from '../../utils/observe-dom'
+import Vue from '../../utils/vue'
 import KeyCodes from '../../utils/key-codes'
 import noop from '../../utils/noop'
+import observeDom from '../../utils/observe-dom'
+import { getComponentConfig } from '../../utils/config'
 import {
   selectAll,
   reflow,
@@ -10,8 +12,12 @@ import {
   eventOn,
   eventOff
 } from '../../utils/dom'
-import { inBrowser, hasTouchSupport, hasPointerEvent } from '../../utils/env'
+import { isBrowser, hasTouchSupport, hasPointerEventSupport } from '../../utils/env'
+import { isUndefined } from '../../utils/inspect'
 import idMixin from '../../mixins/id'
+import normalizeSlotMixin from '../../mixins/normalize-slot'
+
+const NAME = 'BCarousel'
 
 // Slide directional classes
 const DIRECTION = {
@@ -53,7 +59,7 @@ const EventOptions = { passive: true, capture: false }
 // Return the browser specific transitionEnd event name
 function getTransitionEndEvent(el) {
   for (const name in TransitionEndEvents) {
-    if (el.style[name] !== undefined) {
+    if (!isUndefined(el.style[name])) {
       return TransitionEndEvents[name]
     }
   }
@@ -63,9 +69,9 @@ function getTransitionEndEvent(el) {
 }
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BCarousel',
-  mixins: [idMixin],
+  mixins: [idMixin, normalizeSlotMixin],
   provide() {
     return { bvCarousel: this }
   },
@@ -76,19 +82,19 @@ export default {
   props: {
     labelPrev: {
       type: String,
-      default: 'Previous Slide'
+      default: () => getComponentConfig(NAME, 'labelPrev')
     },
     labelNext: {
       type: String,
-      default: 'Next Slide'
+      default: () => getComponentConfig(NAME, 'labelNext')
     },
     labelGotoSlide: {
       type: String,
-      default: 'Goto Slide'
+      default: () => getComponentConfig(NAME, 'labelGotoSlide')
     },
     labelIndicators: {
       type: String,
-      default: 'Select a slide to display'
+      default: () => getComponentConfig(NAME, 'labelIndicators')
     },
     interval: {
       type: Number,
@@ -208,7 +214,7 @@ export default {
       attributeFilter: ['id']
     })
   },
-  beforeDestroy() /* istanbul ignore next: difficult to test */ {
+  beforeDestroy() {
     clearTimeout(this._animationTimeout)
     clearTimeout(this._touchTimeout)
     clearInterval(this._intervalId)
@@ -221,7 +227,7 @@ export default {
     setSlide(slide, direction = null) {
       // Don't animate when page is not visible
       /* istanbul ignore if: difficult to test */
-      if (inBrowser && document.visibilityState && document.hidden) {
+      if (isBrowser && document.visibilityState && document.hidden) {
         return
       }
       const len = this.slides.length
@@ -275,8 +281,7 @@ export default {
       }
     },
     // Restart auto rotate slides when focus/hover leaves the carousel
-    restart(evt) {
-      /* istanbul ignore if: difficult to test */
+    restart(evt) /* istanbul ignore next: difficult to test */ {
       if (!this.$el.contains(document.activeElement)) {
         this.start()
       }
@@ -410,9 +415,9 @@ export default {
       }
     },
     touchStart(evt) /* istanbul ignore next: JSDOM doesn't support touch events */ {
-      if (hasPointerEvent && PointerType[evt.pointerType.toUpperCase()]) {
+      if (hasPointerEventSupport && PointerType[evt.pointerType.toUpperCase()]) {
         this.touchStartX = evt.clientX
-      } else if (!hasPointerEvent) {
+      } else if (!hasPointerEventSupport) {
         this.touchStartX = evt.touches[0].clientX
       }
     },
@@ -425,7 +430,7 @@ export default {
       }
     },
     touchEnd(evt) /* istanbul ignore next: JSDOM doesn't support touch events */ {
-      if (hasPointerEvent && PointerType[evt.pointerType.toUpperCase()]) {
+      if (hasPointerEventSupport && PointerType[evt.pointerType.toUpperCase()]) {
         this.touchDeltaX = evt.clientX - this.touchStartX
       }
       this.handleSwipe()
@@ -458,7 +463,7 @@ export default {
           role: 'list'
         }
       },
-      [this.$slots.default]
+      [this.normalizeSlot('default')]
     )
 
     // Prev and next controls
@@ -570,9 +575,9 @@ export default {
     }
     // Touch support event handlers for environment
     if (!this.noTouch && hasTouchSupport) {
-      // Attach appropriate listeners (passive mode)
+      // Attach appropriate listeners (prepend event name with '&' for passive mode)
       /* istanbul ignore next: JSDOM doesn't support touch events */
-      if (hasPointerEvent) {
+      if (hasPointerEventSupport) {
         on['&pointerdown'] = this.touchStart
         on['&pointerup'] = this.touchEnd
       } else {
@@ -590,7 +595,7 @@ export default {
         class: {
           slide: !this.noAnimation,
           'carousel-fade': !this.noAnimation && this.fade,
-          'pointer-event': !this.noTouch && hasTouchSupport && hasPointerEvent
+          'pointer-event': !this.noTouch && hasTouchSupport && hasPointerEventSupport
         },
         style: { background: this.background },
         attrs: {
@@ -603,4 +608,4 @@ export default {
       [inner, controls, indicators]
     )
   }
-}
+})

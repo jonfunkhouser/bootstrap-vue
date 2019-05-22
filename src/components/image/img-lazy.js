@@ -1,100 +1,104 @@
+import Vue from '../../utils/vue'
 import BImg from './img'
-import { getBCR, eventOn, eventOff } from '../../utils/dom'
 import { getComponentConfig } from '../../utils/config'
+import { getBCR, eventOn, eventOff } from '../../utils/dom'
+import { hasIntersectionObserverSupport } from '../../utils/env'
 
 const NAME = 'BImgLazy'
 
 const THROTTLE = 100
-const EventOptions = { passive: true, capture: false }
+const EVENT_OPTIONS = { passive: true, capture: false }
+
+export const props = {
+  src: {
+    type: String,
+    default: null,
+    required: true
+  },
+  alt: {
+    type: String,
+    default: null
+  },
+  width: {
+    type: [Number, String],
+    default: null
+  },
+  height: {
+    type: [Number, String],
+    default: null
+  },
+  blankSrc: {
+    // If null, a blank image is generated
+    type: String,
+    default: null
+  },
+  blankColor: {
+    type: String,
+    default: () => getComponentConfig(NAME, 'blankColor')
+  },
+  blankWidth: {
+    type: [Number, String],
+    default: null
+  },
+  blankHeight: {
+    type: [Number, String],
+    default: null
+  },
+  show: {
+    type: Boolean,
+    default: false
+  },
+  fluid: {
+    type: Boolean,
+    default: false
+  },
+  fluidGrow: {
+    type: Boolean,
+    default: false
+  },
+  block: {
+    type: Boolean,
+    default: false
+  },
+  thumbnail: {
+    type: Boolean,
+    default: false
+  },
+  rounded: {
+    type: [Boolean, String],
+    default: false
+  },
+  left: {
+    type: Boolean,
+    default: false
+  },
+  right: {
+    type: Boolean,
+    default: false
+  },
+  center: {
+    type: Boolean,
+    default: false
+  },
+  offset: {
+    type: [Number, String],
+    default: 360
+  },
+  throttle: {
+    type: [Number, String],
+    default: THROTTLE
+  }
+}
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: NAME,
-  components: { BImg },
-  props: {
-    src: {
-      type: String,
-      default: null,
-      required: true
-    },
-    alt: {
-      type: String,
-      default: null
-    },
-    width: {
-      type: [Number, String],
-      default: null
-    },
-    height: {
-      type: [Number, String],
-      default: null
-    },
-    blankSrc: {
-      // If null, a blank image is generated
-      type: String,
-      default: null
-    },
-    blankColor: {
-      type: String,
-      default: () => getComponentConfig(NAME, 'blankColor')
-    },
-    blankWidth: {
-      type: [Number, String],
-      default: null
-    },
-    blankHeight: {
-      type: [Number, String],
-      default: null
-    },
-    show: {
-      type: Boolean,
-      default: false
-    },
-    fluid: {
-      type: Boolean,
-      default: false
-    },
-    fluidGrow: {
-      type: Boolean,
-      default: false
-    },
-    block: {
-      type: Boolean,
-      default: false
-    },
-    thumbnail: {
-      type: Boolean,
-      default: false
-    },
-    rounded: {
-      type: [Boolean, String],
-      default: false
-    },
-    left: {
-      type: Boolean,
-      default: false
-    },
-    right: {
-      type: Boolean,
-      default: false
-    },
-    center: {
-      type: Boolean,
-      default: false
-    },
-    offset: {
-      type: [Number, String],
-      default: 360
-    },
-    throttle: {
-      type: [Number, String],
-      default: THROTTLE
-    }
-  },
+  props,
   data() {
     return {
       isShown: false,
-      scrollTimeout: null
+      scrollTimeout: null,
+      observer: null
     }
   },
   computed: {
@@ -136,13 +140,11 @@ export default {
       this.setListeners(false)
     } else {
       this.setListeners(true)
-      this.$nextTick(this.checkView)
     }
   },
   activated() /* istanbul ignore next */ {
     if (!this.isShown) {
       this.setListeners(true)
-      this.$nextTick(this.checkView)
     }
   },
   deactivated() /* istanbul ignore next */ {
@@ -157,23 +159,42 @@ export default {
         clearTimeout(this.scrollTimeout)
         this.scrollTimeout = null
       }
-      const root = window
+      /* istanbul ignore next: JSDOM doen't support IntersectionObserver */
+      if (this.observer) {
+        this.observer.unobserve(this.$el)
+        this.observer.disconnect()
+        this.observer = null
+      }
+      const winEvts = ['scroll', 'resize', 'orientationchange']
+      winEvts.forEach(evt => eventOff(window, evt, this.onScroll, EVENT_OPTIONS))
+      eventOff(this.$el, 'load', this.checkView, EVENT_OPTIONS)
+      eventOff(document, 'transitionend', this.onScroll, EVENT_OPTIONS)
       if (on) {
-        eventOn(this.$el, 'load', this.checkView)
-        eventOn(root, 'scroll', this.onScroll, EventOptions)
-        eventOn(root, 'resize', this.onScroll, EventOptions)
-        eventOn(root, 'orientationchange', this.onScroll, EventOptions)
-        eventOn(document, 'transitionend', this.onScroll, EventOptions)
-      } else {
-        eventOff(this.$el, 'load', this.checkView)
-        eventOff(root, 'scroll', this.onScroll, EventOptions)
-        eventOff(root, 'resize', this.onScroll, EventOptions)
-        eventOff(root, 'orientationchange', this.onScroll, EventOptions)
-        eventOff(document, 'transitionend', this.onScroll, EventOptions)
+        /* istanbul ignore if: JSDOM doen't support IntersectionObserver */
+        if (hasIntersectionObserverSupport) {
+          this.observer = new IntersectionObserver(this.doShow, {
+            root: null, // viewport
+            rootMargin: `${parseInt(this.offset, 10) || 0}px`,
+            threshold: 0 // percent intersection
+          })
+          this.observer.observe(this.$el)
+        } else {
+          // Fallback to scroll/etc events
+          winEvts.forEach(evt => eventOn(window, evt, this.onScroll, EVENT_OPTIONS))
+          eventOn(this.$el, 'load', this.checkView, EVENT_OPTIONS)
+          eventOn(document, 'transitionend', this.onScroll, EVENT_OPTIONS)
+        }
+      }
+    },
+    doShow(entries) {
+      if (entries && (entries[0].isIntersecting || entries[0].intersectionRatio > 0.0)) {
+        this.isShown = true
+        this.setListeners(false)
       }
     },
     checkView() {
       // check bounding box + offset to see if we should show
+      /* istanbul ignore next: should rarely occur */
       if (this.isShown) {
         this.setListeners(false)
         return
@@ -186,16 +207,15 @@ export default {
         b: docElement.clientHeight + offset,
         r: docElement.clientWidth + offset
       }
-      /* istanbul ignore next */
+      // JSDOM Doesn't support BCR, but we fake it in the tests
       const box = getBCR(this.$el)
-      /* istanbul ignore next: can't test getBoundingClientRect in JSDOM */
       if (box.right >= view.l && box.bottom >= view.t && box.left <= view.r && box.top <= view.b) {
         // image is in view (or about to be in view)
-        this.isShown = true
-        this.setListeners(false)
+        this.doShow([{ isIntersecting: true }])
       }
     },
     onScroll() {
+      /* istanbul ignore if: should rarely occur */
       if (this.isShown) {
         this.setListeners(false)
       } else {
@@ -205,14 +225,16 @@ export default {
     }
   },
   render(h) {
-    return h('b-img', {
+    return h(BImg, {
       props: {
+        // Computed value props
         src: this.computedSrc,
-        alt: this.alt,
         blank: this.computedBlank,
-        blankColor: this.blankColor,
         width: this.computedWidth,
         height: this.computedHeight,
+        // Passthough props
+        alt: this.alt,
+        blankColor: this.blankColor,
         fluid: this.fluid,
         fluidGrow: this.fluidGrow,
         block: this.block,
@@ -224,4 +246,4 @@ export default {
       }
     })
   }
-}
+})

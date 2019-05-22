@@ -4,8 +4,8 @@ $bv-dropdown-text-defined: false !default;
   // This test will only include these style definitions once
   $bv-dropdown-text-defined: true;
 
-  // Custom styles for b-dropdown-text
-  // Based on class .dropdown-item
+  // Custom styles for <b-dropdown-text>
+  // Based on class `.dropdown-item`
   .b-dropdown-text {
     display: inline-block;
     padding: $dropdown-item-padding-y $dropdown-item-padding-x;
@@ -13,13 +13,5 @@ $bv-dropdown-text-defined: false !default;
     width: 100%;
     clear: both;
     font-weight: $font-weight-lighter;
-
-    &:first-child {
-      @include border-top-radius($dropdown-inner-border-radius);
-    }
-
-    &:last-child {
-      @include border-bottom-radius($dropdown-inner-border-radius);
-    }
   }
 }

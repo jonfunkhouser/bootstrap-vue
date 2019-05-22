@@ -1,14 +1,15 @@
-import idMixin from '../../mixins/id'
-import formRadioCheckMixin from '../../mixins/form-radio-check'
-import formMixin from '../../mixins/form'
-import formSizeMixin from '../../mixins/form-size'
-import formStateMixin from '../../mixins/form-state'
-import { isArray } from '../../utils/array'
+import Vue from '../../utils/vue'
 import looseEqual from '../../utils/loose-equal'
 import looseIndexOf from '../../utils/loose-index-of'
+import { isArray } from '../../utils/inspect'
+import formMixin from '../../mixins/form'
+import formRadioCheckMixin from '../../mixins/form-radio-check'
+import formSizeMixin from '../../mixins/form-size'
+import formStateMixin from '../../mixins/form-state'
+import idMixin from '../../mixins/id'
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BFormCheckbox',
   mixins: [
     formRadioCheckMixin, // Includes shared render function
@@ -50,7 +51,7 @@ export default {
     }
   },
   computed: {
-    is_Checked() {
+    isChecked() {
       const checked = this.computedLocalChecked
       const value = this.value
       if (isArray(checked)) {
@@ -59,10 +60,10 @@ export default {
         return looseEqual(checked, value)
       }
     },
-    is_Radio() {
+    isRadio() {
       return false
     },
-    is_Check() {
+    isCheck() {
       return true
     }
   },
@@ -104,7 +105,7 @@ export default {
       // Change is only emitted on user interaction
       this.$emit('change', checked ? value : uncheckedValue)
       // If this is a child of form-checkbox-group, we emit a change event on it as well
-      if (this.is_Group) {
+      if (this.isGroup) {
         this.bvGroup.$emit('change', localChecked)
       }
       this.$emit('update:indeterminate', indeterminate)
@@ -121,4 +122,4 @@ export default {
       }
     }
   }
-}
+})

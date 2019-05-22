@@ -38,12 +38,11 @@ The target element **must** exist in the document before `<b-popover>` is mounte
 element is not found during mount, the popover will never open. Always place your `<b-popover>`
 component lower in the DOM than your target element.
 
-> **Note:** _When using slots for content and/or title, `<b-popover>` transfers the rendered DOM
-> from those slots into the popover's markup when shown, and returns them back to the `<b-popover>`
-> component when hidden. This may cause some issues in rare circumstances, so please test your
-> implementation accordingly! The `title` and `content` props do not have this behavior. For simple
-> popovers, we recommend using the `v-b-popover` directive and enable the `html` modifier if
-> needed._
+**Note:** _When using slots for content and/or title, `<b-popover>` transfers the rendered DOM from
+those slots into the popover's markup when shown, and returns them back to the `<b-popover>`
+component when hidden. This may cause some issues in rare circumstances, so please test your
+implementation accordingly! The `title` and `content` props do not have this behavior. For simple
+popovers, we recommend using the `v-b-popover` directive and enable the `html` modifier if needed._
 
 ## Positioning
 
@@ -174,7 +173,7 @@ You can, however, specify your trigger as `click blur`, which will make only a c
 popover, and either a click on the element, _or_ losing focus to another element or part of the
 document will close the popover.
 
-The special `blur` trigger must be used in combination with the `click` trigger.
+The special `blur` trigger **must** be used in combination with the `click` trigger.
 
 ## `<b-popover>` Component basic usage
 
@@ -254,18 +253,19 @@ The special `blur` trigger must be used in combination with the `click` trigger.
 
 | Prop              | Default          | Description                                                                                                                                                                                                | Supported values                                                                                                                                 |
 | ----------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `target`          | `null`           | Element string ID, or a reference to an element or component, that you want to trigger the popover. **Required**                                                                                           | Any valid in-document unique element ID, or in-document element/component reference                                                              |
-| `title`           | `null`           | Popover title (text only, no HTML). If HTML or reactivity is required, use the `title` named slot                                                                                                          | Plain text                                                                                                                                       |
-| `content`         | `null`           | Popover content (text only, no HTML). If HTML or reactivity is required, use the default slot                                                                                                              | Plain text                                                                                                                                       |
-| `placement`       | `'right'`        | Positioning of the popover, relative to the trigger element.                                                                                                                                               | `auto`, `top`, `bottom`, `left`, `right`, `topleft`, `topright`, `bottomleft`, `bottomright`, `lefttop`, `leftbottom`, `righttop`, `rightbottom` |
-| `disabled`        | `false`          | Programmatic control of the Popover display state. Recommended to use with [sync modifier](https://vuejs.org/v2/guide/components.html#sync-Modifier).                                                      | `true`, `false`                                                                                                                                  |
-| `triggers`        | `'click'`        | Space separated list of event(s), which will trigger open/close of popover using built-in handling                                                                                                         | `hover`, `focus`, `click`. Note `blur` is a special use case to close popover on next click.                                                     |
-| `no-fade`         | `false`          | Disable fade animation when set to `true`                                                                                                                                                                  | `true` or `false`                                                                                                                                |
-| `delay`           | `0`              | Delay showing and hiding of popover by specified number of milliseconds. Can also be defined as an object in the form of `{ show: 100, hide: 400 }` allowing different show and hide delays                | `0` and up, integers only.                                                                                                                       |
-| `offset`          | `0`              | Shift the center of the popover by specified number of pixels. Also affects the position of the popover arrow.                                                                                             | Any negative or positive integer                                                                                                                 |
-| `container`       | `null`           | Element string ID to append rendered popover into. If `null` or element not found, popover is appended to `<body>` (default)                                                                               | Any valid in-document unique element ID.                                                                                                         |
-| `boundary`        | `'scrollParent'` | The container that the popover will be constrained visually. The default should suffice in most cases, but you may need to change this if your target element is in a small container with overflow scroll | `'scrollParent'` (default), `'viewport'`, `'window'`, or a reference to an HTML element.                                                         |
-| `boundaryPadding` | `5`              | Amount of pixel used to define a minimum distance between the boundaries and the popover. This makes sure the popover always has a little padding between the edges of its container.                      | Any positive number                                                                                                                              |
+| `target`             | `null`           | Element string ID, or a reference to an element or component, that you want to trigger the popover. **Required**                                                                                           | Any valid in-document unique element ID, or in-document element/component reference                                                              |
+| `title`              | `null`           | Popover title (text only, no HTML). If HTML or reactivity is required, use the `title` named slot                                                                                                          | Plain text                                                                                                                                       |
+| `content`            | `null`           | Popover content (text only, no HTML). If HTML or reactivity is required, use the default slot                                                                                                              | Plain text                                                                                                                                       |
+| `placement`          | `'right'`        | Positioning of the popover, relative to the trigger element.                                                                                                                                               | `auto`, `top`, `bottom`, `left`, `right`, `topleft`, `topright`, `bottomleft`, `bottomright`, `lefttop`, `leftbottom`, `righttop`, `rightbottom` |
+| `fallback-placement` | `'flip'`        | Auto-flip placement behavhiour of the popover, relative to the trigger element.                                                                                                                             | `flip`, `clockwise`, `counterclockwise`, or an array of valid placements evaludated from left to right                                          |
+| `disabled`           | `false`          | Programmatic control of the Popover display state. Recommended to use with [sync modifier](https://vuejs.org/v2/guide/components.html#sync-Modifier).                                                      | `true`, `false`                                                                                                                                  |
+| `triggers`           | `'click'`        | Space separated list of event(s), which will trigger open/close of popover using built-in handling                                                                                                         | `hover`, `focus`, `click`. Note `blur` is a special use case to close popover on next click.                                                     |
+| `no-fade`            | `false`          | Disable fade animation when set to `true`                                                                                                                                                                  | `true` or `false`                                                                                                                                |
+| `delay`              | `0`              | Delay showing and hiding of popover by specified number of milliseconds. Can also be defined as an object in the form of `{ show: 100, hide: 400 }` allowing different show and hide delays                | `0` and up, integers only.                                                                                                                       |
+| `offset`             | `0`              | Shift the center of the popover by specified number of pixels. Also affects the position of the popover arrow.                                                                                             | Any negative or positive integer                                                                                                                 |
+| `container`          | `null`           | Element string ID to append rendered popover into. If `null` or element not found, popover is appended to `<body>` (default)                                                                               | Any valid in-document unique element ID.                                                                                                         |
+| `boundary`           | `'scrollParent'` | The container that the popover will be constrained visually. The default should suffice in most cases, but you may need to change this if your target element is in a small container with overflow scroll | `'scrollParent'` (default), `'viewport'`, `'window'`, or a reference to an HTML element.                                                         |
+| `boundary-padding`   | `5`              | Amount of pixel used to define a minimum distance between the boundaries and the popover. This makes sure the popover always has a little padding between the edges of its container.                      | Any positive number                                                                                                                              |
 
 ### Programmatically show and hide popover
 
@@ -777,10 +777,8 @@ event.
 
 These events work for both the component **and** directive versions of popover.
 
-> **Note:** _The **trigger element** must exist in the DOM and be in a visible state in order for
-> the popover to instantiate and show._
-
-## Disabling and enabling popovers via \$root events
+**Note:** _The **trigger element** must exist in the DOM and be in a visible state in order for the
+popover to instantiate and show._
 
 ### Disabling and enabling popovers via \$root events
 
@@ -808,8 +806,8 @@ To enable all popovers simultaneously, omit the `id` argument when emitting the
 
 These events work for both the component and directive versions of popover.
 
-> **Note:** _The **trigger element** must exist in the DOM in order for the popover to be enabled or
-> disabled._
+**Note:** _The **trigger element** must exist in the DOM in order for the popover to be enabled or
+disabled._
 
 ### Listening to popover changes via \$root events
 

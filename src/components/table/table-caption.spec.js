@@ -1,12 +1,13 @@
-import Table from './table'
 import { mount } from '@vue/test-utils'
+import { waitNT } from '../../../tests/utils'
+import BTable from './table'
 
 const testItems = [{ a: 1, b: 2, c: 3 }, { a: 5, b: 5, c: 6 }, { a: 7, b: 8, c: 9 }]
 const testFields = ['a', 'b', 'c']
 
 describe('table > caption', () => {
   it('should not have caption by default', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -20,7 +21,7 @@ describe('table > caption', () => {
   })
 
   it('should render named slot `table-caption`', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -41,7 +42,7 @@ describe('table > caption', () => {
 
   it('should render scoped slot `table-caption`', async () => {
     let scope = null
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -69,7 +70,7 @@ describe('table > caption', () => {
   })
 
   it('should render `caption` when prop caption is set', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -87,7 +88,7 @@ describe('table > caption', () => {
   })
 
   it('should render `caption` when prop caption-html is set', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -111,7 +112,7 @@ describe('table > caption', () => {
   })
 
   it('should render `caption` with class when prop caption-top is set', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -130,7 +131,7 @@ describe('table > caption', () => {
   })
 
   it('should render `caption` with id attribute when prop stacked is true', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         id: 'zzz',
         fields: testFields,
@@ -142,7 +143,7 @@ describe('table > caption', () => {
     expect(wrapper).toBeDefined()
     expect(wrapper.is('table')).toBe(true)
     expect(wrapper.attributes('id')).toBe('zzz')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.find('table > caption').exists()).toBe(true)
     expect(wrapper.find('caption').text()).toBe('foobar')
     expect(wrapper.find('caption').attributes('id')).toBeDefined()
@@ -152,7 +153,7 @@ describe('table > caption', () => {
   })
 
   it('should render `caption` with id attribute when prop stacked is sm', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         id: 'zzz',
         fields: testFields,
@@ -164,7 +165,7 @@ describe('table > caption', () => {
     expect(wrapper).toBeDefined()
     expect(wrapper.is('table')).toBe(true)
     expect(wrapper.attributes('id')).toBe('zzz')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.find('table > caption').exists()).toBe(true)
     expect(wrapper.find('caption').text()).toBe('foobar')
     expect(wrapper.find('caption').attributes('id')).toBeDefined()

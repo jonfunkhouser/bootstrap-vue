@@ -1,5 +1,7 @@
+import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
 import { getComponentConfig } from '../../utils/config'
+import { hasNormalizedSlot, normalizeSlot } from '../../utils/normalize-slot'
 
 const NAME = 'BButtonClose'
 
@@ -19,11 +21,14 @@ const props = {
 }
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: NAME,
   functional: true,
   props,
-  render(h, { props, data, listeners, slots }) {
+  render(h, { props, data, listeners, slots, scopedSlots }) {
+    const $slots = slots()
+    const $scopedSlots = scopedSlots || {}
+
     const componentData = {
       staticClass: 'close',
       class: {
@@ -46,9 +51,13 @@ export default {
       }
     }
     // Careful not to override the default slot with innerHTML
-    if (!slots().default) {
+    if (!hasNormalizedSlot('default', $scopedSlots, $slots)) {
       componentData.domProps = { innerHTML: '&times;' }
     }
-    return h('button', mergeData(data, componentData), slots().default)
+    return h(
+      'button',
+      mergeData(data, componentData),
+      normalizeSlot('default', {}, $scopedSlots, $slots)
+    )
   }
-}
+})

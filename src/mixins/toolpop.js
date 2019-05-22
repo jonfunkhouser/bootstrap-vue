@@ -2,10 +2,13 @@
  * Tooltip/Popover component mixin
  * Common props
  */
-import { isArray } from '../utils/array'
-import { isElement, getById } from '../utils/dom'
-import { HTMLElement } from '../utils/ssr'
+
 import observeDom from '../utils/observe-dom'
+import { isElement, getById } from '../utils/dom'
+import { isArray, isFunction, isObject, isString } from '../utils/inspect'
+import { HTMLElement } from '../utils/safe-types'
+
+// --- Constants ---
 
 const PLACEMENTS = {
   top: 'top',
@@ -56,16 +59,6 @@ export default {
       type: String,
       default: null
     },
-    boundary: {
-      // String: scrollParent, window, or viewport
-      // Element: element reference
-      type: [String, HTMLElement],
-      default: 'scrollParent'
-    },
-    boundaryPadding: {
-      type: Number,
-      default: 5
-    },
     show: {
       type: Boolean,
       default: false
@@ -75,18 +68,26 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      // semaphore for preventing multiple show events
+      localShow: false
+    }
+  },
   computed: {
     baseConfig() {
       const cont = this.container
-      let delay = typeof this.delay === 'object' ? this.delay : parseInt(this.delay, 10) || 0
+      let delay = isObject(this.delay) ? this.delay : parseInt(this.delay, 10) || 0
       return {
         // Title prop
         title: (this.title || '').trim() || '',
-        // Contnt prop (if popover)
+        // Content prop (if popover)
         content: (this.content || '').trim() || '',
         // Tooltip/Popover placement
         placement: PLACEMENTS[this.placement] || 'auto',
-        // Container curently needs to be an ID with '#' prepended, if null then body is used
+        // Tooltip/popover fallback placemenet
+        fallbackPlacement: this.fallbackPlacement || 'flip',
+        // Container currently needs to be an ID with '#' prepended, if null then body is used
         container: cont ? (/^#/.test(cont) ? cont : `#${cont}`) : false,
         // boundariesElement passed to popper
         boundary: this.boundary,
@@ -114,20 +115,19 @@ export default {
   },
   watch: {
     show(show, old) {
-      /* istanbul ignore if */
-      if (show === old) {
-        /* istanbul ignore next */
-        return
+      if (show !== old) {
+        show ? this.onOpen() : this.onClose()
       }
-      show ? this.onOpen() : this.onClose()
     },
     disabled(disabled, old) {
-      /* istanbul ignore if */
-      if (disabled === old) {
-        /* istanbul ignore next */
-        return
+      if (disabled !== old) {
+        disabled ? this.onDisable() : this.onEnable()
       }
-      disabled ? this.onDisable() : this.onEnable()
+    },
+    localShow(show, old) {
+      if (show !== this.show) {
+        this.$emit('update:show', show)
+      }
     }
   },
   created() {
@@ -152,11 +152,11 @@ export default {
         this.$on('close', this.onClose)
         // Listen to disable signals from others
         this.$on('disable', this.onDisable)
-        // Listen to disable signals from others
+        // Listen to enable signals from others
         this.$on('enable', this.onEnable)
         // Observe content Child changes so we can notify popper of possible size change
         this.setObservers(true)
-        // Set intially open state
+        // Set initially open state
         if (this.show) {
           this.onOpen()
         }
@@ -165,25 +165,22 @@ export default {
   },
   updated() {
     // If content/props changes, etc
-    /* istanbul ignore next: can't test in JSDOM */
     if (this._toolpop) {
       this._toolpop.updateConfig(this.getConfig())
     }
   },
-  activated() {
+  activated() /* istanbul ignore next: can't easily test in JSDOM */ {
     // Called when component is inside a <keep-alive> and component brought offline
-    /* istanbul ignore next: can't test in JSDOM */
     this.setObservers(true)
   },
-  deactivated() {
+  deactivated() /* istanbul ignore next: can't easily test in JSDOM */ {
     // Called when component is inside a <keep-alive> and component taken offline
-    /* istanbul ignore next: can't test in JSDOM */
     if (this._toolpop) {
       this.setObservers(false)
       this._toolpop.hide()
     }
   },
-  beforeDestroy() /* istanbul ignore next: not easy to test */ {
+  beforeDestroy() {
     // Shutdown our local event listeners
     this.$off('open', this.onOpen)
     this.$off('close', this.onClose)
@@ -215,31 +212,33 @@ export default {
       return cfg
     },
     onOpen() {
-      if (this._toolpop) {
+      if (this._toolpop && !this.localShow) {
+        this.localShow = true
         this._toolpop.show()
       }
     },
     onClose(callback) {
-      if (this._toolpop) {
+      // What is callback for ? it is not documented
+      /* istanbul ignore else */
+      if (this._toolpop && this.localShow) {
         this._toolpop.hide(callback)
-      } else if (typeof callback === 'function') {
+      } else if (isFunction(callback)) {
+        // Is this even used?
         callback()
       }
     },
     onDisable() {
-      /* istanbul ignore next: can't test in JSDOM */
       if (this._toolpop) {
         this._toolpop.disable()
       }
     },
     onEnable() {
-      /* istanbul ignore next: can't test in JSDOM */
       if (this._toolpop) {
         this._toolpop.enable()
       }
     },
     updatePosition() {
-      /* istanbul ignore next: can't test in JSDOM */
+      /* istanbul ignore next: can't test in JSDOM until mutation observer is implemented */
       if (this._toolpop) {
         // Instruct popper to reposition popover if necessary
         this._toolpop.update()
@@ -247,51 +246,61 @@ export default {
     },
     getTarget() {
       let target = this.target
-      if (typeof target === 'function') {
+      if (isFunction(target)) {
+        /* istanbul ignore next */
         target = target()
       }
-      if (typeof target === 'string') {
+      /* istanbul ignore else */
+      if (isString(target)) {
         // Assume ID of element
         return getById(target)
-      } else if (typeof target === 'object' && isElement(target.$el)) {
+      } else if (isObject(target) && isElement(target.$el)) {
         // Component reference
+        /* istanbul ignore next */
         return target.$el
-      } else if (typeof target === 'object' && isElement(target)) {
+      } else if (isObject(target) && isElement(target)) {
         // Element reference
+        /* istanbul ignore next */
         return target
       }
+      /* istanbul ignore next */
       return null
     },
+    // Callbacks called by Tooltip/Popover class instance
     onShow(evt) {
       this.$emit('show', evt)
+      this.localShow = !(evt && evt.defaultPrevented)
     },
     onShown(evt) {
       this.setObservers(true)
-      this.$emit('update:show', true)
       this.$emit('shown', evt)
+      this.localShow = true
     },
     onHide(evt) {
       this.$emit('hide', evt)
+      this.localShow = !!(evt && evt.defaultPrevented)
     },
     onHidden(evt) {
       this.setObservers(false)
       // bring our content back if needed to keep Vue happy
       // Tooltip class will move it back to tip when shown again
       this.bringItBack()
-      this.$emit('update:show', false)
       this.$emit('hidden', evt)
+      this.localShow = false
     },
     onEnabled(evt) {
+      /* istanbul ignore next */
       if (!evt || evt.type !== 'enabled') {
-        // Prevent possible endless loop if user mistakienly fires enabled instead of enable
+        // Prevent possible endless loop if user mistakenly fires enabled instead of enable
         return
       }
       this.$emit('update:disabled', false)
       this.$emit('disabled')
     },
     onDisabled(evt) {
+      /* istanbul ignore next */
       if (!evt || evt.type !== 'disabled') {
-        // Prevent possible endless loop if user mistakienly fires disabled instead of disable
+        // Prevent possible endless loop if user mistakenly fires disabled instead of disable
         return
       }
       this.$emit('update:disabled', true)
@@ -306,7 +315,7 @@ export default {
         this.$el.appendChild(this.$refs.content)
       }
     },
-    setObservers(on) /* istanbul ignore next: can't test in JSDOM */ {
+    setObservers(on) {
       if (on) {
         if (this.$refs.title) {
           this._obs_title = observeDom(

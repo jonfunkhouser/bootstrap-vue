@@ -1,13 +1,14 @@
-import Group from './form-checkbox-group'
-import Check from './form-checkbox'
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
+import { waitNT } from '../../../tests/utils'
+import BFormCheckboxGroup from './form-checkbox-group'
+import BFormCheckbox from './form-checkbox'
 
 describe('form-checkbox-group', () => {
-  /* Structure, class and attributes tests */
+  // --- Structure, class and attributes tests ---
 
   it('default has structure <div></div>', async () => {
-    const wrapper = mount(Group)
+    const wrapper = mount(BFormCheckboxGroup)
     expect(wrapper).toBeDefined()
     expect(wrapper.is('div')).toBe(true)
     const children = wrapper.element.children
@@ -17,17 +18,17 @@ describe('form-checkbox-group', () => {
   })
 
   it('default has no classes on wrapper', async () => {
-    const wrapper = mount(Group)
+    const wrapper = mount(BFormCheckboxGroup)
     expect(wrapper.classes().length).toEqual(0)
 
     wrapper.destroy()
   })
 
   it('default has auto ID set', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true
     })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     // Auto ID not generated until after mount
     expect(wrapper.attributes('id')).toBeDefined()
 
@@ -35,7 +36,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default has tabindex set to -1', async () => {
-    const wrapper = mount(Group)
+    const wrapper = mount(BFormCheckboxGroup)
     expect(wrapper.attributes('tabindex')).toBeDefined()
     expect(wrapper.attributes('tabindex')).toBe('-1')
 
@@ -43,21 +44,21 @@ describe('form-checkbox-group', () => {
   })
 
   it('default does not have aria-required set', async () => {
-    const wrapper = mount(Group)
+    const wrapper = mount(BFormCheckboxGroup)
     expect(wrapper.attributes('aria-required')).not.toBeDefined()
 
     wrapper.destroy()
   })
 
   it('default does not have aria-invalid set', async () => {
-    const wrapper = mount(Group)
+    const wrapper = mount(BFormCheckboxGroup)
     expect(wrapper.attributes('aria-invalid')).not.toBeDefined()
 
     wrapper.destroy()
   })
 
   it('default has attribute role=group', async () => {
-    const wrapper = mount(Group)
+    const wrapper = mount(BFormCheckboxGroup)
     expect(wrapper.attributes('role')).toBeDefined()
     expect(wrapper.attributes('role')).toBe('group')
 
@@ -65,7 +66,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default has user provided ID', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         id: 'test'
@@ -78,7 +79,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default has class was-validated when validated=true', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         validated: true
@@ -91,7 +92,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default has attribute aria-invalid=true when state=false', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         state: false
@@ -104,7 +105,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default does not have attribute aria-invalid when state=true', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         state: true
@@ -116,7 +117,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default does not have attribute aria-invalid when state=null', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         state: null
@@ -128,7 +129,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default has attribute aria-invalid=true when aria-invalid=true', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         ariaInvalid: true
@@ -141,7 +142,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default has attribute aria-invalid=true when aria-invalid="true"', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         ariaInvalid: 'true'
@@ -154,7 +155,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('default has attribute aria-invalid=true when aria-invalid=""', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         ariaInvalid: ''
@@ -169,7 +170,7 @@ describe('form-checkbox-group', () => {
   /* button mode structure */
 
   it('button mode has classes button-group and button-group-toggle', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         buttons: true
@@ -184,7 +185,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('button mode has classes button-group-vertical and button-group-toggle when stacked=true', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         buttons: true,
@@ -200,7 +201,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('button mode has size class when size prop set', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         buttons: true,
@@ -217,7 +218,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('button mode has size class when size prop set and stacked', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         buttons: true,
@@ -238,7 +239,7 @@ describe('form-checkbox-group', () => {
     const App = Vue.extend({
       render(h) {
         return h(
-          Group,
+          BFormCheckboxGroup,
           {
             props: {
               checked: [],
@@ -247,9 +248,9 @@ describe('form-checkbox-group', () => {
             }
           },
           [
-            h(Check, { props: { value: 'one' } }, 'button 1'),
-            h(Check, { props: { value: 'two' } }, 'button 2'),
-            h(Check, { props: { value: 'three', buttonVariant: 'danger' } }, 'button 3')
+            h(BFormCheckbox, { props: { value: 'one' } }, 'button 1'),
+            h(BFormCheckbox, { props: { value: 'two' } }, 'button 2'),
+            h(BFormCheckbox, { props: { value: 'three', buttonVariant: 'danger' } }, 'button 3')
           ]
         )
       }
@@ -259,7 +260,7 @@ describe('form-checkbox-group', () => {
       attachToDocument: true
     })
     expect(wrapper).toBeDefined()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     // Find all the labels with .btn class
     const btns = wrapper.findAll('label.btn')
@@ -273,10 +274,10 @@ describe('form-checkbox-group', () => {
     wrapper.destroy()
   })
 
-  /* functionality testing */
+  // --- Functionality testing ---
 
   it('has checkboxes via options array', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         options: ['one', 'two', 'three'],
@@ -293,7 +294,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('has checkboxes via options array which respect disabled', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         options: [{ text: 'one' }, { text: 'two' }, { text: 'three', disabled: true }],
@@ -313,7 +314,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('emits change event when checkbox clicked', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         options: ['one', 'two', 'three'],
@@ -359,7 +360,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('checkboxes reflect group checked v-model', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         options: ['one', 'two', 'three'],
@@ -389,7 +390,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('child checkboxes have is-valid classes when group state set to valid', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         options: ['one', 'two', 'three'],
@@ -408,7 +409,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('child checkboxes have is-invalid classes when group state set to invalid', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         options: ['one', 'two', 'three'],
@@ -426,7 +427,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('child checkboxes have disabled attribute when group disabled', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         options: ['one', 'two', 'three'],
@@ -444,7 +445,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('child checkboxes have required attribute when group required', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         name: 'group',
@@ -464,7 +465,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('child checkboxes have class custom-control-inline when stacked=false', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         name: 'group',
@@ -481,7 +482,7 @@ describe('form-checkbox-group', () => {
   })
 
   it('child checkboxes do not have class custom-control-inline when stacked=true', async () => {
-    const wrapper = mount(Group, {
+    const wrapper = mount(BFormCheckboxGroup, {
       attachToDocument: true,
       propsData: {
         name: 'group',

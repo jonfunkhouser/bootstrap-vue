@@ -1,123 +1,116 @@
+import Vue from '../../utils/vue'
 import { stripTags } from '../../utils/html'
 import { getComponentConfig } from '../../utils/config'
+import { HTMLElement } from '../../utils/safe-types'
 import idMixin from '../../mixins/id'
 import dropdownMixin from '../../mixins/dropdown'
+import normalizeSlotMixin from '../../mixins/normalize-slot'
 import BButton from '../button/button'
 
 const NAME = 'BDropdown'
 
-// @vue/component
-export default {
-  name: NAME,
-  components: { BButton },
-  mixins: [idMixin, dropdownMixin],
-  props: {
-    toggleText: {
-      // This really should be toggleLabel
-      type: String,
-      default: () => getComponentConfig(NAME, 'toggleText')
-    },
-    size: {
-      type: String,
-      default: null
-    },
-    variant: {
-      type: String,
-      default: () => getComponentConfig(NAME, 'variant')
-    },
-    menuClass: {
-      type: [String, Array],
-      default: null
-    },
-    toggleTag: {
-      type: String,
-      default: 'button'
-    },
-    toggleClass: {
-      type: [String, Array],
-      default: null
-    },
-    noCaret: {
-      type: Boolean,
-      default: false
-    },
-    split: {
-      type: Boolean,
-      default: false
-    },
-    splitHref: {
-      type: String
-      // default: undefined
-    },
-    splitTo: {
-      type: [String, Object]
-      // default: undefined
-    },
-    splitVariant: {
-      type: String,
-      default: null
-    },
-    role: {
-      type: String,
-      default: 'menu'
-    },
-    boundary: {
-      // String: `scrollParent`, `window` or `viewport`
-      // Object: HTML Element reference
-      type: [String, Object],
-      default: 'scrollParent'
-    }
+export const props = {
+  toggleText: {
+    // This really should be toggleLabel
+    type: String,
+    default: () => getComponentConfig(NAME, 'toggleText')
   },
+  size: {
+    type: String,
+    default: null
+  },
+  variant: {
+    type: String,
+    default: () => getComponentConfig(NAME, 'variant')
+  },
+  menuClass: {
+    type: [String, Array],
+    default: null
+  },
+  toggleTag: {
+    type: String,
+    default: 'button'
+  },
+  toggleClass: {
+    type: [String, Array],
+    default: null
+  },
+  noCaret: {
+    type: Boolean,
+    default: false
+  },
+  split: {
+    type: Boolean,
+    default: false
+  },
+  splitHref: {
+    type: String
+    // default: undefined
+  },
+  splitTo: {
+    type: [String, Object]
+    // default: undefined
+  },
+  splitVariant: {
+    type: String,
+    default: () => getComponentConfig(NAME, 'splitVariant')
+  },
+  role: {
+    type: String,
+    default: 'menu'
+  },
+  boundary: {
+    // String: `scrollParent`, `window` or `viewport`
+    // HTMLElement: HTML Element reference
+    type: [String, HTMLElement],
+    default: 'scrollParent'
+  }
+}
+
+// @vue/component
+export default Vue.extend({
+  name: NAME,
+  mixins: [idMixin, dropdownMixin, normalizeSlotMixin],
+  props,
   computed: {
     dropdownClasses() {
-      // Position `static` is needed to allow menu to "breakout" of the scrollParent boundaries
-      // when boundary is anything other than `scrollParent`
-      // See https://github.com/twbs/bootstrap/issues/24251#issuecomment-341413786
-      const positionStatic = this.boundary !== 'scrollParent' || !this.boundary
-
-      let direction = ''
-      if (this.dropup) {
-        direction = 'dropup'
-      } else if (this.dropright) {
-        direction = 'dropright'
-      } else if (this.dropleft) {
-        direction = 'dropleft'
-      }
-
       return [
-        'btn-group',
-        'b-dropdown',
-        'dropdown',
-        direction,
+        this.directionClass,
         {
           show: this.visible,
-          'position-static': positionStatic
+          // Position `static` is needed to allow menu to "breakout" of the scrollParent boundaries
+          // when boundary is anything other than `scrollParent`
+          // See https://github.com/twbs/bootstrap/issues/24251#issuecomment-341413786
+          'position-static': this.boundary !== 'scrollParent' || !this.boundary
         }
       ]
     },
     menuClasses() {
       return [
-        'dropdown-menu',
+        this.menuClass,
         {
           'dropdown-menu-right': this.right,
           show: this.visible
-        },
-        this.menuClass
+        }
       ]
     },
     toggleClasses() {
       return [
-        'dropdown-toggle',
+        this.toggleClass,
         {
           'dropdown-toggle-split': this.split,
           'dropdown-toggle-no-caret': this.noCaret && !this.split
-        },
-        this.toggleClass
+        }
       ]
     }
   },
   render(h) {
     let split = h(false)
+    const buttonContent =
+      this.normalizeSlot('button-content') ||
+      this.normalizeSlot('text') ||
+      this.html ||
+      stripTags(this.text)
     if (this.split) {
       const btnProps = {
         disabled: this.disabled,
@@ -132,7 +125,7 @@ export default {
         btnProps.href = this.splitHref
       }
       split = h(
-        'b-button',
+        BButton,
         {
           ref: 'button',
           props: btnProps,
@@ -143,13 +136,14 @@ export default {
             click: this.click
           }
         },
-        [this.$slots['button-content'] || this.$slots.text || this.html || stripTags(this.text)]
+        [buttonContent]
       )
     }
     const toggle = h(
-      'b-button',
+      BButton,
       {
         ref: 'toggle',
+        staticClass: 'dropdown-toggle',
         class: this.toggleClasses,
         props: {
           variant: this.variant,
@@ -167,16 +161,13 @@ export default {
           keydown: this.toggle // enter, space, down
         }
       },
-      [
-        this.split
-          ? h('span', { class: ['sr-only'] }, [this.toggleText])
-          : this.$slots['button-content'] || this.$slots.text || this.html || stripTags(this.text)
-      ]
+      [this.split ? h('span', { class: ['sr-only'] }, [this.toggleText]) : buttonContent]
     )
     const menu = h(
-      'div',
+      'ul',
       {
         ref: 'menu',
+        staticClass: 'dropdown-menu',
         class: this.menuClasses,
         attrs: {
           role: this.role,
@@ -184,16 +175,19 @@ export default {
           'aria-labelledby': this.safeId(this.split ? '_BV_button_' : '_BV_toggle_')
         },
         on: {
-          mouseover: this.onMouseOver,
-          keydown: this.onKeydown // tab, up, down, esc
+          keydown: this.onKeydown // up, down, esc
         }
       },
-      [this.$slots.default]
+      this.normalizeSlot('default', { hide: this.hide })
     )
-    return h('div', { attrs: { id: this.safeId() }, class: this.dropdownClasses }, [
-      split,
-      toggle,
-      menu
-    ])
+    return h(
+      'div',
+      {
+        staticClass: 'dropdown btn-group b-dropdown',
+        class: this.dropdownClasses,
+        attrs: { id: this.safeId() }
+      },
+      [split, toggle, menu]
+    )
   }
-}
+})

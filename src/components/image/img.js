@@ -1,5 +1,9 @@
+import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
 import { getComponentConfig } from '../../utils/config'
+import { isString } from '../../utils/inspect'
+
+// --- Constants --
 
 const NAME = 'BImg'
 
@@ -10,15 +14,6 @@ const BLANK_TEMPLATE =
   'viewBox="0 0 %{w} %{h}" preserveAspectRatio="none">' +
   '<rect width="100%" height="100%" style="fill:%{f};"></rect>' +
   '</svg>'
-
-function makeBlankImgSrc(width, height, color) {
-  const src = encodeURIComponent(
-    BLANK_TEMPLATE.replace('%{w}', String(width))
-      .replace('%{h}', String(height))
-      .replace('%{f}', color)
-  )
-  return `data:image/svg+xml;charset=UTF-8,${src}`
-}
 
 export const props = {
   src: {
@@ -89,8 +84,19 @@ export const props = {
   }
 }
 
+// --- Helper methods ---
+
+function makeBlankImgSrc(width, height, color) {
+  const src = encodeURIComponent(
+    BLANK_TEMPLATE.replace('%{w}', String(width))
+      .replace('%{h}', String(height))
+      .replace('%{f}', color)
+  )
+  return `data:image/svg+xml;charset=UTF-8,${src}`
+}
+
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BImg',
   functional: true,
   props,
@@ -135,11 +141,11 @@ export default {
           'img-fluid': props.fluid || props.fluidGrow,
           'w-100': props.fluidGrow,
           rounded: props.rounded === '' || props.rounded === true,
-          [`rounded-${props.rounded}`]: typeof props.rounded === 'string' && props.rounded !== '',
+          [`rounded-${props.rounded}`]: isString(props.rounded) && props.rounded !== '',
           [align]: Boolean(align),
           'd-block': block
         }
       })
     )
   }
-}
+})

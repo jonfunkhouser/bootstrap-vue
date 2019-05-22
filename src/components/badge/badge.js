@@ -1,3 +1,4 @@
+import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
 import { getComponentConfig } from '../../utils/config'
 import pluckProps from '../../utils/pluck-props'
@@ -26,7 +27,7 @@ export const props = {
 }
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: NAME,
   functional: true,
   props,
@@ -36,7 +37,7 @@ export default {
     const componentData = {
       staticClass: 'badge',
       class: [
-        `badge-${props.variant || getComponentConfig(NAME, 'variant')}`,
+        props.variant ? `badge-${props.variant}` : 'badge-secondary',
         {
           'badge-pill': Boolean(props.pill),
           active: props.active,
@@ -48,4 +49,4 @@ export default {
 
     return h(tag, mergeData(data, componentData), children)
   }
-}
+})

@@ -101,8 +101,8 @@ as well.
 
 ### Example using nested navs
 
-Scrollspy also works with nested `<b-nav>`. If a nested `<b-nav-item>` is active, its parent()s
-will also be active. Scroll the area next to the navbar and watch the active class change.
+Scrollspy also works with nested `<b-nav>`. If a nested `<b-nav-item>` is active, its parent()s will
+also be active. Scroll the area next to the navbar and watch the active class change.
 
 ```html
 <template>
@@ -230,7 +230,7 @@ _local_ `href` or `to`. Scroll the area next to the list group and watch the act
 <!-- b-scrollspy-listgroup.vue -->
 ```
 
-## Using Scrollspy on components with the `to` prop
+## Using scrollspy on components with the `to` prop
 
 When Vue Router (or Nuxt.js) is used, and you are generating your links with the `to` prop, use one
 of the following methods to generate the apropriate `href` on the rendered link:
@@ -243,8 +243,8 @@ of the following methods to generate the apropriate `href` on the rendered link:
 <b-nav-item :to="{ hash: '#id-of-element' }">link text</b-nav-item>
 ```
 
-Scrollspy works with both `history` and `hash` routing modes, as long as the generated URL ends
-with `#id-of-element`.
+Scrollspy works with both `history` and `hash` routing modes, as long as the generated URL ends with
+`#id-of-element`.
 
 ## Directive syntax and usage
 
@@ -302,7 +302,7 @@ If any of the options are invalid types, then an error is written to the console
 - If scroll element is not found, then ScrollSpy silently does nothing
 
 **Important! Requires relative positioning** No matter the implementation method, scrollspy requires
-the use of `position: relative;` on the element you’re scrolling on. In most cases this is the
+the use of `position: relative;` on the element you're scrolling on. In most cases this is the
 `<body>`. When scrollspying on elements other than the `<body>`, be sure to have a CSS `height` set
 and `overflow-y: scroll;` applied.
 

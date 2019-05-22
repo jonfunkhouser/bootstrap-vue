@@ -2,17 +2,25 @@
 
 > Documentation and examples for opting images (via `<b-img>` component) into responsive behavior
 > (so they never become larger than their parent elements), optionally adding lightweight styles to
-> them — all via props. Support for rounded images, thumbnail styling, alignment, and even the
-> ability to create blank images with an optional solid background color.
+> them — all via props.
+
+BootstrapVue's image components support rounded images, thumbnail styling, alignment, and even the
+ability to create blank images with an optional solid background color. Support for lazy loaded
+images is available via the `<b-img-lazy>` complimentary component.
 
 ## Image src resolving
 
-The `src` prop (and `blank-src` prop of `<b-img-lazy>`), out of the box, works only with
-absolute/fully-qualified-domain-name URLs. If you are using project assets as image sources, please
-refer to [Component img src resolving](/docs/reference/images) for configuring `vue-loader` to
-understand custom component props that specify image sources.
+The `src` prop (and `blank-src` prop of `<b-img-lazy>`), out of the box, works only with absolute or
+fully-qualified-domain-name URLs. If you are using project assets as image sources, please refer to
+[Component img src resolving](/docs/reference/images) for configuring `vue-loader` to understand
+custom component props that specify image sources.
 
-## Responsive images
+## Styling images
+
+Several props are available for styling the rendered image element. The following sub-sections cover
+the various options.
+
+### Responsive images
 
 Images in BootstrapVue can be made responsive with the `fluid` prop (which sets
 `max-width: 100%; height: auto;` via CSS classes) so that it scales with the parent element - up to
@@ -46,9 +54,9 @@ default of inline-block element.
 
 **Note:** _In Internet Explorer 10, SVG images with `fluid` are disproportionately sized. To fix
 this, add the style `width: 100% \9;` where necessary. This fix improperly sizes other image
-formats, so Bootstrap V4 doesn’t apply it automatically._
+formats, so Bootstrap V4 doesn't apply it automatically._
 
-## Image thumbnails
+### Image thumbnails
 
 You can use prop `thumbnail` to give an image a rounded light border appearance.
 
@@ -70,7 +78,7 @@ You can use prop `thumbnail` to give an image a rounded light border appearance.
 <!-- b-img-thumbnail.vue -->
 ```
 
-## Rounded corners
+### Rounded corners
 
 You can control which corners are rounded by setting the rounded prop to one of the following
 values:
@@ -110,7 +118,7 @@ values:
 <!-- b-img-rounded.vue -->
 ```
 
-## Aligning images
+### Aligning images
 
 Align images with the boolean props `left` (floats left) `right`(floats right), and `center` (auto
 left+right margins). You can also center images by placing them in a container that has the class
@@ -139,7 +147,7 @@ left+right margins). You can also center images by placing them in a container t
 
 Note: `left` takes precedence over `right` which takes precedence over `center`.
 
-## Blank (or solid color) Images
+## Blank (or solid color) images
 
 `<b-img>` provides built-in support for generating blank images (transparent by default) of any
 width and height, by setting the `blank` prop, and specifying `width` and `height` values (in
@@ -194,14 +202,16 @@ The default `blank-color` is `transparent`.
 - The `width` and `height` props will also apply the `width` and `height` attributes to the rendered
   `<img>` tag, even if `blank` is not set.
 
-## Lazy Loaded images
+## Lazy loaded images
 
 > Use our complementary `<b-img-lazy>` image component (based on `<b-img>`) to lazy load images as
 > they are scrolled into view (or within `offset` pixels of the viewport).
 
-Lazy loading images relies on the document `scroll` and `transitionend` events to trigger the
-loading of the final image. Scrolling of other elements is not monitored, and will not trigger image
-loading.
+Lazy loading images uses
+[`IntersectionObserver`](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
+if supported by the browser (or polyfill), otherwise it uses the document `scroll`, `resize`, and
+`transitionend` events to determine if the image is in view in order to trigger the loading of the
+final image. Scrolling of other elements is not monitored, and will not trigger image loading.
 
 ### Usage
 
@@ -223,11 +233,13 @@ Feel free to use the `fluid`, `fluid-grow`, `thumbnail`, and `rounded` props of 
 The `offset` prop specifies the number of pixels that an image needs to be near to the viewport to
 trigger it to be shown. The default value is `360`.
 
-The `throttle` prop controls how long (in ms) after a scroll (or `resize`, or `orientationchange`,
+The `throttle` prop controls how long (in ms) after a `scroll` (or `resize`, or `orientationchange`,
 or `transitionend`) event happens before checking if the image has come within view (or within
-`offset` of view). The default is `100` (ms).
+`offset` of view). The default is `100` (ms). `throttle` has no effect if IntersectionObserver
+support is detected.
 
-Once an image has come into view and is shown, the event listeners are removed.
+Once an image has come into view and is shown, the event listeners and/or Intersection Observer are
+removed.
 
 **Example usage:**
 

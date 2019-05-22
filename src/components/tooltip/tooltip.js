@@ -1,11 +1,18 @@
+import Vue from '../../utils/vue'
 import ToolTip from '../../utils/tooltip.class'
 import warn from '../../utils/warn'
+import { isArray, arrayIncludes } from '../../utils/array'
+import { getComponentConfig } from '../../utils/config'
+import { HTMLElement } from '../../utils/safe-types'
+import normalizeSlotMixin from '../../mixins/normalize-slot'
 import toolpopMixin from '../../mixins/toolpop'
 
+const NAME = 'BTooltip'
+
 // @vue/component
-export default {
-  name: 'BTooltip',
-  mixins: [toolpopMixin],
+export default Vue.extend({
+  name: NAME,
+  mixins: [toolpopMixin, normalizeSlotMixin],
   props: {
     title: {
       type: String,
@@ -18,6 +25,23 @@ export default {
     placement: {
       type: String,
       default: 'top'
+    },
+    fallbackPlacement: {
+      type: [String, Array],
+      default: 'flip',
+      validator(value) {
+        return isArray(value) || arrayIncludes(['flip', 'clockwise', 'counterclockwise'], value)
+      }
+    },
+    boundary: {
+      // String: scrollParent, window, or viewport
+      // Element: element reference
+      type: [String, HTMLElement],
+      default: () => getComponentConfig(NAME, 'boundary')
+    },
+    boundaryPadding: {
+      type: Number,
+      default: () => getComponentConfig(NAME, 'boundaryPadding')
     }
   },
   data() {
@@ -27,6 +51,7 @@ export default {
     createToolpop() {
       // getTarget is in toolpop mixin
       const target = this.getTarget()
+      /* istanbul ignore else */
       if (target) {
         this._toolpop = new ToolTip(target, this.getConfig(), this.$root)
       } else {
@@ -40,7 +65,7 @@ export default {
     return h(
       'div',
       { class: ['d-none'], style: { display: 'none' }, attrs: { 'aria-hidden': true } },
-      [h('div', { ref: 'title' }, this.$slots.default)]
+      [h('div', { ref: 'title' }, this.normalizeSlot('default'))]
     )
   }
-}
+})

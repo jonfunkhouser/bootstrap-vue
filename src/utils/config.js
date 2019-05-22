@@ -1,10 +1,11 @@
 import cloneDeep from './clone-deep'
 import get from './get'
+import memoize from './memoize'
 import warn from './warn'
-import { isArray } from './array'
-import { keys, isObject } from './object'
+import { isArray, isObject, isString, isUndefined } from './inspect'
+import { keys } from './object'
 
-// General Bootstrap Vue configuration
+// General BootstrapVue configuration
 //
 // BREAKPOINT DEFINITIONS
 //
@@ -56,9 +57,16 @@ const DEFAULTS = {
     // BCard and BCardBody also inherit this prop
     subTitleTextVariant: 'muted'
   },
+  BCarousel: {
+    labelPrev: 'Previous Slide',
+    labelNext: 'Next Slide',
+    labelGotoSlide: 'Goto Slide',
+    labelIndicators: 'Select a slide to display'
+  },
   BDropdown: {
     toggleText: 'Toggle Dropdown',
-    variant: 'secondary'
+    variant: 'secondary',
+    splitVariant: null
   },
   BFormFile: {
     browseText: 'Browse',
@@ -75,12 +83,73 @@ const DEFAULTS = {
   BImgLazy: {
     blankColor: 'transparent'
   },
+  BJumbotron: {
+    bgVariant: null,
+    borderVariant: null,
+    textVariant: null
+  },
+  BListGroupItem: {
+    variant: null
+  },
   BModal: {
+    titleTag: 'h5',
+    size: 'md',
+    headerBgVariant: null,
+    headerBorderVariant: null,
+    headerTextVariant: null,
+    headerCloseVariant: null,
+    bodyBgVariant: null,
+    bodyTextVariant: null,
+    footerBgVariant: null,
+    footerBorderVariant: null,
+    footerTextVariant: null,
     cancelTitle: 'Cancel',
     cancelVariant: 'secondary',
     okTitle: 'OK',
     okVariant: 'primary',
     headerCloseLabel: 'Close'
+  },
+  BNavbar: {
+    variant: null
+  },
+  BNavbarToggle: {
+    label: 'Toggle navigation'
+  },
+  BProgress: {
+    variant: null
+  },
+  BProgressBar: {
+    variant: null
+  },
+  BSpinner: {
+    variant: null
+  },
+  BTable: {
+    selectedVariant: 'primary',
+    headVariant: null,
+    footVariant: null
+  },
+  BToast: {
+    toaster: 'b-toaster-top-right',
+    autoHideDelay: 5000,
+    variant: null,
+    toastClass: null,
+    headerClass: null,
+    bodyClass: null,
+    solid: false
+  },
+  BToaster: {
+    ariaLive: null,
+    ariaAtomic: null,
+    role: null
+  },
+  BTooltip: {
+    boundary: 'scrollParent',
+    boundaryPadding: 5
+  },
+  BPopover: {
+    boundary: 'scrollParent',
+    boundaryPadding: 5
   }
 }
 
@@ -119,7 +188,7 @@ const setConfig = (config = {}) => {
         if (
           !isArray(breakpoints) ||
           breakpoints.length < 2 ||
-          breakpoints.some(b => typeof b !== 'string' || b.length === 0)
+          breakpoints.some(b => !isString(b) || b.length === 0)
         ) {
           /* istanbul ignore next */
           warn('config: "breakpoints" must be an array of at least 2 breakpoint names')
@@ -136,7 +205,7 @@ const setConfig = (config = {}) => {
             } else {
               // If we pre-populate the config with defaults, we can skip this line
               CONFIG[cmpName] = CONFIG[cmpName] || {}
-              if (cmpConfig[key] !== undefined) {
+              if (!isUndefined(cmpConfig[key])) {
                 CONFIG[cmpName][key] = cloneDeep(cmpConfig[key])
               }
             }
@@ -174,6 +243,10 @@ const getComponentConfig = (cmpName, key = null) => {
 // Convenience method for getting all breakpoint names
 const getBreakpoints = () => getConfigValue('breakpoints')
 
+// Convenience method for getting all breakpoint names
+// Caches the results after first access
+const getBreakpointsCached = memoize(() => getConfigValue('breakpoints'))
+
 // Convenience method for getting breakpoints with
 // the smallest breakpoint set as ''
 // Useful for components that create breakpoint specific props
@@ -184,6 +257,16 @@ const getBreakpointsUp = () => {
 }
 
 // Convenience method for getting breakpoints with
+// the smallest breakpoint set as ''
+// Useful for components that create breakpoint specific props
+// Caches the results after first access
+const getBreakpointsUpCached = memoize(() => {
+  const breakpoints = getBreakpointsCached().slice()
+  breakpoints[0] = ''
+  return breakpoints
+})
+
+// Convenience method for getting breakpoints with
 // the largest breakpoint set as ''
 // Useful for components that create breakpoint specific props
 const getBreakpointsDown = () => {
@@ -191,6 +274,17 @@ const getBreakpointsDown = () => {
   breakpoints[breakpoints.length - 1] = ''
   return breakpoints
 }
+
+// Convenience method for getting breakpoints with
+// the largest breakpoint set as ''
+// Useful for components that create breakpoint specific props
+// Caches the results after first access
+/* istanbul ignore next: we don't use this method anywhere, yet */
+const getBreakpointsDownCached = memoize(() => {
+  const breakpoints = getBreakpointsCached().slice()
+  breakpoints[breakpoints.length - 1] = ''
+  return breakpoints
+})
 
 // Named Exports
 export {
@@ -202,5 +296,8 @@ export {
   getComponentConfig,
   getBreakpoints,
   getBreakpointsUp,
-  getBreakpointsDown
+  getBreakpointsDown,
+  getBreakpointsCached,
+  getBreakpointsUpCached,
+  getBreakpointsDownCached
 }

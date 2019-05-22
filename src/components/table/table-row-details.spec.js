@@ -1,5 +1,6 @@
-import Table from './table'
 import { mount } from '@vue/test-utils'
+import { waitNT } from '../../../tests/utils'
+import BTable from './table'
 
 describe('table > row details', () => {
   it('does not show details if slot row-details not defined', async () => {
@@ -9,7 +10,7 @@ describe('table > row details', () => {
       { a: 7, b: 8, c: 9, _showDetails: false }
     ]
     const testFields = ['a', 'b', 'c']
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -34,13 +35,13 @@ describe('table > row details', () => {
       { a: 7, b: 8, c: 9, _showDetails: false }
     ]
     const testFields = ['a', 'b', 'c']
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
       },
       slots: {
-        // named slots get turned into scopedSlots in Vue 2.6.x
+        // Named slots get turned into scopedSlots in Vue 2.6.x
         'row-details': '<div>foobar</div>'
       }
     })
@@ -65,13 +66,13 @@ describe('table > row details', () => {
       { a: 7, b: 8, c: 9, _showDetails: false }
     ]
     const testFields = ['a', 'b', 'c']
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
       },
       slots: {
-        // named slots get turned into scopedSlots in Vue 2.6.x
+        // Named slots get turned into scopedSlots in Vue 2.6.x
         'row-details': '<div>foobar</div>'
       }
     })
@@ -101,7 +102,7 @@ describe('table > row details', () => {
       { a: 7, b: 8, c: 9, _showDetails: false }
     ]
     const testFields = ['a', 'b', 'c']
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -140,14 +141,14 @@ describe('table > row details', () => {
       { a: 7, b: 8, c: 9, _showDetails: false }
     ]
     const testFields = ['a', 'b', 'c']
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
         striped: true
       },
       slots: {
-        // named slots get turned into scopedSlots in Vue 2.6.x
+        // Named slots get turned into scopedSlots in Vue 2.6.x
         'row-details': '<div>foobar</div>'
       }
     })
@@ -176,7 +177,7 @@ describe('table > row details', () => {
     const testFields = ['a', 'b', 'c']
     let scopeDetails = null
     let scopeField = null
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -206,7 +207,7 @@ describe('table > row details', () => {
     // Toggle details via details slot
     expect(scopeDetails).not.toBe(null)
     scopeDetails.toggleDetails()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.findAll('tbody > tr').length).toBe(1)
 
@@ -217,7 +218,7 @@ describe('table > row details', () => {
     // Toggle details via field slot
     expect(scopeField).not.toBe(null)
     scopeField.toggleDetails()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.findAll('tbody > tr').length).toBe(2)
 

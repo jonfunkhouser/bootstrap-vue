@@ -1,7 +1,11 @@
 import { htmlOrText } from '../utils/html'
+import normalizeSlotMixin from './normalize-slot'
+import BFormCheckbox from '../components/form-checkbox/form-checkbox'
+import BFormRadio from '../components/form-radio/form-radio'
 
 // @vue/component
 export default {
+  mixins: [normalizeSlotMixin],
   model: {
     prop: 'checked',
     event: 'input'
@@ -71,12 +75,10 @@ export default {
     }
   },
   render(h) {
-    const $slots = this.$slots
-
     const inputs = this.formOptions.map((option, idx) => {
       const uid = `_BV_option_${idx}_`
       return h(
-        this.is_RadioGroup ? 'b-form-radio' : 'b-form-checkbox',
+        this.isRadioGroup ? BFormRadio : BFormCheckbox,
         {
           key: uid,
           props: {
@@ -99,14 +101,14 @@ export default {
         class: this.groupClasses,
         attrs: {
           id: this.safeId(),
-          role: this.is_RadioGroup ? 'radiogroup' : 'group',
+          role: this.isRadioGroup ? 'radiogroup' : 'group',
           // Tabindex to allow group to be focused if needed
           tabindex: '-1',
           'aria-required': this.required ? 'true' : null,
           'aria-invalid': this.computedAriaInvalid
         }
       },
-      [$slots.first, inputs, $slots.default]
+      [this.normalizeSlot('first'), inputs, this.normalizeSlot('default')]
     )
   }
 }

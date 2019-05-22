@@ -92,7 +92,7 @@ named slot `first`.
 Please see options in [`<b-form-select>`](/docs/components/form-select) docs for details on passing
 `options` (value array) to `<b-form-checkbox-group>`.
 
-## Inline and Stacked checkboxes
+## Inline and stacked checkboxes
 
 `<b-form-checkbox-group>` components render inline checkboxes by default, while `<b-form-checkbox>`
 renders block-level (stacked) checkboxes.
@@ -433,9 +433,9 @@ by setting the `plain` prop.
 
 Bootstrap includes validation styles for `valid` and `invalid` states on most form controls.
 
-Generally speaking, you’ll want to use a particular state for specific types of feedback:
+Generally speaking, you'll want to use a particular state for specific types of feedback:
 
-- `'invalid'` (or `false`) is great for when there’s a blocking or required field. A user must fill
+- `'invalid'` (or `false`) is great for when there's a blocking or required field. A user must fill
   in this field properly to submit the form.
 - `'valid'` (or `true`) is ideal for situations when you have per-field validation throughout a form
   and want to encourage a user through the rest of the fields.
@@ -498,6 +498,12 @@ only users) to know which checkboxes belong to the same form variable (the name 
 enables native browser keyboard navigation), hence `required` will only work if `name` is set.
 `<b-form-checkbox-group>` will automatically generate a unique input name if one is not provided on
 the group.
+
+## Autofocus
+
+When the `autofocus` prop is set on `<b-form-checkbox>`, the input will be auto-focused when it is
+inserted into the document, or re-activated when inside a Vue `<keep-alive>` component. Note that
+this prop **does not** set the `autofocus` attribute on the input.
 
 ## Indeterminate (tri-state) support
 

@@ -1,3 +1,6 @@
+import Vue from '../../utils/vue'
+import nomalizeSlotMixin from '../../mixins/normalize-slot'
+
 export const props = {
   active: {
     type: Boolean,
@@ -10,12 +13,18 @@ export const props = {
   disabled: {
     type: Boolean,
     default: false
+  },
+  variant: {
+    type: String,
+    default: null
   }
 }
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BDropdownItemButton',
+  mixins: [nomalizeSlotMixin],
+  inheritAttrs: false,
   inject: {
     bvDropdown: {
       default: null
@@ -34,15 +43,26 @@ export default {
     }
   },
   render(h) {
-    return h(
-      'button',
-      {
-        staticClass: 'dropdown-item',
-        class: { [this.activeClass]: this.active },
-        attrs: { role: 'menuitem', type: 'button', disabled: this.disabled },
-        on: { click: this.onClick }
-      },
-      this.$slots.default
-    )
+    return h('li', [
+      h(
+        'button',
+        {
+          staticClass: 'dropdown-item',
+          class: {
+            [this.activeClass]: this.active,
+            [`text-${this.variant}`]: this.variant && !(this.active || this.disabled)
+          },
+          attrs: {
+            ...this.$attrs,
+            role: 'menuitem',
+            type: 'button',
+            disabled: this.disabled
+          },
+          on: { click: this.onClick },
+          ref: 'button'
+        },
+        this.normalizeSlot('default')
+      )
+    ])
   }
-}
+})

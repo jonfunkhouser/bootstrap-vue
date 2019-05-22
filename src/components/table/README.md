@@ -1,7 +1,7 @@
 # Tables
 
-> For displaying tabular data. `<b-table>` supports pagination, filtering, sorting, custom
-> rendering, events, and asynchronous data.
+> For displaying tabular data, `<b-table>` supports pagination, filtering, sorting, custom
+> rendering, various style options, events, and asynchronous data.
 
 **Example: Basic usage**
 
@@ -68,11 +68,11 @@ Record data may also have additional special reserved name keys for colorizing r
 cells (variants), and for triggering additional row detail. The supported optional item record
 modifier properties (make sure your field keys do not conflict with these names):
 
-| Property        | Type    | Description                                                                                                                                                                                                                                     |
-| --------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `_cellVariants` | Object  | Bootstrap contextual state applied to individual cells. Keyed by field (Supported values: `active`, `success`, `info`, `warning`, `danger`). These variants map to classes `table-${variant}` or `bg-${variant}` (when the `dark` prop is set). |
-| `_rowVariant`   | String  | Bootstrap contextual state applied to the entire row (Supported values: `active`, `success`, `info`, `warning`, `danger`). These variants map to classes `table-${variant}` or `bg-${variant}` (when the `dark` prop is set)                    |
-| `_showDetails`  | Boolean | Used to trigger the display of the `row-details` scoped slot. See section [Row details support](#row-details-support) below for additional information                                                                                          |
+| Property        | Type    | Description                                                                                                                                                                                                                                                |
+| --------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `_cellVariants` | Object  | Bootstrap contextual state applied to individual cells. Keyed by field (See the [Color Variants](/docs/reference/color-variants) for supported values). These variants map to classes `table-${variant}` or `bg-${variant}` (when the `dark` prop is set). |
+| `_rowVariant`   | String  | Bootstrap contextual state applied to the entire row (See the [Color Variants](/docs/reference/color-variants) for supported values). These variants map to classes `table-${variant}` or `bg-${variant}` (when the `dark` prop is set)                    |
+| `_showDetails`  | Boolean | Used to trigger the display of the `row-details` scoped slot. See section [Row details support](#row-details-support) below for additional information                                                                                                     |
 
 **Example: Using variants for table cells**
 
@@ -393,7 +393,7 @@ place a unique `:key` on your element/components in your custom formatted field 
 
 ## Table style options
 
-### Table Styling
+### Table styling
 
 `<b-table>` provides several props to alter the style of the table:
 
@@ -474,7 +474,7 @@ place a unique `:key` on your element/components in your custom formatted field 
 <!-- b-table-bordered.vue -->
 ```
 
-### Row Styling
+### Row styling
 
 You can also style every row using the `tbody-tr-class` prop
 
@@ -787,13 +787,13 @@ Slot `table-colgroup` can be optionally scoped, receiving an object with the fol
 | `columns` | Number | The number of columns in the rendered table                                   |
 | `fields`  | Array  | Array of field definition objects (normalized to the array of objects format) |
 
-## Custom Data Rendering
+## Custom data rendering
 
 Custom rendering for each data field in a row is possible using either
 [scoped slots](http://vuejs.org/v2/guide/components.html#Scoped-Slots) or formatter callback
 function.
 
-### Scoped Field Slots
+### Scoped field slots
 
 Scoped slots give you greater control over how the record data appears. If you want to add an extra
 field which does not exist in the records, just add it to the `fields` array, And then reference the
@@ -906,7 +906,7 @@ scoped field slot
 ```
 
 <p class="alert alert-danger">
-  <string>Warning:</strong> Be cautious of using the <code>v-html</code> method to display user
+  <strong>Warning:</strong> Be cautious of using the <code>v-html</code> method to display user
   supplied content,  as it may make your application vulnerable to
   <a class="alert-link" href="https://en.wikipedia.org/wiki/Cross-site_scripting">
   <abbr title="Cross Site Scripting Attacks">XSS attacks</abbr></a>, if you do not first
@@ -988,7 +988,7 @@ formatted value as a string (HTML strings are not supported)
 <!-- b-table-data-formatter.vue -->
 ```
 
-## Custom empty/emptyfiltered rendering via slots
+## Custom empty and emptyfiltered rendering via slots
 
 Aside from using `empty-text`, `empty-filtered-text`, `empty-html`, and `empty-filtered-html`, it is
 also possible to provide custom rendering for tables that have no data to display using named slots.
@@ -1021,7 +1021,7 @@ following properties:
 | `fields`            | Array  | The `fields` prop                                  |
 | `items`             | Array  | The `items` prop. Exposed here to check null vs [] |
 
-## Header/Footer custom rendering via scoped slots
+## Header and Footer custom rendering via scoped slots
 
 It is also possible to provide custom rendering for the tables `thead` and `tfoot` elements. Note by
 default the table footer is not rendered unless `foot-clone` is set to `true`.
@@ -1374,7 +1374,7 @@ presentational data.
 <!-- b-table-sorting.vue -->
 ```
 
-### Sort-Compare routine
+### Sort-compare routine
 
 The built-in default `sort-compare` function sorts the specified field `key` based on the data in
 the underlying record object (not by the formatted value). The field value is first stringified if
@@ -1390,11 +1390,12 @@ record objects for the rows being compared, the third argument is the field `key
 (`sortBy`), and the fourth argument (`sortDesc`) is the order `<b-table>` will display the records
 (`true` for descending, `false` for ascending).
 
-The routine should always return either `-1` for `a < b` , `0` for `a === b`, or `1` for `a > b`
-(the fourth argument, sorting direction, should not be used, as `b-table` will handle the
-direction). The routine can also return `null` to fall back to the default built-in sort-compare
-routine. You can use this feature (i.e. by returning `null`) to have your custom sort-compare
-routine handle only certain fields (keys) or in the special case of virtual columns.
+The routine should always return either `-1` for `a[key] < b[key]` , `0` for `a[key] === b[key]`,
+or `1` for `a[key] > b[key]` (the fourth argument, sorting direction, should not normally be used,
+as `b-table` will handle the direction). The routine can also return `null` to fall back to the
+built-in sort-compare routine for the particular `key`. You can use this feature (i.e. by returning
+`null`) to have your custom sort-compare routine handle only certain fields (keys) such as the
+special case of virtual columns.
 
 The default sort-compare routine works similar to the following. Note the fourth argument (sorting
 direction) is **not** used in the sort comparison:
@@ -1612,7 +1613,7 @@ table#table-transition-example .flip-list-move {
 <!-- b-table-transitions.vue -->
 ```
 
-## Using Items Provider Functions
+## Using items provider functions
 
 As mentioned under the [**Items**](#items-record-data-) prop section, it is possible to use a
 function to provide the row data (items), by specifying a function reference via the `items` prop.
@@ -1761,7 +1762,7 @@ function should handle errors from data sources and return an empty array to `<b
 - All click related and hover events, and sort-changed events will **not** be emitted when in the
   `busy` state (either set automatically during provider update, or when manually set).
 
-### Provider Paging, Filtering, and Sorting
+### Provider paging, filtering, and sorting
 
 By default, the items provider function is responsible for **all paging, filtering, and sorting** of
 the data, before passing it to `b-table` for display.
@@ -1847,14 +1848,14 @@ details).
 </div>
 ```
 
-### Server Side Rendering
+### Server side rendering
 
 Special care must be taken when using server side rendering (SSR) and an `items` provider function.
 Make sure you handle any special situations that may be needed server side when fetching your data!
 
 When `<b-table>` is mounted in the document, it will automatically trigger a provider update call.
 
-## Table accessibility notes
+## Accessibility
 
 When a column (field) is sortable, the header (and footer) heading cells will also be placed into
 the document tab sequence for accessibility.
@@ -1894,7 +1895,7 @@ differences between operating systems, this too is not a preventable default beh
 `row-middle-clicked`. Instead, this can be done by preventing the default behaviour of the
 `contextmenu` event.
 
-## Complete Example
+## Complete example
 
 ```html
 <template>
@@ -1927,12 +1928,11 @@ differences between operating systems, this too is not a preventable default beh
 
       <b-col md="6" class="my-1">
         <b-form-group label-cols-sm="3" label="Sort direction" class="mb-0">
-          <b-input-group>
-            <b-form-select v-model="sortDirection" slot="append">
-              <option value="asc">Asc</option> <option value="desc">Desc</option>
-              <option value="last">Last</option>
-            </b-form-select>
-          </b-input-group>
+          <b-form-select v-model="sortDirection">
+            <option value="asc">Asc</option>
+            <option value="desc">Desc</option>
+            <option value="last">Last</option>
+          </b-form-select>
         </b-form-group>
       </b-col>
 
@@ -1995,8 +1995,8 @@ differences between operating systems, this too is not a preventable default beh
     </b-row>
 
     <!-- Info modal -->
-    <b-modal id="modal-info" @hide="resetModal" :title="modalInfo.title" ok-only>
-      <pre>{{ modalInfo.content }}</pre>
+    <b-modal :id="infoModal.id" :title="infoModal.title" ok-only @hide="resetInfoModal">
+      <pre>{{ infoModal.content }}</pre>
     </b-modal>
   </b-container>
 </template>
@@ -2035,6 +2035,7 @@ differences between operating systems, this too is not a preventable default beh
           { key: 'isActive', label: 'is Active' },
           { key: 'actions', label: 'Actions' }
         ],
+        totalRows: 1,
         currentPage: 1,
         perPage: 5,
         pageOptions: [5, 10, 15],
@@ -2042,13 +2043,14 @@ differences between operating systems, this too is not a preventable default beh
         sortDesc: false,
         sortDirection: 'asc',
         filter: null,
-        modalInfo: { title: '', content: '' }
+        infoModal: {
+          id: 'info-modal',
+          title: '',
+          content: ''
+        }
       }
     },
     computed: {
-      totalRows() {
-        this.items.length
-      },
       sortOptions() {
         // Create an options list from our fields
         return this.fields
@@ -2058,15 +2060,19 @@ differences between operating systems, this too is not a preventable default beh
           })
       }
     },
+    mounted() {
+      // Set the initial number of items
+      this.totalRows = this.items.length
+    },
     methods: {
       info(item, index, button) {
-        this.modalInfo.title = `Row index: ${index}`
-        this.modalInfo.content = JSON.stringify(item, null, 2)
-        this.$root.$emit('bv::show::modal', 'modalInfo', button)
+        this.infoModal.title = `Row index: ${index}`
+        this.infoModal.content = JSON.stringify(item, null, 2)
+        this.$root.$emit('bv::show::modal', this.infoModal.id, button)
       },
-      resetModal() {
-        this.modalInfo.title = ''
-        this.modalInfo.content = ''
+      resetInfoModal() {
+        this.infoModal.title = ''
+        this.infoModal.content = ''
       },
       onFiltered(filteredItems) {
         // Trigger pagination to update the number of buttons/pages due to filtering

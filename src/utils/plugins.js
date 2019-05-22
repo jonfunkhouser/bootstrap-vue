@@ -1,4 +1,24 @@
+import OurVue from './vue'
+import warn from './warn'
 import { setConfig } from './config'
+import { hasWindowSupport, isJSDOM } from './env'
+
+const MULTIPLE_VUE_WARNING = `Multiple instances of Vue detected!
+See: https://bootstrap-vue.js.org/docs#using-module-bundlers`
+
+let checkMultipleVueWarned = false
+
+/**
+ * Checks if there are multiple instances of Vue, and warns (once) about issues.
+ * @param {object} Vue
+ */
+export const checkMultipleVue = Vue => {
+  /* istanbul ignore next */
+  if (!checkMultipleVueWarned && OurVue !== Vue && !isJSDOM) {
+    warn(MULTIPLE_VUE_WARNING)
+    checkMultipleVueWarned = true
+  }
+}
 
 /**
  * Plugin install factory function.
@@ -12,11 +32,13 @@ export const installFactory = ({ components, directives, plugins }) => {
       return
     }
     install.installed = true
+    checkMultipleVue(Vue)
     setConfig(config)
     registerComponents(Vue, components)
     registerDirectives(Vue, directives)
     registerPlugins(Vue, plugins)
   }
+
   install.installed = false
 
   return install
@@ -66,7 +88,9 @@ export const registerComponents = (Vue, components = {}) => {
  */
 export const registerDirective = (Vue, name, def) => {
   if (Vue && name && def) {
-    Vue.directive(name, def)
+    // Ensure that any leading V is removed from the
+    // name, as Vue adds it automatically
+    Vue.directive(name.replace(/^VB/, 'B'), def)
   }
 }
 
@@ -87,7 +111,7 @@ export const registerDirectives = (Vue, directives = {}) => {
  */
 export const vueUse = VuePlugin => {
   /* istanbul ignore next */
-  if (typeof window !== 'undefined' && window.Vue) {
+  if (hasWindowSupport && window.Vue) {
     window.Vue.use(VuePlugin)
   }
 }

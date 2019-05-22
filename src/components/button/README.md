@@ -1,6 +1,6 @@
 # Buttons
 
-> Use Bootstrap’s custom `b-button` component for actions in forms, dialogs, and more. Includes
+> Use Bootstrap's custom `b-button` component for actions in forms, dialogs, and more. Includes
 > support for a handful of contextual variations, sizes, states, and more.
 
 ```html
@@ -14,7 +14,7 @@
 <!-- b-button.vue -->
 ```
 
-## Button element type
+## Element type
 
 The `<b-button>` component generally renders a `<button>` element. However, you can also render an
 `<a>` element by providing an `href` prop value. You may also generate `vue-router` `<router-link>`
@@ -29,14 +29,14 @@ when providing a value for the `to` prop (`vue-router` is required).
 <!-- b-button-types.vue -->
 ```
 
-## Button type
+## Type
 
 You can specify the button's type by setting the prop `type` to `'button'`, `'submit'` or `'reset'`.
 The default type is `'button'`.
 
 Note the `type` prop has no effect when either `href` or `to` props are set.
 
-## Button sizing
+## Sizing
 
 Fancy larger or smaller buttons? Specify `lg` or `sm` via the `size` prop.
 
@@ -63,7 +63,7 @@ prop.
 <!-- b-button-block.vue -->
 ```
 
-## Button contextual variants
+## Contextual variants
 
 Use the `variant` prop to generate the various Bootstrap contextual button variants.
 
@@ -124,9 +124,28 @@ padding and size of a button.
 <!-- b-button-link.vue -->
 ```
 
+## Pill style
+
+<span class="badge badge-info small">NEW in 2.0.0-rc.20</span>
+
+Prefer buttons with a more rounded-pill style? Just set the prop `pill` to true.
+
+```html
+<div>
+  <b-button pill>Button</b-button>
+  <b-button pill variant="primary">Button</b-button>
+  <b-button pill variant="outline-secondary">Button</b-button>
+  <b-button pill variant="success">Button</b-button>
+  <b-button pill variant="outline-danger">Button</b-button>
+  <b-button pill variant="info">Button</b-button>
+</div>
+
+<!-- b-button-pill.vue -->
+```
+
 ## Disabled state
 
-Set the `disabled` prop to disable button default functionality. `disabled` also works with buttons,
+Set the `disabled` prop to disable button default functionality. `disabled` also works with buttons
 rendered as `<a>` elements and `<router-link>`.
 
 ```html
@@ -138,7 +157,7 @@ rendered as `<a>` elements and `<router-link>`.
 <!-- b-button-disabled.vue -->
 ```
 
-## Button Pressed state and toggling
+## Pressed state and toggling
 
 Buttons will appear pressed (with a darker background, darker border, and inset shadow) when the
 prop `pressed` is set to `true`.

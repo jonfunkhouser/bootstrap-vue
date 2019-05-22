@@ -17,6 +17,7 @@ import {
   eventOn,
   eventOff
 } from './dom'
+import { isFunction, isNull, isNumber, isObject, isString, isUndefined } from './inspect'
 
 const NAME = 'tooltip'
 const CLASS_PREFIX = 'bs-tooltip'
@@ -94,7 +95,8 @@ const Defaults = {
   container: false,
   fallbackPlacement: 'flip',
   callbacks: {},
-  boundary: 'scrollParent'
+  boundary: 'scrollParent',
+  boundaryPadding: 5
 }
 
 // Transition event names
@@ -105,6 +107,9 @@ const TransitionEndEvents = {
   transition: ['transitionend']
 }
 
+// Options for Native Event Listeners (since we never call preventDefault)
+const EvtOpts = { passive: true, capture: false }
+
 // Client-side tip ID counter for aria-describedby attribute
 // Each tooltip requires a unique client side ID
 let NEXTID = 1
@@ -114,7 +119,6 @@ const generateId = name => `__BV_${name}_${NEXTID++}__`
 /*
  * ToolTip class definition
  */
-/* istanbul ignore next: difficult to test in Jest/JSDOM environment */
 class ToolTip {
   // Main constructor
   constructor(element, config, $root) {
@@ -159,7 +163,8 @@ class ToolTip {
     let updatedConfig = { ...this.constructor.Default, ...config }
 
     // Sanitize delay
-    if (config.delay && typeof config.delay === 'number') {
+    if (config.delay && isNumber(config.delay)) {
+      /* istanbul ignore next */
       updatedConfig.delay = {
         show: config.delay,
         hide: config.delay
@@ -167,12 +172,14 @@ class ToolTip {
     }
 
     // Title for tooltip and popover
-    if (config.title && typeof config.title === 'number') {
+    if (config.title && isNumber(config.title)) {
+      /* istanbul ignore next */
       updatedConfig.title = config.title.toString()
     }
 
     // Content only for popover
-    if (config.content && typeof config.content === 'number') {
+    if (config.content && isNumber(config.content)) {
+      /* istanbul ignore next */
       updatedConfig.content = config.content.toString()
     }
 
@@ -246,8 +253,10 @@ class ToolTip {
   // Click toggler
   toggle(event) {
     if (!this.$isEnabled) {
+      /* istanbul ignore next */
       return
     }
+    /* istanbul ignore else */
     if (event) {
       this.$activeTrigger.click = !this.$activeTrigger.click
 
@@ -277,7 +286,9 @@ class ToolTip {
     this.setContent(tip)
     if (!this.isWithContent(tip)) {
       // If no content, don't bother showing
+      /* istanbul ignore next */
       this.$tip = null
+      /* istanbul ignore next */
       return
     }
 
@@ -354,7 +365,7 @@ class ToolTip {
     this.$visibleInterval = null
     if (on) {
       this.$visibleInterval = setInterval(() => {
-        const tip = this.getTipElement()
+        const tip = this.$tip
         if (tip && !isVisible(this.$element) && hasClass(tip, ClassName.SHOW)) {
           // Element is no longer visible, so force-hide the tooltip
           this.forceHide()
@@ -375,15 +386,16 @@ class ToolTip {
     this.setOnTouchStartListener(on)
     if (on && /(focus|blur)/.test(this.$config.trigger)) {
       // If focus moves between trigger element and tip container, don't close
-      eventOn(this.$tip, 'focusout', this)
+      eventOn(this.$tip, 'focusout', this, EvtOpts)
     } else {
-      eventOff(this.$tip, 'focusout', this)
+      eventOff(this.$tip, 'focusout', this, EvtOpts)
     }
   }
 
   // Force hide of tip (internal method)
   forceHide() {
     if (!this.$tip || !hasClass(this.$tip, ClassName.SHOW)) {
+      /* istanbul ignore next */
       return
     }
     // Disable while open listeners/watchers
@@ -400,6 +412,7 @@ class ToolTip {
   hide(callback, force) {
     const tip = this.$tip
     if (!tip) {
+      /* istanbul ignore next */
       return
     }
 
@@ -417,7 +430,6 @@ class ToolTip {
     }
 
     // Transitionend callback
-    /* istanbul ignore next */
     const complete = () => {
       if (this.$hoverState !== HoverState.SHOW && tip.parentNode) {
         // Remove tip from DOM, and force recompile on next show
@@ -465,7 +477,7 @@ class ToolTip {
       this.$root.$emit(`bv::${this.constructor.NAME}::${evtName}`, evt)
     }
     const callbacks = this.$config.callbacks || {}
-    if (typeof callbacks[evtName] === 'function') {
+    if (isFunction(callbacks[evtName])) {
       callbacks[evtName](evt)
     }
   }
@@ -501,6 +513,7 @@ class ToolTip {
       .join(' ')
       .trim()
     if (desc) {
+      /* istanbul ignore next */
       setAttr(this.$element, 'aria-describedby', desc)
     } else {
       removeAttr(this.$element, 'aria-describedby')
@@ -514,7 +527,6 @@ class ToolTip {
     this.$popper = null
   }
 
-  /* istanbul ignore next */
   transitionOnce(tip, complete) {
     const transEvents = this.getTransitionEndEvents()
     let called = false
@@ -522,20 +534,21 @@ class ToolTip {
     this.$fadeTimeout = null
     const fnOnce = () => {
       if (called) {
+        /* istanbul ignore next */
         return
       }
       called = true
       clearTimeout(this.$fadeTimeout)
       this.$fadeTimeout = null
       transEvents.forEach(evtName => {
-        eventOff(tip, evtName, fnOnce)
+        eventOff(tip, evtName, fnOnce, EvtOpts)
       })
       // Call complete callback
       complete()
     }
     if (hasClass(tip, ClassName.FADE)) {
       transEvents.forEach(evtName => {
-        eventOn(tip, evtName, fnOnce)
+        eventOn(tip, evtName, fnOnce, EvtOpts)
       })
       // Fallback to setTimeout()
       this.$fadeTimeout = setTimeout(fnOnce, TRANSITION_DURATION)
@@ -547,16 +560,18 @@ class ToolTip {
   // What transitionend event(s) to use? (returns array of event names)
   getTransitionEndEvents() {
     for (const name in TransitionEndEvents) {
-      if (this.$element.style[name] !== undefined) {
+      if (!isUndefined(this.$element.style[name])) {
         return TransitionEndEvents[name]
       }
     }
     // Fallback
+    /* istanbul ignore next */
     return []
   }
 
+  /* istanbul ignore next */
   update() {
-    if (this.$popper !== null) {
+    if (!isNull(this.$popper)) {
       this.$popper.scheduleUpdate()
     }
   }
@@ -565,6 +580,7 @@ class ToolTip {
   isWithContent(tip) {
     tip = tip || this.$tip
     if (!tip) {
+      /* istanbul ignore next */
       return false
     }
     return Boolean((select(Selector.TOOLTIP_INNER, tip) || {}).innerHTML)
@@ -589,7 +605,8 @@ class ToolTip {
   }
 
   compileTemplate(html) {
-    if (!html || typeof html !== 'string') {
+    if (!html || !isString(html)) {
+      /* istanbul ignore next */
       return null
     }
     let div = document.createElement('div')
@@ -609,10 +626,11 @@ class ToolTip {
   setElementContent(container, content) {
     if (!container) {
       // If container element doesn't exist, just return
+      /* istanbul ignore next */
       return
     }
     const allowHtml = this.$config.html
-    if (typeof content === 'object' && content.nodeType) {
+    if (isObject(content) && content.nodeType) {
       // Content is a DOM node
       if (allowHtml) {
         if (content.parentElement !== container) {
@@ -620,6 +638,7 @@ class ToolTip {
           container.appendChild(content)
         }
       } else {
+        /* istanbul ignore next */
         container.innerText = content.innerText
       }
     } else {
@@ -631,16 +650,18 @@ class ToolTip {
   // NOTE: Overridden by PopOver class
   getTitle() {
     let title = this.$config.title || ''
-    if (typeof title === 'function') {
+    if (isFunction(title)) {
       // Call the function to get the title value
+      /* istanbul ignore next */
       title = title(this.$element)
     }
-    if (typeof title === 'object' && title.nodeType && !title.innerHTML.trim()) {
+    if (isObject(title) && title.nodeType && !title.innerHTML.trim()) {
       // We have a DOM node, but without inner content,
       // so just return empty string
+      /* istanbul ignore next */
       title = ''
     }
-    if (typeof title === 'string') {
+    if (isString(title)) {
       title = title.trim()
     }
     if (!title) {
@@ -667,16 +688,16 @@ class ToolTip {
     // this.handleEvent and maintain our binding to 'this'
     triggers.forEach(trigger => {
       if (trigger === 'click') {
-        eventOn(el, 'click', this)
+        eventOn(el, 'click', this, EvtOpts)
       } else if (trigger === 'focus') {
-        eventOn(el, 'focusin', this)
-        eventOn(el, 'focusout', this)
+        eventOn(el, 'focusin', this, EvtOpts)
+        eventOn(el, 'focusout', this, EvtOpts)
       } else if (trigger === 'blur') {
         // Used to close $tip when element looses focus
-        eventOn(el, 'focusout', this)
+        eventOn(el, 'focusout', this, EvtOpts)
       } else if (trigger === 'hover') {
-        eventOn(el, 'mouseenter', this)
-        eventOn(el, 'mouseleave', this)
+        eventOn(el, 'mouseenter', this, EvtOpts)
+        eventOn(el, 'mouseleave', this, EvtOpts)
       }
     }, this)
   }
@@ -685,7 +706,7 @@ class ToolTip {
     const events = ['click', 'focusin', 'focusout', 'mouseenter', 'mouseleave']
     // Using "this" as the handler will get automatically directed to this.handleEvent
     events.forEach(evt => {
-      eventOff(this.$element, evt, this)
+      eventOff(this.$element, evt, this, EvtOpts)
     }, this)
 
     // Stop listening for global show/hide/enable/disable events
@@ -697,6 +718,7 @@ class ToolTip {
     if (isDisabled(this.$element)) {
       // If disabled, don't do anything. Note: If tip is shown before element gets
       // disabled, then tip not close until no longer disabled or forcefully closed.
+      /* istanbul ignore next */
       return
     }
     if (!this.$isEnabled) {
@@ -717,16 +739,20 @@ class ToolTip {
       // and relatedTarget is the element gaining focus
       if ($tip && $element && $element.contains(target) && $tip.contains(relatedTarget)) {
         // If focus moves from $element to $tip, don't trigger a leave
+        /* istanbul ignore next */
         return
       }
       if ($tip && $element && $tip.contains(target) && $element.contains(relatedTarget)) {
         // If focus moves from $tip to $element, don't trigger a leave
+        /* istanbul ignore next */
         return
       }
+      /* istanbul ignore next: difficult to test */
       if ($tip && $tip.contains(target) && $tip.contains(relatedTarget)) {
         // If focus moves within $tip, don't trigger a leave
         return
       }
+      /* istanbul ignore next: difficult to test */
       if ($element && $element.contains(target) && $element.contains(relatedTarget)) {
         // If focus moves within $element, don't trigger a leave
         return
@@ -773,7 +799,6 @@ class ToolTip {
     }
   }
 
-  /* istanbul ignore next */
   setRootListener(on) {
     // Listen for global 'bv::{hide|show}::{tooltip|popover}' hide request event
     if (this.$root) {
@@ -828,13 +853,13 @@ class ToolTip {
     }
   }
 
-  /* istanbul ignore next */
   setOnTouchStartListener(on) {
     // If this is a touch-enabled device we add extra
     // empty mouseover listeners to the body's immediate children
     // Only needed because of broken event delegation on iOS
     // https://www.quirksmode.org/blog/archives/2014/02/mouse_event_bub.html
     if ('ontouchstart' in document.documentElement) {
+      /* istanbul ignore next: JSDOM does not support 'ontouchstart' event */
       arrayFrom(document.body.children).forEach(el => {
         if (on) {
           eventOn(el, 'mouseover', this._noop)
@@ -847,15 +872,13 @@ class ToolTip {
 
   fixTitle() {
     const el = this.$element
-    const titleType = typeof getAttr(el, 'data-original-title')
-    if (getAttr(el, 'title') || titleType !== 'string') {
+    if (getAttr(el, 'title') || !isString(getAttr(el, 'data-original-title'))) {
       setAttr(el, 'data-original-title', getAttr(el, 'title') || '')
       setAttr(el, 'title', '')
     }
   }
 
   // Enter handler
-  /* istanbul ignore next */
   enter(e) {
     if (e) {
       this.$activeTrigger[e.type === 'focusin' ? 'focus' : 'hover'] = true
@@ -878,7 +901,6 @@ class ToolTip {
   }
 
   // Leave handler
-  /* istanbul ignore next */
   leave(e) {
     if (e) {
       this.$activeTrigger[e.type === 'focusout' ? 'focus' : 'hover'] = false
@@ -918,17 +940,20 @@ class ToolTip {
       },
       onCreate: data => {
         // Handle flipping arrow classes
+        /* istanbul ignore next */
         if (data.originalPlacement !== data.placement) {
           this.handlePopperPlacementChange(data)
         }
       },
       onUpdate: data => {
         // Handle flipping arrow classes
+        /* istanbul ignore next */
         this.handlePopperPlacementChange(data)
       }
     }
   }
 
+  /* istanbul ignore next */
   getOffset(placement, tip) {
     if (!this.$config.offset) {
       const arrow = select(Selector.ARROW, tip)
@@ -947,7 +972,8 @@ class ToolTip {
 
   getPlacement() {
     const placement = this.$config.placement
-    if (typeof placement === 'function') {
+    if (isFunction(placement)) {
+      /* istanbul ignore next */
       return placement.call(this, this.$tip, this.$element)
     }
     return placement
@@ -963,24 +989,27 @@ class ToolTip {
   }
 
   // NOTE: Overridden by PopOver class
+  /* istanbul ignore next */
   cleanTipClass() {
     const tip = this.getTipElement()
     const tabClass = tip.className.match(BS_CLASS_PREFIX_REGEX)
-    if (tabClass !== null && tabClass.length > 0) {
+    if (!isNull(tabClass) && tabClass.length > 0) {
       tabClass.forEach(cls => {
         removeClass(tip, cls)
       })
     }
   }
 
+  /* istanbul ignore next */
   handlePopperPlacementChange(data) {
     this.cleanTipClass()
     this.addAttachmentClass(this.constructor.getAttachment(data.placement))
   }
 
+  /* istanbul ignore next */
   fixTransition(tip) {
     const initConfigAnimation = this.$config.animation || false
-    if (getAttr(tip, 'x-placement') !== null) {
+    if (!isNull(getAttr(tip, 'x-placement'))) {
       return
     }
     removeClass(tip, ClassName.FADE)

@@ -2,13 +2,13 @@
   <section v-if="component" class="bd-content">
     <b-row tag="header" align-v="center">
       <b-col sm="9">
-        <anchored-heading :id="`comp-ref-${componentName}`" level="2">
+        <anchored-heading :id="`comp-ref-${componentName}`" level="3">
           <code>{{ tag }}</code>
         </anchored-heading>
       </b-col>
       <b-col sm="3" class="text-sm-right">
         <b-btn variant="outline-secondary" size="sm" :href="githubURL" target="_blank">
-          view source
+          View source
         </b-btn>
       </b-col>
     </b-row>
@@ -21,6 +21,10 @@
       <ul>
         <li v-for="alias in aliases" :key="alias"><code>&lt;{{ kebabCase(alias) }}&gt;</code></li>
       </ul>
+      <p class="small text-muted">
+        Note: component aliases are only available when importing all of BootstrapVue or using
+        the component group plugin.
+      </p>
     </article>
 
     <article v-if="propsItems && propsItems.length > 0">
@@ -32,8 +36,8 @@
         :fields="propsFields"
         class="bv-docs-table"
         responsive="sm"
-        small
         head-variant="default"
+        bordered
         striped
       >
         <template slot="prop" slot-scope="{ value, item }">
@@ -57,15 +61,15 @@
 
       <template v-if="componentVModel">
         <anchored-heading :id="`comp-ref-${componentName}-v-model`" level="4">
-          V-Model
+          v-model
         </anchored-heading>
         <b-table
           :items="[componentVModel]"
           :fields="['prop', 'event']"
           class="bv-docs-table"
           responsive="sm"
-          small
           head-variant="default"
+          bordered
           striped
         >
           <template slot="prop" slot-scope="{ value }">
@@ -87,8 +91,8 @@
         :fields="slotsFields"
         class="bv-docs-table"
         responsive="sm"
-        small
         head-variant="default"
+        bordered
         striped
       >
         <template slot="name" slot-scope="{ value }">
@@ -106,8 +110,8 @@
         :fields="eventsFields"
         class="bv-docs-table"
         responsive="sm"
-        small
         head-variant="default"
+        bordered
         striped
       >
         <template slot="event" slot-scope="{ value }">
@@ -138,8 +142,8 @@
         :fields="rootEventListenersFields"
         class="bv-docs-table"
         responsive="sm"
-        small
         head-variant="default"
+        bordered
         striped
       >
         <template slot="event" slot-scope="{ value }">
@@ -161,22 +165,13 @@
   </section>
 </template>
 
-<style scoped>
-h1,
-h2,
-h3,
-h4,
-h5 {
-  padding: 20px 0;
-}
-</style>
-
 <script>
 import Vue from 'vue'
 import kebabCase from 'lodash/kebabCase'
 import AnchoredHeading from './anchored-heading'
 
 export default {
+  name: 'BDVComponentdoc',
   components: { AnchoredHeading },
   props: {
     component: {},
@@ -207,8 +202,12 @@ export default {
       let options = {}
       if (!component.options && typeof component === 'function') {
         // Async component that hans't been resolved yet
-        component(opts => {
-          options = opts ? { ...opts } : {}
+        component(cmp => {
+          if (Object.prototype.toString.call(cmp) === '[object Object]') {
+            options = { ...cmp }
+          } else if (cmp && cmp.options) {
+            options = cmp.options
+          }
         })
       } else {
         // Regular component

@@ -1,13 +1,13 @@
-import Table from './table'
-import normalizeFields from './helpers/normalize-fields'
 import { mount } from '@vue/test-utils'
+import BTable from './table'
+import normalizeFields from './helpers/normalize-fields'
 
 const testItems = [{ a: 1, b: 2, c: 3 }, { a: 5, b: 5, c: 6 }, { a: 7, b: 8, c: 9 }]
 const testFields = ['a', 'b', 'c']
 
 describe('table > tbody bottom-row slot', () => {
   it('should not have bottom row by default', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -23,7 +23,7 @@ describe('table > tbody bottom-row slot', () => {
   })
 
   it('should render named slot `bottom-row`', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -56,7 +56,7 @@ describe('table > tbody bottom-row slot', () => {
   it('should render scoped slot `bottom-row`', async () => {
     let fields = []
     let columns
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems

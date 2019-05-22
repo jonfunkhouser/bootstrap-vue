@@ -1,7 +1,9 @@
-import { keys } from '../../utils/object'
-import { arrayIncludes, concat } from '../../utils/array'
-import { isRouterLink, computeTag, computeRel, computeHref } from '../../utils/router'
+import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
+import { arrayIncludes, concat } from '../../utils/array'
+import { isFunction } from '../../utils/inspect'
+import { keys } from '../../utils/object'
+import { isRouterLink, computeTag, computeRel, computeHref } from '../../utils/router'
 
 /**
  * The Link component is used in many other BV components.
@@ -13,7 +15,7 @@ import { mergeData } from 'vue-functional-data-merge'
  * https://github.com/vuejs/vue-router/blob/dev/src/components/link.js
  * @return {{}}
  */
-export function propsFactory() {
+export const propsFactory = () => {
   return {
     href: {
       type: String,
@@ -78,8 +80,9 @@ export function propsFactory() {
 
 export const props = propsFactory()
 
-// Return a fresh copy of BLink props, containing only the specifeid prop(s)
-export function pickLinkProps(propsToPick) {
+// Return a fresh copy of <b-link> props
+// Containing only the specified prop(s)
+export const pickLinkProps = propsToPick => {
   const freshLinkProps = propsFactory()
   // Normalize everything to array.
   propsToPick = concat(propsToPick)
@@ -93,8 +96,9 @@ export function pickLinkProps(propsToPick) {
   }, {})
 }
 
-// Return a fresh copy of BLink props, keeping all but the specified omitting prop(s)
-export function omitLinkProps(propsToOmit) {
+// Return a fresh copy of <b-link> props
+// Keeping all but the specified omitting prop(s)
+export const omitLinkProps = propsToOmit => {
   const freshLinkProps = propsFactory()
   // Normalize everything to array.
   propsToOmit = concat(propsToOmit)
@@ -108,7 +112,7 @@ export function omitLinkProps(propsToOmit) {
   }, {})
 }
 
-function clickHandlerFactory({ disabled, tag, href, suppliedHandler, parent }) {
+const clickHandlerFactory = ({ disabled, tag, href, suppliedHandler, parent }) => {
   return function onClick(evt) {
     if (disabled && evt instanceof Event) {
       // Stop event from bubbling up.
@@ -120,11 +124,12 @@ function clickHandlerFactory({ disabled, tag, href, suppliedHandler, parent }) {
       if (isRouterLink(tag) && evt.target.__vue__) {
         // Router links do not emit instance 'click' events, so we
         // add in an $emit('click', evt) on it's vue instance
+        /* istanbul ignore next: difficult to test, but we know it works */
         evt.target.__vue__.$emit('click', evt)
       }
-      // Call the suppliedHanlder(s), if any provided
+      // Call the suppliedHandler(s), if any provided
       concat(suppliedHandler)
-        .filter(h => typeof h === 'function')
+        .filter(h => isFunction(h))
         .forEach(handler => {
           handler(...arguments)
         })
@@ -140,7 +145,7 @@ function clickHandlerFactory({ disabled, tag, href, suppliedHandler, parent }) {
 }
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BLink',
   functional: true,
   props: propsFactory(),
@@ -169,6 +174,9 @@ export default {
     // So we explicitly add it here if needed (i.e. if computeHref() is truthy)
     if (href) {
       componentData.attrs.href = href
+    } else {
+      // Ensure the prop HREF does not exist for router links
+      delete componentData.props.href
     }
 
     // We want to overwrite any click handler since our callback
@@ -177,4 +185,4 @@ export default {
 
     return h(tag, componentData, children)
   }
-}
+})

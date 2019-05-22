@@ -1,18 +1,12 @@
-import warn from '../../utils/warn'
+import Vue from '../../utils/vue'
 import looseEqual from '../../utils/loose-equal'
 import toString from '../../utils/to-string'
+import warn from '../../utils/warn'
 import { requestAF } from '../../utils/dom'
-import { inBrowser } from '../../utils/env'
-import { isObject } from '../../utils/object'
-import { isArray } from '../../utils/array'
+import { isBrowser } from '../../utils/env'
+import { isArray, isUndefined, isFunction, isObject } from '../../utils/inspect'
 import { computeHref, parseQuery } from '../../utils/router'
 import paginationMixin from '../../mixins/pagination'
-
-// TODO: move this to an instance method in pagination mixin
-function sanitizeNumPages(value) {
-  let num = parseInt(value, 10) || 1
-  return num < 1 ? 1 : num
-}
 
 // Props object
 const props = {
@@ -76,9 +70,15 @@ const props = {
   }
 }
 
+// TODO: move this to an instance method in pagination mixin
+const sanitizeNumPages = value => {
+  let num = parseInt(value, 10) || 1
+  return num < 1 ? 1 : num
+}
+
 // Our render function is brought in via the pagination mixin
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BPaginationNav',
   mixins: [paginationMixin],
   props,
@@ -155,11 +155,7 @@ export default {
       })
     },
     getPageInfo(pageNum) {
-      if (
-        !isArray(this.pages) ||
-        this.pages.length === 0 ||
-        this.pages[pageNum - 1] === undefined
-      ) {
+      if (!isArray(this.pages) || this.pages.length === 0 || isUndefined(this.pages[pageNum - 1])) {
         const link = `${this.baseUrl}${pageNum}`
         return {
           link: this.useRouter ? { path: link } : link,
@@ -170,7 +166,7 @@ export default {
       if (isObject(info)) {
         const link = info.link
         return {
-          // Mormalize link for router use
+          // Normalize link for router use
           link: isObject(link) ? link : this.useRouter ? { path: link } : link,
           // Make sure text has a value
           text: toString(info.text || pageNum)
@@ -181,14 +177,14 @@ export default {
     },
     makePage(pageNum) {
       const info = this.getPageInfo(pageNum)
-      if (this.pageGen && typeof this.pageGen === 'function') {
+      if (this.pageGen && isFunction(this.pageGen)) {
         return this.pageGen(pageNum, info)
       }
       return info.text
     },
     makeLink(pageNum) {
       const info = this.getPageInfo(pageNum)
-      if (this.linkGen && typeof this.linkGen === 'function') {
+      if (this.linkGen && isFunction(this.linkGen)) {
         return this.linkGen(pageNum, info)
       }
       return info.link
@@ -208,7 +204,7 @@ export default {
         // nuxt-link specific prop
         noPrefetch: this.noPrefetch
       }
-      if (this.useRouter || typeof link === 'object') {
+      if (this.useRouter || isObject(link)) {
         props.to = link
       } else {
         props.href = link
@@ -218,13 +214,25 @@ export default {
     resolveLink(to = '') {
       // Given a to (or href string), convert to normalized route-like structure
       // Works only client side!!
+      let link
       try {
-        const link = document.createElement('a')
         // Convert the `to` to a HREF via a temporary `a` tag
+        link = document.createElement('a')
         link.href = computeHref({ to }, 'a', '/', '/')
-        // Once href is assigned, the returned href will be normalized to the full URL bits
-        return { path: link.pathname, hash: link.hash, query: parseQuery(link.search) }
+        // We need to add the anchor to the document to make sure the
+        // `pathname` is correctly detected in any browser (i.e. IE)
+        document.body.appendChild(link)
+        // Once href is assigned, the link will be normalized to the full URL bits
+        const { pathname, hash, search } = link
+        // Remove link from document
+        document.body.removeChild(link)
+        // Return the location in a route-like object
+        return { path: pathname, hash: hash, query: parseQuery(search) }
       } catch (e) {
+        /* istanbul ignore next */
+        try {
+          link && link.parentNode && link.parentNode.removeChild(link)
+        } catch (e) {}
         /* istanbul ignore next */
         return {}
       }
@@ -246,13 +254,12 @@ export default {
       const $route = this.$route
       // This section only occurs if we are client side, or server-side with $router
       /* istanbul ignore else */
-      if (!this.noPageDetect && !guess && (inBrowser || (!inBrowser && $router))) {
+      if (!this.noPageDetect && !guess && (isBrowser || (!isBrowser && $router))) {
         // Current route (if router available)
-        const currRoute = $router
-          ? { path: $route.path, hash: $route.hash, query: $route.query }
-          : {}
+        const currRoute =
+          $router && $route ? { path: $route.path, hash: $route.hash, query: $route.query } : {}
         // Current page full HREF (if client side). Can't be done as a computed prop!
-        const loc = inBrowser ? window.location || document.location : null
+        const loc = isBrowser ? window.location || document.location : null
         const currLink = loc
           ? { path: loc.pathname, hash: loc.hash, query: parseQuery(loc.search) }
           : {}
@@ -262,12 +269,13 @@ export default {
           if ($router && (isObject(to) || this.useRouter)) {
             // Resolve the page via the $router
             guess = looseEqual(this.resolveRoute(to), currRoute) ? page : null
-          } else if (inBrowser) {
+          } else if (isBrowser) {
             // If no $router available (or !this.useRouter when `to` is a string)
             // we compare using parsed URIs
             guess = looseEqual(this.resolveLink(to), currLink) ? page : null
           } else {
-            // probably SSR, but no $router so we can't guess, so lets break out of loop
+            // probably SSR, but no $router so we can't guess, so lets break out of
+            // the loop early
             /* istanbul ignore next */
             guess = -1
           }
@@ -279,4 +287,4 @@ export default {
       this.currentPage = guess > 0 ? guess : 0
     }
   }
-}
+})

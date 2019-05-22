@@ -1,3 +1,4 @@
+import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
 
 export const props = {
@@ -7,23 +8,37 @@ export const props = {
   },
   tag: {
     type: String,
-    default: 'h6'
+    default: 'header'
+  },
+  variant: {
+    type: String,
+    default: null
   }
 }
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BDropdownHeader',
   functional: true,
+  inheritAttrs: false,
   props,
   render(h, { props, data, children }) {
-    return h(
-      props.tag,
-      mergeData(data, {
-        staticClass: 'dropdown-header',
-        attrs: { id: props.id || null }
-      }),
-      children
-    )
+    return h('li', [
+      h(
+        props.tag,
+        mergeData(data, {
+          staticClass: 'dropdown-header',
+          class: {
+            [`text-${props.variant}`]: props.variant
+          },
+          attrs: {
+            id: props.id || null,
+            role: 'heading'
+          },
+          ref: 'header'
+        }),
+        children
+      )
+    ])
   }
-}
+})

@@ -1,13 +1,14 @@
-import Tab from './tab'
 import { mount } from '@vue/test-utils'
+import { waitNT, waitRAF } from '../../../tests/utils'
+import BTab from './tab'
 
 describe('tab', () => {
   it('default has expected classes, attributes and structure', async () => {
-    const wrapper = mount(Tab)
+    const wrapper = mount(BTab)
 
     expect(wrapper).toBeDefined()
 
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.is('div')).toBe(true)
     expect(wrapper.classes()).toContain('tab-pane')
@@ -18,7 +19,6 @@ describe('tab', () => {
     expect(wrapper.classes()).not.toContain('card-body')
     expect(wrapper.attributes('role')).toBe('tabpanel')
     expect(wrapper.attributes('aria-hidden')).toBe('true')
-    expect(wrapper.attributes('aria-expanded')).toBe('false')
     expect(wrapper.attributes('labelledby')).not.toBeDefined()
     expect(wrapper.attributes('tabindex')).not.toBeDefined()
     expect(wrapper.attributes('id')).toBeDefined()
@@ -27,7 +27,7 @@ describe('tab', () => {
   })
 
   it('default has expected data state', async () => {
-    const wrapper = mount(Tab)
+    const wrapper = mount(BTab)
 
     expect(wrapper.vm._isTab).toBe(true)
     expect(wrapper.vm.localActive).toBe(false)
@@ -37,36 +37,32 @@ describe('tab', () => {
   })
 
   it('has class disabled when disabled=true', async () => {
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       propsData: { disabled: true }
     })
 
     expect(wrapper.classes()).toContain('disabled')
     expect(wrapper.classes()).toContain('tab-pane')
     expect(wrapper.classes()).not.toContain('active')
-    expect(wrapper.classes()).not.toContain('show')
-    expect(wrapper.classes()).not.toContain('fade')
     expect(wrapper.classes()).not.toContain('card-body')
 
     wrapper.destroy()
   })
 
   it('has class active when active=true', async () => {
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       propsData: { active: true }
     })
 
     expect(wrapper.classes()).toContain('active')
-    expect(wrapper.classes()).toContain('show')
     expect(wrapper.classes()).not.toContain('disabled')
-    expect(wrapper.classes()).not.toContain('fade')
     expect(wrapper.classes()).not.toContain('card-body')
 
     wrapper.destroy()
   })
 
   it('does not have class active when active=true and disabled=true', async () => {
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       propsData: {
         active: true,
         disabled: true
@@ -76,18 +72,16 @@ describe('tab', () => {
     expect(wrapper.classes()).not.toContain('active')
     expect(wrapper.classes()).toContain('disabled')
     expect(wrapper.classes()).toContain('tab-pane')
-    expect(wrapper.classes()).not.toContain('show')
-    expect(wrapper.classes()).not.toContain('fade')
     expect(wrapper.classes()).not.toContain('card-body')
 
     wrapper.destroy()
   })
 
   it('has class active and show when localActive becomes true', async () => {
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       mountToDocument: true,
       stubs: {
-        // the builtin stub doesn't execute the transition hooks
+        // The builtin stub doesn't execute the transition hooks
         // so we let it use the real transition component
         transition: false
       }
@@ -95,35 +89,29 @@ describe('tab', () => {
 
     expect(wrapper.classes()).not.toContain('active')
     expect(wrapper.classes()).not.toContain('disabled')
-    expect(wrapper.classes()).not.toContain('show')
-    expect(wrapper.classes()).not.toContain('fade')
     expect(wrapper.classes()).not.toContain('card-body')
 
     wrapper.setData({ localActive: true })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.classes()).toContain('active')
-    expect(wrapper.classes()).toContain('show')
     expect(wrapper.classes()).not.toContain('disabled')
-    expect(wrapper.classes()).not.toContain('fade')
     expect(wrapper.classes()).not.toContain('card-body')
 
     wrapper.setData({ localActive: false })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.classes()).not.toContain('active')
-    expect(wrapper.classes()).not.toContain('show')
     expect(wrapper.classes()).not.toContain('disabled')
-    expect(wrapper.classes()).not.toContain('fade')
     expect(wrapper.classes()).not.toContain('card-body')
 
     wrapper.destroy()
   })
 
   it('emits event "update:active" when localActive becomes true', async () => {
-    const wrapper = mount(Tab)
+    const wrapper = mount(BTab)
 
     let called = false
     let value = null
@@ -143,32 +131,8 @@ describe('tab', () => {
     wrapper.destroy()
   })
 
-  it('has class fade when parent has fade=true', async () => {
-    const wrapper = mount(Tab, {
-      provide() {
-        return {
-          bvTabs: {
-            fade: true,
-            lazy: false,
-            card: false,
-            noKeyNav: true
-          }
-        }
-      }
-    })
-
-    expect(wrapper.classes()).toContain('fade')
-    expect(wrapper.classes()).toContain('tab-pane')
-    expect(wrapper.classes()).not.toContain('disabled')
-    expect(wrapper.classes()).not.toContain('active')
-    expect(wrapper.classes()).not.toContain('show')
-    expect(wrapper.classes()).not.toContain('card-body')
-
-    wrapper.destroy()
-  })
-
   it('has class card-body when parent has card=true', async () => {
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       provide() {
         return {
           bvTabs: {
@@ -183,17 +147,14 @@ describe('tab', () => {
 
     expect(wrapper.classes()).toContain('card-body')
     expect(wrapper.classes()).toContain('tab-pane')
-    expect(wrapper.classes()).not.toContain('fade')
     expect(wrapper.classes()).not.toContain('disabled')
     expect(wrapper.classes()).not.toContain('active')
-    expect(wrapper.classes()).not.toContain('show')
-    expect(wrapper.classes()).not.toContain('fade')
 
     wrapper.destroy()
   })
 
   it('does not have class card-body when parent has card=true and prop no-body is set', async () => {
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       provide() {
         return {
           bvTabs: {
@@ -211,17 +172,14 @@ describe('tab', () => {
 
     expect(wrapper.classes()).not.toContain('card-body')
     expect(wrapper.classes()).toContain('tab-pane')
-    expect(wrapper.classes()).not.toContain('fade')
     expect(wrapper.classes()).not.toContain('disabled')
     expect(wrapper.classes()).not.toContain('active')
-    expect(wrapper.classes()).not.toContain('show')
-    expect(wrapper.classes()).not.toContain('fade')
 
     wrapper.destroy()
   })
 
   it('has attribute tabindex="0" when parent has keynav enabled and active', async () => {
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       provide() {
         return {
           bvTabs: {
@@ -244,7 +202,7 @@ describe('tab', () => {
   it("calls parent's updateButton() when title slot provided", async () => {
     let called = false
     let vm = null
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       provide() {
         return {
           bvTabs: {
@@ -279,7 +237,7 @@ describe('tab', () => {
     let deactivateCalled = false
     let deactivateVm = null
 
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       provide() {
         return {
           bvTabs: {
@@ -335,7 +293,7 @@ describe('tab', () => {
     let activateCalled = false
     let activateVm = null
 
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       provide() {
         return {
           bvTabs: {
@@ -370,7 +328,7 @@ describe('tab', () => {
     let deactivateCalled = false
     let deactivateVm = null
 
-    const wrapper = mount(Tab, {
+    const wrapper = mount(BTab, {
       provide() {
         return {
           bvTabs: {

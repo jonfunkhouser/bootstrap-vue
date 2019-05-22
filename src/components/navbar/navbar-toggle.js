@@ -1,13 +1,26 @@
+import Vue from '../../utils/vue'
 import listenOnRootMixin from '../../mixins/listen-on-root'
+import normalizeSlotMixin from '../../mixins/normalize-slot'
+import { getComponentConfig } from '../../utils/config'
+
+const NAME = 'BNavbarToggle'
+
+// Events we emit on $root
+const EVENT_TOGGLE = 'bv::toggle::collapse'
+
+// Events we listen to on $root
+const EVENT_STATE = 'bv::collapse::state'
+// This private event is NOT to be documented as people should not be using it.
+const EVENT_STATE_SYNC = 'bv::collapse::sync::state'
 
 // @vue/component
-export default {
-  name: 'BNavbarToggle',
-  mixins: [listenOnRootMixin],
+export default Vue.extend({
+  name: NAME,
+  mixins: [listenOnRootMixin, normalizeSlotMixin],
   props: {
     label: {
       type: String,
-      default: 'Toggle navigation'
+      default: () => getComponentConfig(NAME, 'label')
     },
     target: {
       type: String,
@@ -20,14 +33,14 @@ export default {
     }
   },
   created() {
-    this.listenOnRoot('bv::collapse::state', this.handleStateEvt)
+    this.listenOnRoot(EVENT_STATE, this.handleStateEvt)
+    this.listenOnRoot(EVENT_STATE_SYNC, this.handleStateEvt)
   },
   methods: {
     onClick(evt) {
       this.$emit('click', evt)
-      /* istanbul ignore next */
       if (!evt.defaultPrevented) {
-        this.$root.$emit('bv::toggle::collapse', this.target)
+        this.$root.$emit(EVENT_TOGGLE, this.target)
       }
     },
     handleStateEvt(id, state) {
@@ -49,7 +62,7 @@ export default {
         },
         on: { click: this.onClick }
       },
-      [this.$slots.default || h('span', { class: ['navbar-toggler-icon'] })]
+      [this.normalizeSlot('default') || h('span', { class: ['navbar-toggler-icon'] })]
     )
   }
-}
+})

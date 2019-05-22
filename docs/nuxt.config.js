@@ -1,13 +1,21 @@
 const fs = require('fs')
 const path = require('path')
-const hljs = require('highlightjs')
+const hljs = require('highlight.js')
 const marked = require('marked')
 
 const renderer = new marked.Renderer()
 
 const ANCHOR_LINK_HEADING_LEVELS = [2, 3, 4, 5]
 
-// Custom "highlightjs" implementation for markdown renderer
+// Get routes by a given dir
+const getRoutesByDir = (root, dir, excludes = []) =>
+  fs
+    .readdirSync(`${root}/${dir}`)
+    .filter(c => excludes.indexOf(c) === -1)
+    .filter(c => !/\.(s?css|js|ts)$/.test(c))
+    .map(page => `/docs/${dir}/${page}`)
+
+// Custom "highlight.js" implementation for markdown renderer
 renderer.code = (code, language) => {
   const validLang = !!(language && hljs.getLanguage(language))
   const highlighted = validLang ? hljs.highlight(language, code).value : code
@@ -42,12 +50,17 @@ renderer.heading = function(text, level, raw, slugger) {
   return `<h${level} id="${link}">${getTextMarkup(text + anchor)}</h${level}>\n`
 }
 
+// Convert lead-in blockquote paragraphs to true bootstrap docs leads
+renderer.blockquote = function(text) {
+  return text.replace('<p>', '<p class="bd-lead">')
+}
+
 // BS4 table support for markdown renderer
 const originalTable = renderer.table
 renderer.table = function(header, body) {
   let table = originalTable.apply(this, arguments)
   table = table
-    .replace('<table>', '<table class="table b-table table-striped table-sm bv-docs-table">')
+    .replace('<table>', '<table class="b-table table table-bordered table-striped bv-docs-table">')
     .replace('<thead>', '<thead class="thead-default">')
   return `<div class="table-responsive-sm">${table}</div>`
 }
@@ -86,7 +99,7 @@ module.exports = {
               renderer,
               // headerIds must always be true, since Search and Table of Contents rely on the IDs
               headerIds: true,
-              // Handle GitHub falvoured markdown
+              // Handle GitHub flavoured markdown
               gfm: true
             }
           }
@@ -112,21 +125,12 @@ module.exports = {
 
   generate: {
     dir: 'docs-dist',
-    routes: () => {
-      let scan = (root, dir, excludeDirs = []) =>
-        fs
-          .readdirSync(`${root}/${dir}`)
-          .filter(c => c !== 'index.js' && c[0] !== '_')
-          .filter(c => excludeDirs.indexOf(c) === -1)
-          .filter(c => !/\.s?css$/.test(c))
-          .map(page => `/docs/${dir}/${page}`)
-
-      return []
-        .concat(scan('src', 'components'))
-        .concat(scan('src', 'directives', ['modal', 'toggle']))
-        .concat(scan('docs/markdown', 'reference'))
-        .concat(scan('docs/markdown', 'misc'))
-    }
+    routes: () => [
+      ...getRoutesByDir('src', 'components'),
+      ...getRoutesByDir('src', 'directives', ['modal', 'toggle']),
+      ...getRoutesByDir('docs/markdown', 'reference'),
+      ...getRoutesByDir('docs/markdown', 'misc')
+    ]
   },
 
   plugins: [
@@ -148,15 +152,18 @@ module.exports = {
   head: {
     meta: [{ 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }],
     script: [
-      { type: 'text/javascript', src: '//unpkg.com/@babel/polyfill@latest/dist/polyfill.min.js' }
+      {
+        src: '//polyfill.io/v3/polyfill.min.js?features=es2015%2CMutationObserver',
+        crossorigin: 'anonymous'
+      }
     ]
   },
 
   css: [
-    'highlightjs/styles/atom-one-light.css',
+    'highlight.js/styles/atom-one-light.css',
     'codemirror/lib/codemirror.css',
     'bootstrap/dist/css/bootstrap.css',
-    '../src/index.scss', // BootstrapVue SCSS
+    '../scripts/build.scss', // BootstrapVue SCSS
     '@assets/css/docs.min.css',
     '@assets/scss/styles.scss'
   ]

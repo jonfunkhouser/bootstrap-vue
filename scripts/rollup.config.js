@@ -6,19 +6,24 @@ import commonjs from 'rollup-plugin-commonjs'
 import { camelCase } from 'lodash'
 import { name, dependencies } from '../package.json'
 
+const bannerComment = require('./banner')
+
 const base = path.resolve(__dirname, '..')
 const src = path.resolve(base, 'src')
 const dist = path.resolve(base, 'dist')
 
-// Libs in `external` will not be bundled to dist,
-// since they are expected to be provided later.
-// We want to include some of them in the build, so we exclude it here.
-const externalExcludes = ['popper.js', 'vue-functional-data-merge']
+const externals = ['vue', ...Object.keys(dependencies)]
+
+// Libs in `external` will not be bundled to dist, since they
+// are expected to be provided later
+// In some cases, wee want to include some of them in the build,
+// so we exclude the external here
+const externalExcludes = ['core-js', 'popper.js', 'portal-vue', 'vue-functional-data-merge']
 
 // The base rollup configuration
 const baseConfig = {
   input: path.resolve(src, 'index.js'),
-  external: Object.keys(dependencies),
+  external: externals,
   plugins: [resolve({ external: ['vue'] }), commonjs(), babel({ exclude: 'node_modules/**' })]
 }
 
@@ -31,33 +36,39 @@ export default [
   // UMD
   {
     ...baseConfig,
-    external: Object.keys(dependencies).filter(dep => !externalExcludes.includes(dep)),
+    external: externals.filter(dep => !externalExcludes.includes(dep)),
     output: {
       format: 'umd',
       name: camelCase(name),
       file: path.resolve(dist, `${name}.js`),
-      sourcemap: true
+      banner: bannerComment,
+      sourcemap: true,
+      globals: {
+        vue: 'Vue'
+      }
     }
   },
 
   // COMMON
   {
     ...baseConfig,
-    external: Object.keys(dependencies).filter(dep => !externalExcludes.includes(dep)),
+    external: externals.filter(dep => !externalExcludes.includes(dep)),
     output: {
       format: 'cjs',
       name: camelCase(name),
       file: path.resolve(dist, `${name}.common.js`),
+      banner: bannerComment,
       sourcemap: true
     }
   },
 
-  // ES
+  // ESM
   {
     ...baseConfig,
     output: {
       format: 'es',
       file: path.resolve(dist, `${name}.esm.js`),
+      banner: bannerComment,
       sourcemap: true
     }
   }

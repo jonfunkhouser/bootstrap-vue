@@ -1,6 +1,7 @@
-import Table from './table'
-import defaultSortCompare from './helpers/default-sort-compare'
 import { mount } from '@vue/test-utils'
+import { waitNT } from '../../../tests/utils'
+import BTable from './table'
+import defaultSortCompare from './helpers/default-sort-compare'
 
 const testItems = [{ a: 3, b: 'b', c: 'x' }, { a: 1, b: 'c', c: 'y' }, { a: 2, b: 'a', c: 'z' }]
 const testFields = [
@@ -11,7 +12,7 @@ const testFields = [
 
 describe('table > sorting', () => {
   it('should not be sorted by default', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -20,7 +21,7 @@ describe('table > sorting', () => {
     expect(wrapper).toBeDefined()
     expect(wrapper.findAll('tbody > tr').exists()).toBe(true)
     expect(wrapper.findAll('tbody > tr').length).toBe(3)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('input').length).toBe(1)
     expect(wrapper.emitted('input')[0][0]).toEqual(testItems)
@@ -41,7 +42,7 @@ describe('table > sorting', () => {
   })
 
   it('should sort column descending when sortBy set and sortDesc changed, with proper attributes', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -55,7 +56,7 @@ describe('table > sorting', () => {
     let $rows
     let columnA
 
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('input').length).toBe(1)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -73,26 +74,26 @@ describe('table > sorting', () => {
 
     let $ths = wrapper.findAll('thead > tr > th')
 
-    // currently sorted as ascending
+    // Currently sorted as ascending
     expect($ths.at(0).attributes('aria-sort')).toBe('ascending')
-    // for switching to descending
+    // For switching to descending
     expect($ths.at(0).attributes('aria-label')).toBe(wrapper.vm.labelSortDesc)
 
-    // not sorted by this column
+    // Not sorted by this column
     expect($ths.at(1).attributes('aria-sort')).toBe('none')
-    // for sorting by ascending
+    // For sorting by ascending
     expect($ths.at(1).attributes('aria-label')).toBe(wrapper.vm.labelSortAsc)
 
-    // not a sortable column
+    // Not a sortable column
     expect($ths.at(2).attributes('aria-sort')).not.toBeDefined()
-    // for clearing sorting
+    // For clearing sorting
     expect($ths.at(2).attributes('aria-label')).toBe(wrapper.vm.labelSortClear)
 
     // Change sort direction
     wrapper.setProps({
       sortDesc: true
     })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input').length).toBe(2)
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
@@ -109,19 +110,19 @@ describe('table > sorting', () => {
 
     $ths = wrapper.findAll('thead > tr > th')
 
-    // currently sorted as descending
+    // Currently sorted as descending
     expect($ths.at(0).attributes('aria-sort')).toBe('descending')
-    // for switching to ascending
+    // For switching to ascending
     expect($ths.at(0).attributes('aria-label')).toBe(wrapper.vm.labelSortAsc)
 
-    // not sorted by this column
+    // Not sorted by this column
     expect($ths.at(1).attributes('aria-sort')).toBe('none')
-    // for sorting by ascending
+    // For sorting by ascending
     expect($ths.at(1).attributes('aria-label')).toBe(wrapper.vm.labelSortAsc)
 
-    // not a sortable column
+    // Not a sortable column
     expect($ths.at(2).attributes('aria-sort')).not.toBeDefined()
-    // for clearing sorting
+    // For clearing sorting
     expect($ths.at(2).attributes('aria-label')).toBe(wrapper.vm.labelSortClear)
 
     // Clear sort
@@ -129,7 +130,7 @@ describe('table > sorting', () => {
       sortBy: null,
       sortDesc: false
     })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input').length).toBe(4)
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
@@ -146,26 +147,26 @@ describe('table > sorting', () => {
 
     $ths = wrapper.findAll('thead > tr > th')
 
-    // currently not sorted
+    // Currently not sorted
     expect($ths.at(0).attributes('aria-sort')).toBe('none')
-    // for sorting by ascending
+    // For sorting by ascending
     expect($ths.at(0).attributes('aria-label')).toBe(wrapper.vm.labelSortAsc)
 
-    // not sorted by this column
+    // Not sorted by this column
     expect($ths.at(1).attributes('aria-sort')).toBe('none')
-    // for sorting by ascending
+    // For sorting by ascending
     expect($ths.at(1).attributes('aria-label')).toBe(wrapper.vm.labelSortAsc)
 
-    // not a sortable column
+    // Not a sortable column
     expect($ths.at(2).attributes('aria-sort')).not.toBeDefined()
-    // for clearing sorting
+    // For clearing sorting
     expect($ths.at(2).attributes('aria-label')).not.toBeDefined()
 
     wrapper.destroy()
   })
 
   it('should accept custom sort compare', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -183,7 +184,7 @@ describe('table > sorting', () => {
     let $rows
     let columnA
 
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('input').length).toBe(1)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -203,7 +204,7 @@ describe('table > sorting', () => {
   })
 
   it('should sort columns when clicking headers', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems
@@ -217,7 +218,7 @@ describe('table > sorting', () => {
     let columnB
 
     // Should not be sorted
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('sort-changed')).not.toBeDefined()
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -238,7 +239,7 @@ describe('table > sorting', () => {
       .findAll('thead > tr > th')
       .at(0)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed')).toBeDefined()
     expect(wrapper.emitted('sort-changed').length).toBe(1)
     expect(wrapper.emitted('sort-changed')[0][0]).toEqual(wrapper.vm.context)
@@ -260,7 +261,7 @@ describe('table > sorting', () => {
       .findAll('thead > tr > th')
       .at(0)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed').length).toBe(2)
     expect(wrapper.emitted('sort-changed')[1][0]).toEqual(wrapper.vm.context)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -281,7 +282,7 @@ describe('table > sorting', () => {
       .findAll('thead > tr > th')
       .at(1)
       .trigger('keydown.enter')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed').length).toBe(3)
     expect(wrapper.emitted('sort-changed')[2][0]).toEqual(wrapper.vm.context)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -302,7 +303,7 @@ describe('table > sorting', () => {
       .findAll('thead > tr > th')
       .at(2)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed').length).toBe(4)
     expect(wrapper.emitted('sort-changed')[3][0]).toEqual(wrapper.vm.context)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -322,7 +323,7 @@ describe('table > sorting', () => {
   })
 
   it('should sort columns when clicking footers', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -337,7 +338,7 @@ describe('table > sorting', () => {
     let columnB
 
     // Should not be sorted
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('sort-changed')).not.toBeDefined()
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -361,7 +362,7 @@ describe('table > sorting', () => {
       .findAll('tfoot > tr > th')
       .at(0)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed')).toBeDefined()
     expect(wrapper.emitted('sort-changed').length).toBe(1)
     expect(wrapper.emitted('sort-changed')[0][0]).toEqual(wrapper.vm.context)
@@ -386,7 +387,7 @@ describe('table > sorting', () => {
       .findAll('tfoot > tr > th')
       .at(0)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed').length).toBe(2)
     expect(wrapper.emitted('sort-changed')[1][0]).toEqual(wrapper.vm.context)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -410,7 +411,7 @@ describe('table > sorting', () => {
       .findAll('tfoot > tr > th')
       .at(1)
       .trigger('keydown.enter')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed').length).toBe(3)
     expect(wrapper.emitted('sort-changed')[2][0]).toEqual(wrapper.vm.context)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -431,7 +432,7 @@ describe('table > sorting', () => {
       .findAll('tfoot > tr > th')
       .at(2)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed').length).toBe(4)
     expect(wrapper.emitted('sort-changed')[3][0]).toEqual(wrapper.vm.context)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -454,7 +455,7 @@ describe('table > sorting', () => {
   })
 
   it('should not sort columns when clicking footers and no-footer-sorting set', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -469,7 +470,7 @@ describe('table > sorting', () => {
     let columnA
 
     // Should not be sorted
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('sort-changed')).not.toBeDefined()
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -493,7 +494,7 @@ describe('table > sorting', () => {
       .findAll('tfoot > tr > th')
       .at(0)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed')).not.toBeDefined()
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
@@ -516,7 +517,7 @@ describe('table > sorting', () => {
       .findAll('tfoot > tr > th')
       .at(2)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed')).not.toBeDefined()
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
@@ -538,7 +539,7 @@ describe('table > sorting', () => {
   })
 
   it('should sort column descending first, when sort-direction=desc', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -552,7 +553,7 @@ describe('table > sorting', () => {
     let $rows
     let columnA
 
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
     // Map the rows to the first column text value
@@ -568,19 +569,19 @@ describe('table > sorting', () => {
 
     let $ths = wrapper.findAll('thead > tr > th')
 
-    // currently not sorted
+    // Currently not sorted
     expect($ths.at(0).attributes('aria-sort')).toBe('none')
-    // for switching to descending
+    // For switching to descending
     expect($ths.at(0).attributes('aria-label')).toBe(wrapper.vm.labelSortDesc)
 
-    // not sorted by this column
+    // Not sorted by this column
     expect($ths.at(1).attributes('aria-sort')).toBe('none')
-    // for sorting by ascending
+    // For sorting by ascending
     expect($ths.at(1).attributes('aria-label')).toBe(wrapper.vm.labelSortDesc)
 
-    // not a sortable column
+    // Not a sortable column
     expect($ths.at(2).attributes('aria-sort')).not.toBeDefined()
-    // for clearing sorting
+    // For clearing sorting
     expect($ths.at(2).attributes('aria-label')).not.toBeDefined()
 
     // Change sort direction (should be descending first)
@@ -588,7 +589,7 @@ describe('table > sorting', () => {
       .findAll('thead > tr > th')
       .at(0)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
@@ -605,26 +606,26 @@ describe('table > sorting', () => {
 
     $ths = wrapper.findAll('thead > tr > th')
 
-    // currently sorted as descending
+    // Currently sorted as descending
     expect($ths.at(0).attributes('aria-sort')).toBe('descending')
-    // for switching to ascending
+    // For switching to ascending
     expect($ths.at(0).attributes('aria-label')).toBe(wrapper.vm.labelSortAsc)
 
-    // not sorted by this column
+    // Not sorted by this column
     expect($ths.at(1).attributes('aria-sort')).toBe('none')
-    // for sorting by ascending
+    // For sorting by ascending
     expect($ths.at(1).attributes('aria-label')).toBe(wrapper.vm.labelSortDesc)
 
-    // not a sortable column
+    // Not a sortable column
     expect($ths.at(2).attributes('aria-sort')).not.toBeDefined()
-    // for clearing sorting
+    // For clearing sorting
     expect($ths.at(2).attributes('aria-label')).toBe(wrapper.vm.labelSortClear)
 
     wrapper.destroy()
   })
 
   it('non-sortable header th should not emit a sort-changed event when clicked and prop no-sort-reset is set', async () => {
-    const wrapper = mount(Table, {
+    const wrapper = mount(BTable, {
       propsData: {
         fields: testFields,
         items: testItems,
@@ -638,7 +639,7 @@ describe('table > sorting', () => {
     let columnA
 
     // Should not be sorted
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('sort-changed')).not.toBeDefined()
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -659,7 +660,7 @@ describe('table > sorting', () => {
       .findAll('thead > tr > th')
       .at(0)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed')).toBeDefined()
     expect(wrapper.emitted('sort-changed').length).toBe(1)
     $rows = wrapper.findAll('tbody > tr').wrappers
@@ -680,7 +681,7 @@ describe('table > sorting', () => {
       .findAll('thead > tr > th')
       .at(2)
       .trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('sort-changed').length).toBe(1)
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)

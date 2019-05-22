@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
+BV_VERSION=$(node -p "require('./package.json').version")
+BV_BANNER=$(node -p "require('./scripts/banner')")
+
+echo "Building BootstrapVue ${BV_VERSION}"
+echo ''
+
 echo 'Checking plugin metadata...'
 node -r esm scripts/check-plugin-meta.js || exit 1
 echo 'Done.'
@@ -15,7 +21,8 @@ echo 'Done.'
 echo ''
 
 echo 'Build ES modules...'
-NODE_ENV=es babel src --out-dir es --ignore 'src/**/*/fixtures,src/**/*.spec.js'
+NODE_ENV=es babel src --out-dir es --ignore 'src/**/*.spec.js'
+echo "${BV_BANNER}" | cat - es/index.js > es/tmp.js && mv es/tmp.js es/index.js
 echo 'Done.'
 echo ''
 
@@ -44,7 +51,7 @@ node-sass --output-style expanded \
           --source-map true \
           --source-map-contents true \
           --precision 6 \
-          src/index.scss \
+          scripts/build.scss \
           dist/bootstrap-vue.css
 postcss --config scripts/postcss.config.js \
         --replace dist/bootstrap-vue.css
@@ -58,6 +65,20 @@ cleancss --level 1 \
          --source-map-inline-sources \
          --output dist/bootstrap-vue.min.css \
          dist/bootstrap-vue.css
+echo 'Done.'
+echo ''
+
+echo 'Copying types from src/ to es/ ...'
+# There must be a better way to do this
+#
+# The following does not preserve the paths
+#   shopt -s globstar
+#   cp src/**/*.d.ts es
+#
+# So we resort to a find with exec
+cd src
+find . -type f -name '*.d.ts' -exec cp {} ../es/{} ';'
+cd ..
 echo 'Done.'
 echo ''
 

@@ -1,30 +1,31 @@
-import PaginationNav from './pagination-nav'
-import { mount, createLocalVue } from '@vue/test-utils'
 import VueRouter from 'vue-router'
+import { mount, createLocalVue } from '@vue/test-utils'
+import { waitNT, waitRAF } from '../../../tests/utils'
+import BPaginationNav from './pagination-nav'
 
 const localVue = createLocalVue()
 localVue.use(VueRouter)
 
 // The majority of tests for the core of pagination mixin are performed
 // in pagination.spec.js. Here we just test the differences that
-// pagination-nav has
+// <pagination-nav> has
 
 // We use a (currently) undocumented wrapper method `destroy()` at the end
 // of each test to remove the VM and DOM from the JSDOM document, as
-// the wrappers's and instances remain after each test completes.
+// the wrapper's and instances remain after each test completes
 
 describe('pagination-nav', () => {
   it('renders with correct basic structure for root elements', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 1,
         value: 1
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
-    // pagination-nav has an outer wrapper of nav
+    // <pagination-nav> has an outer wrapper of nav
     expect(wrapper.is('nav')).toBe(true)
     const $ul = wrapper.find('ul.pagination')
     expect($ul.exists()).toBe(true)
@@ -48,21 +49,21 @@ describe('pagination-nav', () => {
   })
 
   it('renders with correct default HREF', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 5,
         value: 3,
         limit: 10
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     const $links = wrapper.findAll('a.page-link')
     expect($links.length).toBe(9)
 
-    // Default base URL is "/", and link will be the page number
+    // Default base URL is '/', and link will be the page number
     expect($links.at(0).attributes('href')).toBe('/1')
     expect($links.at(1).attributes('href')).toBe('/2')
     expect($links.at(2).attributes('href')).toBe('/1')
@@ -77,15 +78,15 @@ describe('pagination-nav', () => {
   })
 
   it('renders with correct default page button text', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 5,
         value: 3,
         limit: 10
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     const $links = wrapper.findAll('a.page-link')
@@ -101,17 +102,17 @@ describe('pagination-nav', () => {
   })
 
   it('disabled renders correct', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 1,
         value: 1,
         disabled: true
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
-    // pagination-nav has an outer wrapper of nav
+    // <pagination-nav> has an outer wrapper of nav
     expect(wrapper.is('nav')).toBe(true)
     const $ul = wrapper.find('ul.pagination')
     expect($ul.exists()).toBe(true)
@@ -142,15 +143,15 @@ describe('pagination-nav', () => {
   })
 
   it('reacts to changes in number-of-pages', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 3,
         value: 2,
         limit: 10
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     let $links = wrapper.findAll('a.page-link')
@@ -160,7 +161,7 @@ describe('pagination-nav', () => {
       numberOfPages: 5
     })
 
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     $links = wrapper.findAll('a.page-link')
     expect($links.length).toBe(9)
 
@@ -168,7 +169,7 @@ describe('pagination-nav', () => {
   })
 
   it('renders with correct HREF when base-url specified', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 5,
         value: 3,
@@ -176,14 +177,14 @@ describe('pagination-nav', () => {
         baseUrl: '/foo/'
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     const $links = wrapper.findAll('a.page-link')
     expect($links.length).toBe(9)
 
-    // Default base URL is "/", and link will be the page number
+    // Default base URL is '/', and link will be the page number
     expect($links.at(0).attributes('href')).toBe('/foo/1')
     expect($links.at(1).attributes('href')).toBe('/foo/2')
     expect($links.at(2).attributes('href')).toBe('/foo/1')
@@ -198,7 +199,7 @@ describe('pagination-nav', () => {
   })
 
   it('renders with correct HREF when link-gen function provided', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 5,
         value: 3,
@@ -206,14 +207,14 @@ describe('pagination-nav', () => {
         linkGen: page => `?${page}`
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     const $links = wrapper.findAll('a.page-link')
     expect($links.length).toBe(9)
 
-    // Default base URL is "/", and link will be the page number
+    // Default base URL is '/', and link will be the page number
     expect($links.at(0).attributes('href')).toBe('?1')
     expect($links.at(1).attributes('href')).toBe('?2')
     expect($links.at(2).attributes('href')).toBe('?1')
@@ -228,7 +229,7 @@ describe('pagination-nav', () => {
   })
 
   it('renders with correct HREF when link-gen function returns object', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 5,
         value: 3,
@@ -236,14 +237,14 @@ describe('pagination-nav', () => {
         linkGen: page => ({ path: `/baz?${page}` })
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     const $links = wrapper.findAll('a.page-link')
     expect($links.length).toBe(9)
 
-    // Default base URL is "/", and link will be the page number
+    // Default base URL is '/', and link will be the page number
     expect($links.at(0).attributes('href')).toBe('/baz?1')
     expect($links.at(1).attributes('href')).toBe('/baz?2')
     expect($links.at(2).attributes('href')).toBe('/baz?1')
@@ -258,7 +259,7 @@ describe('pagination-nav', () => {
   })
 
   it('renders with correct page button text when page-gen function provided', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 5,
         value: 3,
@@ -266,8 +267,8 @@ describe('pagination-nav', () => {
         pageGen: page => `Page ${page}`
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     const $links = wrapper.findAll('a.page-link')
@@ -283,21 +284,21 @@ describe('pagination-nav', () => {
   })
 
   it('renders with correct HREF when array of links set via pages prop', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         value: 3,
         limit: 10,
         pages: ['/baz?1', '/baz?2', '/baz?3', '/baz?4', '/baz?5']
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     const $links = wrapper.findAll('a.page-link')
     expect($links.length).toBe(9)
 
-    // Default base URL is "/", and link will be the page number
+    // Default base URL is '/', and link will be the page number
     expect($links.at(0).attributes('href')).toBe('/baz?1')
     expect($links.at(1).attributes('href')).toBe('/baz?2')
     expect($links.at(2).attributes('href')).toBe('/baz?1')
@@ -319,7 +320,7 @@ describe('pagination-nav', () => {
   })
 
   it('renders with correct HREF when array of links and text set via pages prop', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         value: 3,
         limit: 10,
@@ -332,14 +333,14 @@ describe('pagination-nav', () => {
         ]
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     const $links = wrapper.findAll('a.page-link')
     expect($links.length).toBe(9)
 
-    // Default base URL is "/", and link will be the page number
+    // Default base URL is '/', and link will be the page number
     expect($links.at(0).attributes('href')).toBe('/baz?1')
     expect($links.at(1).attributes('href')).toBe('/baz?2')
     expect($links.at(2).attributes('href')).toBe('/baz?1')
@@ -361,15 +362,15 @@ describe('pagination-nav', () => {
   })
 
   it('reacts to changes in pages array length', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         value: 2,
         limit: 10,
         pages: ['/baz?1', '/baz?2', '/baz?3']
       }
     })
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.is('nav')).toBe(true)
     let $links = wrapper.findAll('a.page-link')
@@ -387,7 +388,7 @@ describe('pagination-nav', () => {
     wrapper.setProps({
       pages: ['/baz?1', '/baz?2', '/baz?3', '/baz?4']
     })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     $links = wrapper.findAll('a.page-link')
     expect($links.length).toBe(8)
@@ -405,7 +406,7 @@ describe('pagination-nav', () => {
   })
 
   it('clicking buttons updates the v-model', async () => {
-    const wrapper = mount(PaginationNav, {
+    const wrapper = mount(BPaginationNav, {
       propsData: {
         numberOfPages: 3,
         value: 1,
@@ -425,8 +426,8 @@ describe('pagination-nav', () => {
       .at(2)
       .find('a')
       .trigger('click')
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(wrapper.vm.computedCurrentPage).toBe(1)
     expect(wrapper.emitted('input')).not.toBeDefined()
 
@@ -436,8 +437,8 @@ describe('pagination-nav', () => {
       .at(3)
       .find('a')
       .trigger('click')
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(wrapper.vm.computedCurrentPage).toBe(2)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('input')[0][0]).toBe(2)
@@ -447,9 +448,9 @@ describe('pagination-nav', () => {
       .findAll('li')
       .at(6)
       .find('a')
-      .trigger('keydown.space') /* generates a click event */
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+      .trigger('keydown.space') // Generates a click event
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(wrapper.vm.computedCurrentPage).toBe(3)
     expect(wrapper.emitted('input')[1][0]).toBe(3)
 
@@ -459,8 +460,8 @@ describe('pagination-nav', () => {
       .at(1)
       .find('a')
       .trigger('click')
-    await wrapper.vm.$nextTick()
-    await new Promise(resolve => requestAnimationFrame(resolve))
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(wrapper.vm.computedCurrentPage).toBe(2)
     expect(wrapper.emitted('input')[2][0]).toBe(2)
 
@@ -471,21 +472,21 @@ describe('pagination-nav', () => {
     // Note: JSDOM only works with hash URL updates out of the box
 
     beforeEach(() => {
-      // Make sure theJSDOM is at /, as JSDOM instances for each test!
+      // Make sure theJSDOM is at '/', as JSDOM instances for each test!
       window.history.pushState({}, '', '/')
     })
 
     it('detects current page without $router', async () => {
-      const wrapper = mount(PaginationNav, {
+      const wrapper = mount(BPaginationNav, {
         propsData: {
           numberOfPages: 3,
           value: null,
           linkGen: page => (page === 2 ? '/' : `/#${page}`)
         }
       })
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => requestAnimationFrame(resolve))
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
+      await waitNT(wrapper.vm)
 
       expect(wrapper.vm.$router).not.toBeDefined()
       expect(wrapper.vm.$route).not.toBeDefined()
@@ -497,16 +498,14 @@ describe('pagination-nav', () => {
       // Emitted current page (2)
       expect(wrapper.emitted('input')).toBeDefined()
       expect(wrapper.emitted('input').length).toBe(1)
-      expect(wrapper.emitted('input')[0][0]).toBe(2) /* page 2, URL = '' */
+      expect(wrapper.emitted('input')[0][0]).toBe(2) // Page 2, URL = ''
 
       wrapper.destroy()
     })
 
     it('works with $router to detect path and linkGen returns location object', async () => {
       const App = {
-        components: {
-          BPaginationNav: PaginationNav
-        },
+        components: { BPaginationNav },
         methods: {
           linkGen(page) {
             // We make page #2 "home" for testing
@@ -540,36 +539,34 @@ describe('pagination-nav', () => {
       await new Promise(resolve => router.onReady(resolve))
 
       // Wait for the guessCurrentPage to complete
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => requestAnimationFrame(resolve))
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
+      await waitNT(wrapper.vm)
 
       // The pagination-nav component should exist
-      expect(wrapper.find(PaginationNav).exists()).toBe(true)
+      expect(wrapper.find(BPaginationNav).exists()).toBe(true)
       // And should be on page 2
-      expect(wrapper.find(PaginationNav).vm.currentPage).toBe(2)
+      expect(wrapper.find(BPaginationNav).vm.currentPage).toBe(2)
 
       // Push router to a new page
       wrapper.vm.$router.push('/3')
 
       // Wait for the guessCurrentPage to complete
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => requestAnimationFrame(resolve))
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
+      await waitNT(wrapper.vm)
 
       // The pagination-nav component should exist
-      expect(wrapper.find(PaginationNav).exists()).toBe(true)
+      expect(wrapper.find(BPaginationNav).exists()).toBe(true)
       // And should be on page 3
-      expect(wrapper.find(PaginationNav).vm.currentPage).toBe(3)
+      expect(wrapper.find(BPaginationNav).vm.currentPage).toBe(3)
 
       wrapper.destroy()
     })
 
     it('works with $router to detect path and use-router set and linkGen returns string', async () => {
       const App = {
-        components: {
-          BPaginationNav: PaginationNav
-        },
+        components: { BPaginationNav },
         methods: {
           linkGen(page) {
             // We make page #2 "home" for testing
@@ -603,27 +600,27 @@ describe('pagination-nav', () => {
       await new Promise(resolve => router.onReady(resolve))
 
       // Wait for the guessCurrentPage to complete
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => requestAnimationFrame(resolve))
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
+      await waitNT(wrapper.vm)
 
-      // The pagination-nav component should exist
-      expect(wrapper.find(PaginationNav).exists()).toBe(true)
+      // The <pagination-nav> component should exist
+      expect(wrapper.find(BPaginationNav).exists()).toBe(true)
       // And should be on page 2
-      expect(wrapper.find(PaginationNav).vm.currentPage).toBe(2)
+      expect(wrapper.find(BPaginationNav).vm.currentPage).toBe(2)
 
       // Push router to a new page
       wrapper.vm.$router.push('/3')
 
       // Wait for the guessCurrentPage to complete
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => requestAnimationFrame(resolve))
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
+      await waitNT(wrapper.vm)
 
       // The pagination-nav component should exist
-      expect(wrapper.find(PaginationNav).exists()).toBe(true)
+      expect(wrapper.find(BPaginationNav).exists()).toBe(true)
       // And should be on page 3
-      expect(wrapper.find(PaginationNav).vm.currentPage).toBe(3)
+      expect(wrapper.find(BPaginationNav).vm.currentPage).toBe(3)
 
       wrapper.destroy()
     })

@@ -1,6 +1,17 @@
 # Form
 
-> Bootstrap form component that optionally supports inline form styles and validation states
+> BootstrapVue form component and helper components that optionally support inline form styles and
+> validation states. Pair them up with other BootstrapVue form control components for an easy
+> customized, and responsive, layout with a consistent look and feel.
+
+## Introduction to forms and controls
+
+Be sure to use an appropriate `type` on all inputs (e.g., `email` for email address or `number` for
+numerical information) to take advantage of newer input controls like email verification, number
+selection, and more.
+
+Here's a quick example to demonstrate BootstrapVue's form styles. Keep reading for documentation on
+supported components, form layout, and more.
 
 ```html
 <template>
@@ -162,14 +173,14 @@ Custom form controls and selects are also supported.
 
 ### Alternatives to hidden labels
 
-Assistive technologies such as screen readers will have trouble with your forms if you don’t include
+Assistive technologies such as screen readers will have trouble with your forms if you don't include
 a label for every input. For these inline forms, you can hide the labels using the `.sr-only` class.
 There are further alternative methods of providing a label for assistive technologies, such as the
 `aria-label`, `aria-labelledby` or `title` attributes. If none of these are present, assistive
 technologies may resort to using the `placeholder` attribute, if present, but note that use of
 `placeholder` as a replacement for other labelling methods is not advised.
 
-## Related Form Control Components
+## Related form control and layout components
 
 See also:
 
@@ -179,23 +190,23 @@ See also:
 - [`<b-form-radio>`](/docs/components/form-radio) Radio Inputs
 - [`<b-form-checkbox>`](/docs/components/form-checkbox) Checkbox Inputs
 - [`<b-form-file>`](/docs/components/form-file) File Input
+- [`<b-button>`](/docs/components/button) Buttons
 - [`<b-form-group>`](/docs/components/form-group) Form input wrapper to generate form-groups that
   support labels, help text and feedback
-- [`<b-button>`](/docs/components/button) Buttons
 - [`<b-input-group>`](/docs/components/input-group) Form inputs with add-ons
+- [`<b-form-row>`](/docs/components/layout) Create grid rows and columns with tighter margins
+  (available via the [Layout and grid components](/docs/components/layout))
 
-## Helper components
+## Form helper components
 
-- [`<b-form-row>`](/docs/components/layout) create grid rows and columns with tighter margins
+The following helper components are available with the `Form` plugin:
+
 - `<b-form-text>` Help text blocks for inputs
 - `<b-form-invalid-feedback>` Invalid feedback text blocks for input `invalid` states
 - `<b-form-valid-feedback>` Valid feedback text blocks for input `valid` states
-- `<b-form-datalist>` Create `<datalist>` for use with `<b-form-input>` or plain `<input>`
+- `<b-form-datalist>` Easily create a `<datalist>` for use with `<b-form-input>` or plain `<input>`
 
-See also: [`<b-form-group>`](/docs/components/form-group) Form input wrapper to generate form-groups
-that support labels, help text and feedback
-
-### Form Text helper
+### Form text helper
 
 Display a block of help text below an input with the `<b-form-text>` helper component. text is
 displayed with a muted color and slightly smaller font-size.
@@ -206,7 +217,7 @@ will announce this help text when the user focuses or enters the control.
 
 ```html
 <div>
-  <b-form  @submit.prevent>
+  <b-form @submit.stop.prevent>
     <label for="text-password">Password</label>
     <b-input type="password" id="text-password" aria-describedby="password-help-block"></b-input>
     <b-form-text id="password-help-block">
@@ -245,7 +256,7 @@ or the `force-show` prop to display the feedback.
 ```html
 <template>
   <div>
-    <b-form  @submit.prevent>
+    <b-form  @submit.stop.prevent>
       <label for="feedback-user">User ID</label>
       <b-input v-model="userId" :state="validation" id="feedback-user"></b-input>
       <b-form-invalid-feedback :state="validation">
@@ -324,7 +335,7 @@ the form to trigger validation states
 All of the form controls support a `state` prop, which can be used to set the form control into one
 of three contextual states:
 
-- Setting `state` to `false` (or the string `'invalid'`) is great for when there’s a blocking or
+- Setting `state` to `false` (or the string `'invalid'`) is great for when there's a blocking or
   required field. A user must fill in this field properly to submit the form.
 - Setting `state` to `true` (or the string `'valid'`) is ideal for situations when you have
   per-field validation throughout a form and want to encourage a user through the rest of the

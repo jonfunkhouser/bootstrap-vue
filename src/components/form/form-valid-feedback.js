@@ -1,3 +1,4 @@
+import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
 
 export const props = {
@@ -20,11 +21,19 @@ export const props = {
   state: {
     type: [Boolean, String],
     default: null
+  },
+  ariaLive: {
+    type: String,
+    default: null
+  },
+  role: {
+    type: String,
+    default: null
   }
 }
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BFormValidFeedback',
   functional: true,
   props,
@@ -38,9 +47,14 @@ export default {
           'valid-tooltip': props.tooltip,
           'd-block': show
         },
-        attrs: { id: props.id }
+        attrs: {
+          id: props.id,
+          role: props.role,
+          'aria-live': props.ariaLive,
+          'aria-atomic': props.ariaLive ? 'true' : null
+        }
       }),
       children
     )
   }
-}
+})

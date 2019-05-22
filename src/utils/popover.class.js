@@ -1,5 +1,6 @@
 import ToolTip from './tooltip.class'
 import { select, addClass, removeClass, getAttr } from './dom'
+import { isFunction, isNull, isObject, isString } from './inspect'
 
 const NAME = 'popover'
 const CLASS_PREFIX = 'bs-popover'
@@ -27,23 +28,23 @@ const Selector = {
   CONTENT: '.popover-body'
 }
 
-/* istanbul ignore next: dificult to test in Jest/JSDOM environment */
 class PopOver extends ToolTip {
-  // Getter overrides
+  // --- Getter overrides ---
 
-  static get Default() /* istanbul ignore next */ {
+  static get Default() {
     return Defaults
   }
 
-  static get NAME() /* istanbul ignore next */ {
+  static get NAME() {
     return NAME
   }
 
-  // Method overrides
+  // --- Method overrides ---
 
-  isWithContent(tip) /* istanbul ignore next */ {
+  isWithContent(tip) {
     tip = tip || this.$tip
     if (!tip) {
+      /* istanbul ignore next */
       return false
     }
     const hasTitle = Boolean((select(Selector.TITLE, tip) || {}).innerHTML)
@@ -55,7 +56,7 @@ class PopOver extends ToolTip {
     addClass(this.getTipElement(), `${CLASS_PREFIX}-${attachment}`)
   }
 
-  setContent(tip) /* istanbul ignore next */ {
+  setContent(tip) {
     // we use append for html objects to maintain js events/components
     this.setElementContent(select(Selector.TITLE, tip), this.getTitle())
     this.setElementContent(select(Selector.CONTENT, tip), this.getContent())
@@ -68,23 +69,25 @@ class PopOver extends ToolTip {
   cleanTipClass() /* istanbul ignore next */ {
     const tip = this.getTipElement()
     const tabClass = tip.className.match(BS_CLASS_PREFIX_REGEX)
-    if (tabClass !== null && tabClass.length > 0) {
+    if (!isNull(tabClass) && tabClass.length > 0) {
       tabClass.forEach(cls => {
         removeClass(tip, cls)
       })
     }
   }
 
-  getTitle() /* istanbul ignore next */ {
+  getTitle() {
     let title = this.$config.title || ''
-    if (typeof title === 'function') {
+    /* istanbul ignore next */
+    if (isFunction(title)) {
       title = title(this.$element)
     }
-    if (typeof title === 'object' && title.nodeType && !title.innerHTML.trim()) {
+    /* istanbul ignore next */
+    if (isObject(title) && title.nodeType && !title.innerHTML.trim()) {
       // We have a dom node, but without inner content, so just return an empty string
       title = ''
     }
-    if (typeof title === 'string') {
+    if (isString(title)) {
       title = title.trim()
     }
     if (!title) {
@@ -97,16 +100,18 @@ class PopOver extends ToolTip {
 
   // New methods
 
-  getContent() /* istanbul ignore next */ {
+  getContent() {
     let content = this.$config.content || ''
-    if (typeof content === 'function') {
+    /* istanbul ignore next */
+    if (isFunction(content)) {
       content = content(this.$element)
     }
-    if (typeof content === 'object' && content.nodeType && !content.innerHTML.trim()) {
+    /* istanbul ignore next */
+    if (isObject(content) && content.nodeType && !content.innerHTML.trim()) {
       // We have a dom node, but without inner content, so just return an empty string
       content = ''
     }
-    if (typeof content === 'string') {
+    if (isString(content)) {
       content = content.trim()
     }
     return content

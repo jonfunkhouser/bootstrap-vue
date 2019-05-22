@@ -1,9 +1,10 @@
-import Input from './form-file'
 import { mount } from '@vue/test-utils'
+import { waitNT } from '../../../tests/utils'
+import BFormFile from './form-file'
 
 describe('form-file', () => {
   it('default has expected structure, classes and attributes', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo'
       }
@@ -39,7 +40,7 @@ describe('form-file', () => {
   })
 
   it('default has input attribute multiple when multiple=true', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         multiple: true
@@ -52,7 +53,7 @@ describe('form-file', () => {
   })
 
   it('default has input attribute required when required=true', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         required: true
@@ -67,7 +68,7 @@ describe('form-file', () => {
   })
 
   it('default has input attribute disabled when disabled=true', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         disabled: true
@@ -80,7 +81,7 @@ describe('form-file', () => {
   })
 
   it('default has input attribute capture when capture=true', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         capture: true
@@ -93,7 +94,7 @@ describe('form-file', () => {
   })
 
   it('default has input attribute accept when accept is set', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         accept: 'image/*'
@@ -107,7 +108,7 @@ describe('form-file', () => {
   })
 
   it('default has input attribute name when name is set', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         name: 'bar'
@@ -121,7 +122,7 @@ describe('form-file', () => {
   })
 
   it('default has input attribute form when form is set', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         form: 'bar'
@@ -135,7 +136,7 @@ describe('form-file', () => {
   })
 
   it('default has class focus when input focused', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo'
       }
@@ -146,18 +147,18 @@ describe('form-file', () => {
     expect(input.classes()).not.toContain('focus')
 
     input.trigger('focusin')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(input.classes()).toContain('focus')
 
     input.trigger('focusout')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(input.classes()).not.toContain('focus')
 
     wrapper.destroy()
   })
 
   it('has no wrapper div or label when plain=true', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         plain: true
@@ -174,7 +175,7 @@ describe('form-file', () => {
   })
 
   it('emits input event when file changed', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo'
       }
@@ -199,7 +200,7 @@ describe('form-file', () => {
   })
 
   it('emits input event when files changed in multiple mode', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         multiple: true
@@ -238,7 +239,7 @@ describe('form-file', () => {
   })
 
   it('native change event works', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo'
       }
@@ -266,7 +267,7 @@ describe('form-file', () => {
   })
 
   it('reset() method works in single mode', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         multiple: false
@@ -292,7 +293,7 @@ describe('form-file', () => {
   })
 
   it('reset() method works in multiple mode', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         multiple: true
@@ -322,7 +323,7 @@ describe('form-file', () => {
   })
 
   it('reset works in single mode by setting value', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         value: ''
@@ -335,13 +336,13 @@ describe('form-file', () => {
 
     // Emulate the files array
     wrapper.vm.setFiles([file1])
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('input').length).toEqual(1)
     expect(wrapper.emitted('input')[0][0]).toEqual(file1)
 
     wrapper.setProps({ value: null })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.emitted('input').length).toEqual(2)
     expect(wrapper.emitted('input')[1][0]).toEqual(null)
@@ -350,7 +351,7 @@ describe('form-file', () => {
   })
 
   it('reset works in multiple mode by setting value', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         value: [],
@@ -369,23 +370,23 @@ describe('form-file', () => {
 
     // Emulate the files array
     wrapper.vm.setFiles(files)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('input').length).toEqual(1)
     expect(wrapper.emitted('input')[0][0]).toEqual(files)
 
     wrapper.setProps({ value: null })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input').length).toEqual(2)
     expect(wrapper.emitted('input')[1][0]).toEqual([])
 
     wrapper.vm.setFiles(files)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input').length).toEqual(3)
     expect(wrapper.emitted('input')[2][0]).toEqual(files)
 
     wrapper.setProps({ value: [] })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input').length).toEqual(4)
     expect(wrapper.emitted('input')[3][0]).toEqual([])
 
@@ -393,7 +394,7 @@ describe('form-file', () => {
   })
 
   it('native reset event works', async () => {
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         value: null
@@ -406,13 +407,13 @@ describe('form-file', () => {
 
     // Emulate the files array
     wrapper.vm.setFiles([file1])
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('input').length).toEqual(1)
     expect(wrapper.emitted('input')[0][0]).toEqual(file1)
 
     wrapper.find('input').trigger('reset')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.emitted('input').length).toEqual(2)
     expect(wrapper.emitted('input')[1][0]).toEqual(null)
 
@@ -422,7 +423,7 @@ describe('form-file', () => {
   it('file-name-formatter works', async () => {
     let called = false
     let filesIsArray = false
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo',
         fileNameFormatter: files => {
@@ -454,7 +455,7 @@ describe('form-file', () => {
 
   it('file-name slot works', async () => {
     let slotScope = null
-    const wrapper = mount(Input, {
+    const wrapper = mount(BFormFile, {
       propsData: {
         id: 'foo'
       },
@@ -476,11 +477,54 @@ describe('form-file', () => {
     expect(wrapper.emitted('input').length).toEqual(1)
     expect(wrapper.emitted('input')[0][0]).toEqual(file)
 
-    // scoped slot should have been called, with expected scope
+    // Scoped slot should have been called, with expected scope
     expect(slotScope).toEqual({ files: [file], names: [file.name] })
     // Should have our custom formatted "filename"
     expect(wrapper.find('label').text()).toContain('foobar')
 
     wrapper.destroy()
+  })
+
+  // These tests are wrapped in a new describe to limit the scope of the getBCR Mock
+  describe('prop `autofocus`', () => {
+    const origGetBCR = Element.prototype.getBoundingClientRect
+
+    beforeEach(() => {
+      // Mock getBCR so that the isVisible(el) test returns true
+      // In our test below, all pagination buttons would normally be visible
+      Element.prototype.getBoundingClientRect = jest.fn(() => {
+        return {
+          width: 24,
+          height: 24,
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0
+        }
+      })
+    })
+
+    afterEach(() => {
+      // Restore prototype
+      Element.prototype.getBoundingClientRect = origGetBCR
+    })
+
+    it('works when true', async () => {
+      const wrapper = mount(BFormFile, {
+        attachToDocument: true,
+        propsData: {
+          autofocus: true
+        }
+      })
+      expect(wrapper.vm).toBeDefined()
+      await wrapper.vm.$nextTick()
+
+      const input = wrapper.find('input')
+      expect(input.exists()).toBe(true)
+      expect(document).toBeDefined()
+      expect(document.activeElement).toBe(input.element)
+
+      wrapper.destroy()
+    })
   })
 })

@@ -1,18 +1,20 @@
+import Vue from '../../utils/vue'
 import idMixin from '../../mixins/id'
+import normalizeSlotMixin from '../../mixins/normalize-slot'
+import BVTransition from '../../utils/bv-transition'
 import warn from '../../utils/warn'
-import { requestAF } from '../../utils/dom'
 
-const DEPRECATED_MSG = 'Setting prop "href" is deprecated. Use the <b-nav> component instead'
+const DEPRECATED_MSG = 'Setting prop "href" is deprecated. Use the <b-nav> component instead.'
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BTab',
-  mixins: [idMixin],
+  mixins: [idMixin, normalizeSlotMixin],
   inject: {
     bvTabs: {
       default() {
         return {
-          // Don't set a tab index if not rendered inside `<b-tabs>`
+          // Don't set a tab index if not rendered inside <b-tabs>
           noKeyNav: true
         }
       }
@@ -61,11 +63,11 @@ export default {
     href: {
       // This should be deprecated, as tabs are not navigation (URL) based
       // <b-nav> + <b-card> + <router-view>/<nuxt-child> should be used instead
-      // And we dont support router-links here
+      // We don't support router-links here
       type: String,
       default: '#',
-      // deprecated: means don't use this prop
-      // deprecation: refers to a change in prop usage
+      // `deprecated` -> Don't use this prop
+      // `deprecation` -> Refers to a change in prop usage
       deprecated: DEPRECATED_MSG
     },
     lazy: {
@@ -82,18 +84,20 @@ export default {
   computed: {
     tabClasses() {
       return [
-        this.bvTabs.card && !this.noBody ? 'card-body' : '',
-        this.show ? 'show' : '',
-        this.computedFade ? 'fade' : '',
-        this.disabled ? 'disabled' : '',
-        this.localActive ? 'active' : ''
+        {
+          active: this.localActive,
+          disabled: this.disabled,
+          'card-body': this.bvTabs.card && !this.noBody
+        },
+        // Apply <b-tabs> `activeTabClass` styles when this tab is active
+        this.localActive ? this.bvTabs.activeTabClass : null
       ]
     },
     controlledBy() {
       return this.buttonId || this.safeId('__BV_tab_button__')
     },
-    computedFade() {
-      return this.bvTabs.fade || false
+    computedNoFade() {
+      return !(this.bvTabs.fade || false)
     },
     computedLazy() {
       return this.bvTabs.lazy || this.lazy
@@ -116,7 +120,7 @@ export default {
         } else {
           if (!this.deactivate()) {
             // Tab couldn't be deactivated, so we reset the synced active prop
-            // Deactivation will fail if no other tabs to activate.
+            // Deactivation will fail if no other tabs to activate
             this.$emit('update:active', this.localActive)
           }
         }
@@ -143,29 +147,17 @@ export default {
   updated() {
     // Force the tab button content to update (since slots are not reactive)
     // Only done if we have a title slot, as the title prop is reactive
-    if (this.$slots.title && this.bvTabs.updateButton) {
+    if (this.hasNormalizedSlot('title') && this.bvTabs.updateButton) {
       this.bvTabs.updateButton(this)
     }
   },
   methods: {
-    // Transition handlers
-    beforeEnter() {
-      // change opacity (add 'show' class) 1 frame after display
-      // otherwise css transition won't happen
-      requestAF(() => {
-        this.show = true
-      })
-    },
-    beforeLeave() {
-      // Remove the 'show' class
-      this.show = false
-    },
     // Public methods
     activate() {
       if (this.bvTabs.activateTab && !this.disabled) {
         return this.bvTabs.activateTab(this)
       } else {
-        // Not inside a b-tabs component or tab is disabled
+        // Not inside a <b-tabs> component or tab is disabled
         return false
       }
     },
@@ -173,7 +165,7 @@ export default {
       if (this.bvTabs.deactivateTab && this.localActive) {
         return this.bvTabs.deactivateTab(this)
       } else {
-        // Not inside a b-tabs component or not active to begin with
+        // Not inside a <b-tabs> component or not active to begin with
         return false
       }
     }
@@ -186,7 +178,6 @@ export default {
         staticClass: 'tab-pane',
         class: this.tabClasses,
         directives: [
-          // TODO: convert to style object in render
           {
             name: 'show',
             rawName: 'v-show',
@@ -199,32 +190,12 @@ export default {
           id: this.safeId(),
           tabindex: this.localActive && !this.bvTabs.noKeyNav ? '0' : null,
           'aria-hidden': this.localActive ? 'false' : 'true',
-          'aria-expanded': this.localActive ? 'true' : 'false',
           'aria-labelledby': this.controlledBy || null
         }
       },
       // Render content lazily if requested
-      [this.localActive || !this.computedLazy ? this.$slots.default : h(false)]
+      [this.localActive || !this.computedLazy ? this.normalizeSlot('default') : h(false)]
     )
-    return h(
-      'transition',
-      {
-        props: {
-          mode: 'out-in',
-          // Disable use of built-in transition classes
-          'enter-class': '',
-          'enter-active-class': '',
-          'enter-to-class': '',
-          'leave-class': '',
-          'leave-active-class': '',
-          'leave-to-class': ''
-        },
-        on: {
-          beforeEnter: this.beforeEnter,
-          beforeLeave: this.beforeLeave
-        }
-      },
-      [content]
-    )
+    return h(BVTransition, { props: { mode: 'out-in', noFade: this.computedNoFade } }, [content])
   }
-}
+})

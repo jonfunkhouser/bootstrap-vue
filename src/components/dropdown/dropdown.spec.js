@@ -1,6 +1,7 @@
-import Dropdown from './dropdown'
-import DropdownItem from './dropdown-item'
 import { mount, createLocalVue as CreateLocalVue } from '@vue/test-utils'
+import { waitNT, waitRAF } from '../../../tests/utils'
+import BDropdown from './dropdown'
+import BDropdownItem from './dropdown-item'
 
 describe('dropdown', () => {
   const originalCreateRange = document.createRange
@@ -8,9 +9,9 @@ describe('dropdown', () => {
 
   beforeEach(() => {
     // https://github.com/FezVrasta/popper.js/issues/478#issuecomment-407422016
-    // Hack to make Popper not bork out during tests.
-    // Note popper still does not do any positiioning claculation in JSDOM though.
-    // So we cannpt test actual positioning of the menu... just detect when it is open.
+    // Hack to make Popper not bork out during tests
+    // Note popper still does not do any positioning calculation in JSDOM though
+    // So we cannot test actual positioning of the menu, just detect when it is open
     document.createRange = () => ({
       setStart: () => {},
       setEnd: () => {},
@@ -40,7 +41,7 @@ describe('dropdown', () => {
   })
 
   it('has expected default structure', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true
     })
 
@@ -48,7 +49,7 @@ describe('dropdown', () => {
     expect(wrapper.isVueInstance()).toBe(true)
 
     // Wait for auto ID to be generated
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.classes()).toContain('dropdown')
     expect(wrapper.classes()).toContain('btn-group')
@@ -73,7 +74,7 @@ describe('dropdown', () => {
 
     expect(wrapper.findAll('.dropdown-menu').length).toBe(1)
     const $menu = wrapper.find('.dropdown-menu')
-    expect($menu.is('div')).toBe(true)
+    expect($menu.is('ul')).toBe(true)
     expect($menu.classes().length).toBe(1)
     expect($menu.attributes('role')).toBeDefined()
     expect($menu.attributes('role')).toEqual('menu')
@@ -87,7 +88,7 @@ describe('dropdown', () => {
   })
 
   it('split mode has expected default structure', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         split: true
@@ -98,7 +99,7 @@ describe('dropdown', () => {
     expect(wrapper.isVueInstance()).toBe(true)
 
     // Wait for auto ID to be generated
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.classes()).toContain('dropdown')
     expect(wrapper.classes()).toContain('btn-group')
@@ -135,7 +136,7 @@ describe('dropdown', () => {
 
     expect(wrapper.findAll('.dropdown-menu').length).toBe(1)
     const $menu = wrapper.find('.dropdown-menu')
-    expect($menu.is('div')).toBe(true)
+    expect($menu.is('ul')).toBe(true)
     expect($menu.classes().length).toBe(1)
     expect($menu.attributes('role')).toBeDefined()
     expect($menu.attributes('role')).toEqual('menu')
@@ -149,7 +150,7 @@ describe('dropdown', () => {
   })
 
   it('renders default slot inside menu', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       slots: {
         default: 'foobar'
@@ -167,7 +168,7 @@ describe('dropdown', () => {
   })
 
   it('has user supplied ID', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         id: 'test'
@@ -194,7 +195,7 @@ describe('dropdown', () => {
   })
 
   it('should have "dropdown-toggle-no-caret" class when no-caret is true', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         noCaret: true
@@ -205,7 +206,7 @@ describe('dropdown', () => {
   })
 
   it('should not have "dropdown-toggle-no-caret" class when no-caret and split are true', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         noCaret: true,
@@ -217,7 +218,7 @@ describe('dropdown', () => {
   })
 
   it('should have a toggle with the given toggle tag', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         toggleTag: 'div'
@@ -228,7 +229,7 @@ describe('dropdown', () => {
   })
 
   it('should have class dropup when prop dropup set', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         dropup: true
@@ -239,7 +240,7 @@ describe('dropdown', () => {
     expect(wrapper.classes()).not.toContain('show')
     expect(wrapper.find('.dropdown-menu').classes()).not.toContain('show')
     wrapper.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.classes()).toContain('dropdown')
     expect(wrapper.classes()).toContain('dropup')
     expect(wrapper.classes()).toContain('show')
@@ -248,7 +249,7 @@ describe('dropdown', () => {
   })
 
   it('should have class dropright when prop dropright set', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         dropright: true
@@ -259,7 +260,7 @@ describe('dropdown', () => {
     expect(wrapper.classes()).not.toContain('show')
     expect(wrapper.find('.dropdown-menu').classes()).not.toContain('show')
     wrapper.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.classes()).toContain('dropdown')
     expect(wrapper.classes()).toContain('dropright')
     expect(wrapper.classes()).toContain('show')
@@ -268,7 +269,7 @@ describe('dropdown', () => {
   })
 
   it('should have class dropleft when prop dropleft set', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         dropleft: true
@@ -279,7 +280,7 @@ describe('dropdown', () => {
     expect(wrapper.classes()).not.toContain('show')
     expect(wrapper.find('.dropdown-menu').classes()).not.toContain('show')
     wrapper.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.classes()).toContain('dropdown')
     expect(wrapper.classes()).toContain('dropleft')
     expect(wrapper.classes()).toContain('show')
@@ -288,7 +289,7 @@ describe('dropdown', () => {
   })
 
   it('menu should have class dropdown-menu-right when prop right set', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         right: true
@@ -299,7 +300,7 @@ describe('dropdown', () => {
     expect(wrapper.find('.dropdown-menu').classes()).toContain('dropdown-menu-right')
     expect(wrapper.find('.dropdown-menu').classes()).not.toContain('show')
     wrapper.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.classes()).toContain('dropdown')
     expect(wrapper.classes()).toContain('show')
     expect(wrapper.find('.dropdown-menu').classes()).toContain('dropdown-menu-right')
@@ -308,7 +309,7 @@ describe('dropdown', () => {
   })
 
   it('split mode emits click event when split button clicked', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         split: true
@@ -335,7 +336,9 @@ describe('dropdown', () => {
     const localVue = new CreateLocalVue()
     const App = localVue.extend({
       render(h) {
-        return h('div', {}, [h(Dropdown, { props: { id: 'test' } }, [h(DropdownItem, {}, 'item')])])
+        return h('div', {}, [
+          h(BDropdown, { props: { id: 'test' } }, [h(BDropdownItem, {}, 'item')])
+        ])
       }
     })
 
@@ -365,7 +368,8 @@ describe('dropdown', () => {
 
     // Open menu by clicking toggle
     $toggle.trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($toggle.attributes('aria-haspopup')).toBeDefined()
     expect($toggle.attributes('aria-haspopup')).toEqual('true')
     expect($toggle.attributes('aria-expanded')).toBeDefined()
@@ -375,38 +379,44 @@ describe('dropdown', () => {
 
     // Close menu by clicking toggle again
     $toggle.trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($toggle.attributes('aria-expanded')).toEqual('false')
     expect($dropdown.classes()).not.toContain('show')
 
     // Open menu again
     $toggle.trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($toggle.attributes('aria-expanded')).toEqual('true')
     expect(document.activeElement).toBe($menu.element)
     expect($dropdown.classes()).toContain('show')
 
     // Close by clicking dropdown-item
     $item.trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($toggle.attributes('aria-expanded')).toEqual('false')
     expect($dropdown.classes()).not.toContain('show')
 
     // Open menu via .show() method
     $dropdown.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($toggle.attributes('aria-expanded')).toEqual('true')
     expect($dropdown.classes()).toContain('show')
 
     // Close menu via .hide() method
     $dropdown.vm.hide()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($toggle.attributes('aria-expanded')).toEqual('false')
     expect($dropdown.classes()).not.toContain('show')
 
     // Open menu via .show() method again
     $dropdown.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($toggle.attributes('aria-expanded')).toEqual('true')
     expect($dropdown.classes()).toContain('show')
     expect(document.activeElement).toBe($menu.element)
@@ -414,13 +424,15 @@ describe('dropdown', () => {
     // Close menu by moving focus away from menu
     const focusInEvt = new FocusEvent('focusin')
     document.dispatchEvent(focusInEvt)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).not.toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('false')
 
     // Open menu via keydown.down event on toggle button
     $toggle.trigger('keydown.down')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('true')
     expect(document.activeElement).toBe($menu.element)
@@ -428,25 +440,29 @@ describe('dropdown', () => {
     // Close menu by clicking outside of menu
     const clickEvt = new MouseEvent('click')
     document.dispatchEvent(clickEvt)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).not.toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('false')
 
     // Open menu via .show() method again
     $dropdown.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('true')
 
     // Close menu by keydown.esc event on dropdown item
     $item.trigger('keydown.esc')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).not.toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('false')
 
     // Open menu via .show() method again
     $dropdown.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('true')
 
@@ -454,29 +470,34 @@ describe('dropdown', () => {
     $dropdown.setProps({
       disabled: true
     })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).not.toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('false')
 
     // When disabled, show() wont open menu
     $dropdown.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).not.toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('false')
 
-    // Re enable dropdown and open it
+    // Re-enable dropdown and open it
     $dropdown.setProps({
       disabled: false
     })
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     $dropdown.vm.show()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('true')
 
     // Should close on root emit when argument is not self
     wrapper.vm.$root.$emit('bv::dropdown::shown', {})
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($dropdown.classes()).not.toContain('show')
     expect($toggle.attributes('aria-expanded')).toEqual('false')
 
@@ -485,7 +506,7 @@ describe('dropdown', () => {
 
   it('preventDefault() works on show event', async () => {
     let prevent = true
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       listeners: {
         show: bvEvt => {
@@ -498,7 +519,8 @@ describe('dropdown', () => {
 
     expect(wrapper.is('div')).toBe(true)
     expect(wrapper.isVueInstance()).toBe(true)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.emitted('show')).not.toBeDefined()
 
@@ -515,7 +537,8 @@ describe('dropdown', () => {
 
     // Should prevent menu from opening
     $toggle.trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.emitted('show')).toBeDefined()
     expect(wrapper.emitted('show').length).toBe(1)
@@ -528,7 +551,8 @@ describe('dropdown', () => {
     // Allow menu to open
     prevent = false
     $toggle.trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.emitted('show')).toBeDefined()
     expect(wrapper.emitted('show').length).toBe(2)
@@ -543,7 +567,7 @@ describe('dropdown', () => {
 
   it('preventDefault() works on toggle event', async () => {
     let prevent = true
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       listeners: {
         toggle: evt => {
@@ -556,7 +580,8 @@ describe('dropdown', () => {
 
     expect(wrapper.is('div')).toBe(true)
     expect(wrapper.isVueInstance()).toBe(true)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.emitted('toggle')).not.toBeDefined()
 
@@ -575,7 +600,8 @@ describe('dropdown', () => {
 
     // Should prevent menu from opening
     $toggle.trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.emitted('toggle')).toBeDefined()
     expect(wrapper.emitted('toggle').length).toBe(1)
@@ -589,7 +615,8 @@ describe('dropdown', () => {
     // Allow menu to open
     prevent = false
     $toggle.trigger('click')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.emitted('toggle')).toBeDefined()
     expect(wrapper.emitted('toggle').length).toBe(2)
@@ -608,11 +635,11 @@ describe('dropdown', () => {
     const App = localVue.extend({
       render(h) {
         return h('div', {}, [
-          h(Dropdown, { props: { id: 'test' } }, [
-            h(DropdownItem, { attrs: { id: 'item-1' } }, 'item'),
-            h(DropdownItem, { attrs: { id: 'item-2' } }, 'item'),
-            h(DropdownItem, { attrs: { id: 'item-3' }, props: { disabled: true } }, 'item'),
-            h(DropdownItem, { attrs: { id: 'item-4' } }, 'item')
+          h(BDropdown, { props: { id: 'test' } }, [
+            h(BDropdownItem, { attrs: { id: 'item-1' } }, 'item'),
+            h(BDropdownItem, { attrs: { id: 'item-2' } }, 'item'),
+            h(BDropdownItem, { attrs: { id: 'item-3' }, props: { disabled: true } }, 'item'),
+            h(BDropdownItem, { attrs: { id: 'item-4' } }, 'item')
           ])
         ])
       }
@@ -623,7 +650,8 @@ describe('dropdown', () => {
     })
 
     expect(wrapper.isVueInstance()).toBe(true)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
 
     expect(wrapper.findAll('.dropdown').length).toBe(1)
     expect(wrapper.findAll('.dropdown-toggle').length).toBe(1)
@@ -640,61 +668,69 @@ describe('dropdown', () => {
 
     // Trigger keydown.down on toggle to open menu
     $toggle.trigger('keydown.down')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect($toggle.attributes('aria-expanded')).toEqual('true')
     expect(document.activeElement).toBe($menu.element)
 
     // Move to first menu item
     $menu.trigger('keydown.down')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(document.activeElement).toBe($items.at(0).element)
 
     // Move to second menu item
     $items.at(0).trigger('keydown.down')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(document.activeElement).toBe($items.at(1).element)
 
     // Move down to next menu item (should skip disabled item)
     $items.at(1).trigger('keydown.down')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(document.activeElement).toBe($items.at(3).element)
 
     // Move down to next menu item (should remain on same item)
     $items.at(3).trigger('keydown.down')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(document.activeElement).toBe($items.at(3).element)
 
     // Move up to previous menu item (should skip disabled item)
     $items.at(3).trigger('keydown.up')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(document.activeElement).toBe($items.at(1).element)
 
     // Move up to previous menu item
     $items.at(1).trigger('keydown.up')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(document.activeElement).toBe($items.at(0).element)
 
     // Move up to previous menu item (should remain on first item)
     $items.at(0).trigger('keydown.up')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
+    await waitRAF()
     expect(document.activeElement).toBe($items.at(0).element)
 
     wrapper.destroy()
   })
 
   it('when boundary not set should not have class position-static', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true
     })
     expect(wrapper.is('div')).toBe(true)
     expect(wrapper.isVueInstance()).toBe(true)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.classes()).not.toContain('position-static')
     wrapper.destroy()
   })
 
   it('when boundary set to viewport should have class position-static', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         boundary: 'viewport'
@@ -702,13 +738,13 @@ describe('dropdown', () => {
     })
     expect(wrapper.is('div')).toBe(true)
     expect(wrapper.isVueInstance()).toBe(true)
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
     expect(wrapper.classes()).toContain('position-static')
     wrapper.destroy()
   })
 
   it('toggle button size works', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         size: 'lg'
@@ -728,7 +764,7 @@ describe('dropdown', () => {
   })
 
   it('split button size works', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         split: true,
@@ -752,7 +788,7 @@ describe('dropdown', () => {
   })
 
   it('toggle button content works', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         text: 'foobar'
@@ -772,7 +808,7 @@ describe('dropdown', () => {
   })
 
   it('split button content works', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         split: true,
@@ -793,7 +829,7 @@ describe('dropdown', () => {
   })
 
   it('variant works on non-split button', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         variant: 'primary'
@@ -814,7 +850,7 @@ describe('dropdown', () => {
   })
 
   it('variant works on split button', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         split: true,
@@ -848,7 +884,7 @@ describe('dropdown', () => {
   })
 
   it('split mode has href when prop split-href set', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         split: true,
@@ -876,7 +912,7 @@ describe('dropdown', () => {
   })
 
   it('split mode has href when prop split-to set', async () => {
-    const wrapper = mount(Dropdown, {
+    const wrapper = mount(BDropdown, {
       attachToDocument: true,
       propsData: {
         split: true,

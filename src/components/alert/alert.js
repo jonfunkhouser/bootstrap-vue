@@ -1,12 +1,16 @@
-import BButtonClose from '../button/button-close'
+import Vue from '../../utils/vue'
 import { getComponentConfig } from '../../utils/config'
 import { requestAF } from '../../utils/dom'
+import { isBoolean } from '../../utils/inspect'
+import BVTransition from '../../utils/bv-transition'
+import normalizeSlotMixin from '../../mixins/normalize-slot'
+import BButtonClose from '../button/button-close'
 
 const NAME = 'BAlert'
 
 // Convert `show` value to a number
 const parseCountDown = show => {
-  if (show === '' || typeof show === 'boolean') {
+  if (show === '' || isBoolean(show)) {
     return 0
   }
   show = parseInt(show, 10)
@@ -29,8 +33,9 @@ const parseShow = show => {
 const isNumericLike = value => !isNaN(parseInt(value, 10))
 
 // @vue/component
-export default {
+export default Vue.extend({
   name: NAME,
+  mixins: [normalizeSlotMixin],
   model: {
     prop: 'show',
     event: 'input'
@@ -62,8 +67,7 @@ export default {
       countDownTimerId: null,
       countDown: 0,
       // If initially shown, we need to set these for SSR
-      localShow: parseShow(this.show),
-      showClass: this.fade && this.show
+      localShow: parseShow(this.show)
     }
   },
   watch: {
@@ -73,23 +77,26 @@ export default {
     },
     countDown(newVal) {
       this.clearTimer()
-      this.$emit('dismiss-count-down', newVal)
-      if (this.show !== newVal) {
-        // Update the v-model if needed
-        this.$emit('input', newVal)
-      }
-      if (newVal > 0) {
-        this.localShow = true
-        this.countDownTimerId = setTimeout(() => {
-          this.countDown--
-        }, 1000)
-      } else {
-        // Slightly delay the hide to allow any UI updates
-        this.$nextTick(() => {
-          requestAF(() => {
-            this.localShow = false
+      if (isNumericLike(this.show)) {
+        // Ignore if this.show transitions to a boolean value.
+        this.$emit('dismiss-count-down', newVal)
+        if (this.show !== newVal) {
+          // Update the v-model if needed
+          this.$emit('input', newVal)
+        }
+        if (newVal > 0) {
+          this.localShow = true
+          this.countDownTimerId = setTimeout(() => {
+            this.countDown--
+          }, 1000)
+        } else {
+          // Slightly delay the hide to allow any UI updates
+          this.$nextTick(() => {
+            requestAF(() => {
+              this.localShow = false
+            })
           })
-        })
+        }
       }
     },
     localShow(newVal) {
@@ -125,20 +132,9 @@ export default {
         clearInterval(this.countDownTimerId)
         this.countDownTimerId = null
       }
-    },
-    onBeforeEnter() {
-      if (this.fade) {
-        requestAF(() => {
-          this.showClass = true
-        })
-      }
-    },
-    onBeforeLeave() /* istanbul ignore next: does not appear to be called in vue-test-utils */ {
-      this.showClass = false
     }
   },
   render(h) {
-    const $slots = this.$slots
     let $alert // undefined
     if (this.localShow) {
       let $dismissBtn = h(false)
@@ -147,42 +143,24 @@ export default {
         $dismissBtn = h(
           BButtonClose,
           { attrs: { 'aria-label': this.dismissLabel }, on: { click: this.dismiss } },
-          [$slots.dismiss]
+          [this.normalizeSlot('dismiss')]
         )
       }
       $alert = h(
         'div',
         {
+          key: this._uid,
           staticClass: 'alert',
           class: {
-            fade: this.fade,
-            show: this.showClass,
             'alert-dismissible': this.dismissible,
             [`alert-${this.variant}`]: this.variant
           },
           attrs: { role: 'alert', 'aria-live': 'polite', 'aria-atomic': true }
         },
-        [$dismissBtn, $slots.default]
+        [$dismissBtn, this.normalizeSlot('default')]
       )
       $alert = [$alert]
     }
-    return h(
-      'transition',
-      {
-        props: {
-          'enter-class': '',
-          'enter-active-class': '',
-          'enter-to-class': '',
-          'leave-class': 'show',
-          'leave-active-class': '',
-          'leave-to-class': ''
-        },
-        on: {
-          beforeEnter: this.onBeforeEnter,
-          beforeLeave: this.onBeforeLeave
-        }
-      },
-      $alert
-    )
+    return h(BVTransition, { props: { noFade: !this.fade } }, $alert)
   }
-}
+})

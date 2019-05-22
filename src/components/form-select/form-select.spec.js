@@ -1,16 +1,17 @@
-import Select from './form-select'
 import { mount } from '@vue/test-utils'
+import { waitNT } from '../../../tests/utils'
+import BFormSelect from './form-select'
 
 describe('form-select', () => {
   it('has select as root element', async () => {
-    const wrapper = mount(Select)
+    const wrapper = mount(BFormSelect)
     expect(wrapper.is('select')).toBe(true)
 
     wrapper.destroy()
   })
 
   it('has class custom-select', async () => {
-    const wrapper = mount(Select)
+    const wrapper = mount(BFormSelect)
     expect(wrapper.classes()).toContain('custom-select')
     expect(wrapper.classes().length).toBe(1)
 
@@ -18,21 +19,21 @@ describe('form-select', () => {
   })
 
   it('does not have attr multiple by default', async () => {
-    const wrapper = mount(Select)
+    const wrapper = mount(BFormSelect)
     expect(wrapper.attributes('multiple')).not.toBeDefined()
 
     wrapper.destroy()
   })
 
   it('does not have attr required by default', async () => {
-    const wrapper = mount(Select)
+    const wrapper = mount(BFormSelect)
     expect(wrapper.attributes('required')).not.toBeDefined()
 
     wrapper.destroy()
   })
 
   it('has attr required when required=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         required: true
       }
@@ -43,14 +44,14 @@ describe('form-select', () => {
   })
 
   it('does not have attr form by default', async () => {
-    const wrapper = mount(Select)
+    const wrapper = mount(BFormSelect)
     expect(wrapper.attributes('form')).not.toBeDefined()
 
     wrapper.destroy()
   })
 
   it('has attr form when form is set', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         form: 'foobar'
       }
@@ -62,7 +63,7 @@ describe('form-select', () => {
   })
 
   it('has attr multiple when multiple=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         multiple: true,
         value: []
@@ -74,7 +75,7 @@ describe('form-select', () => {
   })
 
   it('has attr size when select-size is set', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         selectSize: 4
       }
@@ -87,15 +88,15 @@ describe('form-select', () => {
   })
 
   it('has auto ID attr by default', async () => {
-    const wrapper = mount(Select)
-    await wrapper.vm.$nextTick() // auto ID assigned after mount
+    const wrapper = mount(BFormSelect)
+    await waitNT(wrapper.vm) // Auto-ID assigned after mount
     expect(wrapper.attributes('id')).toBeDefined()
 
     wrapper.destroy()
   })
 
   it('has user supplied ID attr when id is set', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         id: 'foobar'
       }
@@ -107,14 +108,14 @@ describe('form-select', () => {
   })
 
   it('does not have attr size by default', async () => {
-    const wrapper = mount(Select)
+    const wrapper = mount(BFormSelect)
     expect(wrapper.attributes('size')).not.toBeDefined()
 
     wrapper.destroy()
   })
 
   it('does have attr size when plain=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         plain: true
       }
@@ -126,7 +127,7 @@ describe('form-select', () => {
   })
 
   it('has class custom-select-sm when size=sm and plain=false', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         size: 'sm'
       }
@@ -139,7 +140,7 @@ describe('form-select', () => {
   })
 
   it('has class custom-select-lg when size=lg and plain=false', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         size: 'lg'
       }
@@ -152,7 +153,7 @@ describe('form-select', () => {
   })
 
   it('has class custom-select-foo when size=foo and plain=false', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         size: 'foo'
       }
@@ -165,7 +166,7 @@ describe('form-select', () => {
   })
 
   it('has class is-invalid and attr aria-invalid="true" when state=false', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         state: false
       }
@@ -179,7 +180,7 @@ describe('form-select', () => {
   })
 
   it('has class is-invalid and attr aria-invalid="true" when state="invalid"', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         state: 'invalid'
       }
@@ -193,7 +194,7 @@ describe('form-select', () => {
   })
 
   it('has class is-valid when state=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         state: true
       }
@@ -207,7 +208,7 @@ describe('form-select', () => {
   })
 
   it('has class is-valid when state="valid"', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         state: 'valid'
       }
@@ -221,7 +222,7 @@ describe('form-select', () => {
   })
 
   it('has attr aria-invalid="true" when aria-invalid="true"', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         ariaInvalid: 'true'
       }
@@ -234,7 +235,7 @@ describe('form-select', () => {
   })
 
   it('has attr aria-invalid="true" when aria-invalid=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         ariaInvalid: true
       }
@@ -247,7 +248,7 @@ describe('form-select', () => {
   })
 
   it('has class form-control when plain=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         plain: true
       }
@@ -260,7 +261,7 @@ describe('form-select', () => {
   })
 
   it('has class form-control-lg when size=lg and plain=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         size: 'lg',
         plain: true
@@ -274,7 +275,7 @@ describe('form-select', () => {
   })
 
   it('has class form-control-sm when size=sm and plain=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         size: 'sm',
         plain: true
@@ -288,7 +289,7 @@ describe('form-select', () => {
   })
 
   it('has class form-control-foo when size=foo and plain=true', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         size: 'foo',
         plain: true
@@ -302,19 +303,19 @@ describe('form-select', () => {
   })
 
   it('focus() and blur() methods work', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       attachToDocument: true
     })
 
     expect(document.activeElement).not.toBe(wrapper.element)
 
     wrapper.vm.focus()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(document.activeElement).toBe(wrapper.element)
 
     wrapper.vm.blur()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(document.activeElement).not.toBe(wrapper.element)
 
@@ -322,7 +323,7 @@ describe('form-select', () => {
   })
 
   it('has option elements from simple options array', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         options: ['one', 'two', 'three']
       }
@@ -341,7 +342,7 @@ describe('form-select', () => {
   })
 
   it('has option elements from options array of objects', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         options: [
           { text: 'one', value: 1 },
@@ -367,7 +368,7 @@ describe('form-select', () => {
   })
 
   it('has option elements from options legacy object format', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         options: { one: 1, two: { value: 2, text: 'Two' }, three: 'three' }
       }
@@ -386,7 +387,7 @@ describe('form-select', () => {
   })
 
   it('has option elements from default slot', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       slots: {
         default: [
           '<option value="1">one</option>',
@@ -410,7 +411,7 @@ describe('form-select', () => {
   })
 
   it('updates v-model when option selected in single mode', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         options: ['one', 'two', 'three']
       }
@@ -423,7 +424,7 @@ describe('form-select', () => {
 
     // select 3rd option
     $options.at(2).setSelected()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('change')).toBeDefined()
@@ -434,7 +435,7 @@ describe('form-select', () => {
   })
 
   it('updating v-model (value) when selects correct option', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         options: ['one', 'two', { text: 'three', value: { three: 3 } }],
         value: 'one'
@@ -445,14 +446,14 @@ describe('form-select', () => {
 
     expect($options.at(0).element.selected).toBe(true)
 
-    // select 2nd option
+    // Select 2nd option
     wrapper.setProps({
       value: 'two'
     })
 
     expect($options.at(1).element.selected).toBe(true)
 
-    // select 3rd option
+    // Select 3rd option
     wrapper.setProps({
       value: { three: 3 }
     })
@@ -463,7 +464,7 @@ describe('form-select', () => {
   })
 
   it('updates v-model when option selected in single mode with complex values', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         options: [
           { text: 'one', value: { a: 1 } },
@@ -478,9 +479,9 @@ describe('form-select', () => {
     expect(wrapper.emitted('input')).not.toBeDefined()
     expect(wrapper.emitted('change')).not.toBeDefined()
 
-    // select 3rd option
+    // Select 3rd option
     $options.at(2).setSelected()
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('change')).toBeDefined()
@@ -491,7 +492,7 @@ describe('form-select', () => {
   })
 
   it('updates v-model when option selected in multiple mode', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         multiple: true,
         selectSize: 3,
@@ -505,11 +506,11 @@ describe('form-select', () => {
     expect(wrapper.emitted('input')).not.toBeDefined()
     expect(wrapper.emitted('change')).not.toBeDefined()
 
-    // select 2nd and 3rd option
+    // Select 2nd and 3rd option
     $options.at(1).element.selected = true
     $options.at(2).element.selected = true
     wrapper.trigger('change')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('change')).toBeDefined()
@@ -520,7 +521,7 @@ describe('form-select', () => {
   })
 
   it('updates v-model when option selected in multiple mode with complex values', async () => {
-    const wrapper = mount(Select, {
+    const wrapper = mount(BFormSelect, {
       propsData: {
         multiple: true,
         selectSize: 3,
@@ -538,11 +539,11 @@ describe('form-select', () => {
     expect(wrapper.emitted('input')).not.toBeDefined()
     expect(wrapper.emitted('change')).not.toBeDefined()
 
-    // select 2nd and 3rd option
+    // Select 2nd and 3rd option
     $options.at(1).element.selected = true
     $options.at(2).element.selected = true
     wrapper.trigger('change')
-    await wrapper.vm.$nextTick()
+    await waitNT(wrapper.vm)
 
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('change')).toBeDefined()
@@ -550,5 +551,68 @@ describe('form-select', () => {
     expect(wrapper.emitted('change')[0][0]).toEqual([{ b: 2 }, { c: 3 }])
 
     wrapper.destroy()
+  })
+
+  // These tests are wrapped in a new describe to limit the scope of the getBCR Mock
+  describe('prop `autofocus`', () => {
+    const origGetBCR = Element.prototype.getBoundingClientRect
+
+    beforeEach(() => {
+      // Mock getBCR so that the isVisible(el) test returns true
+      // In our test below, all pagination buttons would normally be visible
+      Element.prototype.getBoundingClientRect = jest.fn(() => {
+        return {
+          width: 24,
+          height: 24,
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0
+        }
+      })
+    })
+
+    afterEach(() => {
+      // Restore prototype
+      Element.prototype.getBoundingClientRect = origGetBCR
+    })
+
+    it('works when true', async () => {
+      const wrapper = mount(BFormSelect, {
+        attachToDocument: true,
+        propsData: {
+          autofocus: true,
+          options: ['a', 'b', 'c']
+        }
+      })
+      expect(wrapper.vm).toBeDefined()
+      await wrapper.vm.$nextTick()
+
+      const input = wrapper.find('select')
+      expect(input.exists()).toBe(true)
+      expect(document).toBeDefined()
+      expect(document.activeElement).toBe(input.element)
+
+      wrapper.destroy()
+    })
+
+    it('does not autofocus when false', async () => {
+      const wrapper = mount(BFormSelect, {
+        attachToDocument: true,
+        propsData: {
+          autofocus: false,
+          options: ['a', 'b', 'c']
+        }
+      })
+      expect(wrapper.vm).toBeDefined()
+      await wrapper.vm.$nextTick()
+
+      const input = wrapper.find('select')
+      expect(input.exists()).toBe(true)
+      expect(document).toBeDefined()
+      expect(document.activeElement).not.toBe(input.element)
+
+      wrapper.destroy()
+    })
   })
 })

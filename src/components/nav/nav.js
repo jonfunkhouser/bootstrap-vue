@@ -1,5 +1,10 @@
+import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
-import warn from '../../utils/warn'
+
+// -- Constants --
+
+const DEPRECATED_MSG =
+  'Setting prop "is-nav-bar" is deprecated. Use the <b-navbar-nav> component instead.'
 
 export const props = {
   tag: {
@@ -14,6 +19,10 @@ export const props = {
     type: Boolean,
     default: false
   },
+  align: {
+    type: String,
+    default: null
+  },
   tabs: {
     type: Boolean,
     default: false
@@ -26,22 +35,33 @@ export const props = {
     type: Boolean,
     default: false
   },
-  isNavBar: {
+  small: {
     type: Boolean,
     default: false
+  },
+  isNavBar: {
+    type: Boolean,
+    default: false,
+    // `deprecated` -> Don't use this prop
+    // `deprecation` -> Refers to a change in prop usage
+    deprecated: DEPRECATED_MSG
   }
 }
 
+// -- Utils --
+
+const computeJustifyContent = value => {
+  // Normalize value
+  value = value === 'left' ? 'start' : value === 'right' ? 'end' : value
+  return `justify-content-${value}`
+}
+
 // @vue/component
-export default {
+export default Vue.extend({
   name: 'BNav',
   functional: true,
   props,
   render(h, { props, data, children }) {
-    if (props.isNavBar) {
-      /* istanbul ignore next */
-      warn("b-nav: Prop 'is-nav-bar' is deprecated. Please use component '<b-navbar-nav>' instead.")
-    }
     return h(
       props.tag,
       mergeData(data, {
@@ -51,11 +71,13 @@ export default {
           'nav-tabs': props.tabs && !props.isNavBar,
           'nav-pills': props.pills && !props.isNavBar,
           'flex-column': props.vertical && !props.isNavBar,
-          'nav-fill': props.fill,
-          'nav-justified': props.justified
+          'nav-fill': !props.vertical && props.fill,
+          'nav-justified': !props.vertical && props.justified,
+          [computeJustifyContent(props.align)]: !props.vertical && props.align,
+          small: props.small
         }
       }),
       children
     )
   }
-}
+})

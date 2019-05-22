@@ -27,7 +27,7 @@ Things to know when using tooltip component:
   white-space: nowrap; on your `<a>`s, `<b-link>`s and `<router-link>`s to avoid this behavior.
 - Tooltips must be hidden before their corresponding elements have been removed from the DOM.
 
-The `<b-tooltip` component inserts a hidden (`display:none`) `<div>` intermediate container element
+The `<b-tooltip>` component inserts a hidden (`display:none`) `<div>` intermediate container element
 at the point in the DOM where the `<b-tooltip>` component is placed. This may affect layout and/or
 styling of components such as `<b-button-group>`, `<b-button-toolbar>`, and `<b-input-group>`. To
 avoid these possible layout issues, place the `<b-tooltip>` component **outside** of these types of
@@ -110,7 +110,7 @@ If a tooltip has more than one trigger, then all triggers must be cleared before
 close. I.e. if a tooltip has the trigger `focus click`, and it was opened by `focus`, and the user
 then clicks the trigger element, they must click it again **and** move focus to close the tooltip.
 
-## `<b-tooltip>` Component Usage
+## `<b-tooltip>` component usage
 
 ```html
 <b-container fluid>
@@ -141,20 +141,21 @@ then clicks the trigger element, they must click it again **and** move focus to 
 <!-- b-tooltip-component.vue -->
 ```
 
-### Component Options
+### Component options
 
 | Prop              | Default          | Description                                                                                                                                                                                                | Supported values                                                                                                                                 |
 | ----------------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `target`          | `null`           | Element String ID, or a reference to an element or component, or a function returning either of them, that you want to trigger the tooltip. **Required**                                                   | Any valid, in-document unique element ID, element reference or component reference or a function returning any such ID / reference               |
-| `title`           | `null`           | Tooltip content (text only, no HTML). if HTML is required, place it in the default slot                                                                                                                    | Plain text                                                                                                                                       |
-| `placement`       | `top`            | Tooltip position, relative to the trigger element.                                                                                                                                                         | `top`, `bottom`, `left`, `right`, `auto`, `topleft`, `topright`, `bottomleft`, `bottomright`, `lefttop`, `leftbottom`, `righttop`, `rightbottom` |
-| `triggers`        | `hover focus`    | Space separated list of event(s), which will trigger open/close of tooltip                                                                                                                                 | `hover`, `focus`, `click`. Note `blur` is a special use case to close tooltip on next click, usually used in conjunction with `click`.           |
-| `no-fade`         | `false`          | Disable fade animation when set to `true`                                                                                                                                                                  | `true` or `false`                                                                                                                                |
-| `delay`           | `0`              | Delay showing and hiding of tooltip by specified number of milliseconds. Can also be specified as an object in the form of `{ show: 100, hide: 400 }` allowing different show and hide delays              | `0` and up, integers only.                                                                                                                       |
-| `offset`          | `0`              | Shift the center of the tooltip by specified number of pixels                                                                                                                                              | Any negative or positive integer                                                                                                                 |
-| `container`       | `null`           | Element string ID to append rendered tooltip into. If `null` or element not found, tooltip is appended to `<body>` (default)                                                                               | Any valid in-document unique element ID.                                                                                                         |
-| `boundary`        | `'scrollParent'` | The container that the tooltip will be constrained visually. The default should suffice in most cases, but you may need to change this if your target element is in a small container with overflow scroll | `'scrollParent'` (default), `'viewport'`, `'window'`, or a reference to an HTML element.                                                         |
-| `boundaryPadding` | `5`              | Amount of pixel used to define a minimum distance between the boundaries and the tooltip. This makes sure the tooltip always has a little padding between the edges of its container.                      | Any positive number                                                                                                                              |
+| `target`             | `null`           | Element String ID, or a reference to an element or component, or a function returning either of them, that you want to trigger the tooltip. **Required**                                                   | Any valid, in-document unique element ID, element reference or component reference or a function returning any such ID / reference               |
+| `title`              | `null`           | Tooltip content (text only, no HTML). if HTML is required, place it in the default slot                                                                                                                    | Plain text                                                                                                                                       |
+| `placement`          | `'top'`          | Tooltip position, relative to the trigger element.                                                                                                                                                         | `top`, `bottom`, `left`, `right`, `auto`, `topleft`, `topright`, `bottomleft`, `bottomright`, `lefttop`, `leftbottom`, `righttop`, `rightbottom` |
+| `fallback-placement` | `'flip'`         | Auto-flip placement behavhiour of the tooltip, relative to the trigger element.                                                                                                                             | `flip`, `clockwise`, `counterclockwise`, or an array of valid placements evaludated from left to right                                          |
+| `triggers`           | `'hover focus'`  | Space separated list of event(s), which will trigger open/close of tooltip                                                                                                                                 | `hover`, `focus`, `click`. Note `blur` is a special use case to close tooltip on next click, usually used in conjunction with `click`.           |
+| `no-fade`            | `false`          | Disable fade animation when set to `true`                                                                                                                                                                  | `true` or `false`                                                                                                                                |
+| `delay`              | `0`              | Delay showing and hiding of tooltip by specified number of milliseconds. Can also be specified as an object in the form of `{ show: 100, hide: 400 }` allowing different show and hide delays              | `0` and up, integers only.                                                                                                                       |
+| `offset`             | `0`              | Shift the center of the tooltip by specified number of pixels                                                                                                                                              | Any negative or positive integer                                                                                                                 |
+| `container`          | `null`           | Element string ID to append rendered tooltip into. If `null` or element not found, tooltip is appended to `<body>` (default)                                                                               | Any valid in-document unique element ID.                                                                                                         |
+| `boundary`           | `'scrollParent'` | The container that the tooltip will be constrained visually. The default should suffice in most cases, but you may need to change this if your target element is in a small container with overflow scroll | `'scrollParent'` (default), `'viewport'`, `'window'`, or a reference to an HTML element.                                                         |
+| `boundary-padding`   | `5`              | Amount of pixel used to define a minimum distance between the boundaries and the tooltip. This makes sure the tooltip always has a little padding between the edges of its container.                      | Any positive number                                                                                                                              |
 
 ### Programmatically show and hide tooltip
 
@@ -291,9 +292,8 @@ long as you have provided the `.sync` prop modifier.
 <!-- b-tooltip-disable.vue -->
 ```
 
-> **Note:** _In the above example, since we are using the default tooltip triggers of `focus hover`,
-> the tooltip will close before it is disabled due to loosing focus (and hover) to the toggle
-> button._
+**Note:** _In the above example, since we are using the default tooltip triggers of `focus hover`,
+the tooltip will close before it is disabled due to loosing focus (and hover) to the toggle button._
 
 You can also emit `$root` events to trigger disabling and enabling of tooltip(s). See the
 **Disabling and enabling tooltips via \$root events** section below for details.
@@ -301,7 +301,7 @@ You can also emit `$root` events to trigger disabling and enabling of tooltip(s)
 You can also emit `$root` events to trigger disabling and enabling of popover(s). See the
 **Disabling and enabling tooltips via \$root events** section below for details.
 
-## `v-b-tooltip` Directive Usage
+## `v-b-tooltip` directive usage
 
 The `v-b-tooltip` directive makes adding tooltips even easier, without additional placeholder
 markup:
@@ -330,8 +330,6 @@ markup:
 
 Refer to the [`v-b-tooltip` documentation](/docs/directives/tooltip) for more information and
 features of the directive format.
-
-## Hiding and showing tooltips via \$root events
 
 ## 'Global' \$root instance events
 
@@ -366,10 +364,8 @@ event.
 
 These events work for both the component **and** directive versions of tooltip.
 
-> **Note:** _the **trigger element** must exist in the DOM and be in a visible state in order for
-> the tooltip to show._
-
-## Disabling and enabling tooltips via \$root events
+**Note:** _the **trigger element** must exist in the DOM and be in a visible state in order for the
+tooltip to show._
 
 ### Disabling and enabling tooltips via \$root events
 
@@ -397,8 +393,8 @@ To enable all tooltips simultaneously, omit the `id` argument when emitting the
 
 These events work for both the component **and** directive versions of tooltip.
 
-> **Note:** _The **trigger element** must exist in the DOM in order for the tooltip to be enabled or
-> disabled._
+**Note:** _The **trigger element** must exist in the DOM in order for the tooltip to be enabled or
+disabled._
 
 ### Listening to tooltip changes via \$root events
 

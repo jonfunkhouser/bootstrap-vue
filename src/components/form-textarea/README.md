@@ -172,9 +172,9 @@ disabled in auto-height mode.
 
 Bootstrap includes validation styles for `valid` and `invalid` states on most form controls.
 
-Generally speaking, you’ll want to use a particular state for specific types of feedback:
+Generally speaking, you'll want to use a particular state for specific types of feedback:
 
-- `'invalid'` (or `false`) is great for when there’s a blocking or required field. A user must fill
+- `'invalid'` (or `false`) is great for when there's a blocking or required field. A user must fill
   in this field properly to submit the form.
 - `'valid'` (or `true`) is ideal for situations when you have per-field validation throughout a form
   and want to encourage a user through the rest of the fields.
@@ -287,6 +287,12 @@ Emulation of the `.lazy` modifier is _not_ supported (listen for `change` or `bl
   optional formatting (which may not match the value returned via the `v-model` `update` event,
   which handles the modifiers).
 
+## Autofocus
+
+When the `autofocus` prop is set, the textarea will be auto-focused when it is inserted into the
+document, or re-activated when inside a Vue `<keep-alive>` component. Note that this prop **does
+not** set the `autofocus` attribute on the textarea.
+
 ## Native and custom events
 
 All native events (other than the custom `input` and `change` events) are supported, without the
@@ -306,7 +312,7 @@ You can always access the native `input` and `change` events by using the `.nati
 component reference (i.e. assign a `ref` to your `<b-form-input ref="foo" ...>` and use
 `this.$refs['foo'].propertyName` or `this.$refs['foo'].methodName(...)`).
 
-### Input Properties
+### Input properties
 
 | Property              | Notes      |
 | --------------------- | ---------- |
@@ -317,7 +323,7 @@ component reference (i.e. assign a `ref` to your `<b-form-input ref="foo" ...>` 
 | `.validationMessage`  | Read only  |
 | `.willValidate`       | Read only  |
 
-### Input Methods
+### Input methods
 
 | Method                 | Notes                             |
 | ---------------------- | --------------------------------- |
