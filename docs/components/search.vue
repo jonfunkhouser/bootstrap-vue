@@ -1,5 +1,6 @@
 <template>
   <form
+    role="search"
     class="bd-search d-flex align-items-center"
     @submit.stop.prevent
   >
@@ -66,7 +67,7 @@ export default {
 
       // Load JS
       const loadJs = new Promise(resolve => {
-        let $script = document.createElement('script')
+        const $script = document.createElement('script')
         $script.setAttribute('type', 'text/javascript')
         $script.setAttribute('src', `${cdnBaseUrl}docsearch.min.js`)
         $body.appendChild($script)
@@ -75,7 +76,7 @@ export default {
 
       // Load CSS
       const loadCss = new Promise(resolve => {
-        let $link = document.createElement('link')
+        const $link = document.createElement('link')
         $link.setAttribute('rel', 'stylesheet')
         $link.setAttribute('type', 'text/css')
         $link.setAttribute('href', `${cdnBaseUrl}docsearch.min.css`)

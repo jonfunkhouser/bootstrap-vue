@@ -1,4 +1,5 @@
 import { mount } from '@vue/test-utils'
+import { waitNT, waitRAF } from '../../../tests/utils'
 import BFormTextarea from './form-textarea'
 
 describe('form-textarea', () => {
@@ -1001,16 +1002,14 @@ describe('form-textarea', () => {
     beforeEach(() => {
       // Mock getBCR so that the isVisible(el) test returns true
       // In our test below, all pagination buttons would normally be visible
-      Element.prototype.getBoundingClientRect = jest.fn(() => {
-        return {
-          width: 24,
-          height: 24,
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0
-        }
-      })
+      Element.prototype.getBoundingClientRect = jest.fn(() => ({
+        width: 24,
+        height: 24,
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0
+      }))
     })
 
     afterEach(() => {
@@ -1026,7 +1025,8 @@ describe('form-textarea', () => {
         }
       })
       expect(wrapper.vm).toBeDefined()
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
 
       const input = wrapper.find('textarea')
       expect(input.exists()).toBe(true)
@@ -1044,7 +1044,8 @@ describe('form-textarea', () => {
         }
       })
       expect(wrapper.vm).toBeDefined()
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
 
       const input = wrapper.find('textarea')
       expect(input.exists()).toBe(true)

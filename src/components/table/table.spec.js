@@ -223,6 +223,50 @@ describe('table', () => {
     wrapper.destroy()
   })
 
+  it('has class "b-table-sticky-header" when sticky-header=true', async () => {
+    const wrapper = mount(BTable, {
+      propsData: {
+        items: items1,
+        fields: fields1,
+        stickyHeader: true
+      }
+    })
+
+    expect(wrapper).toBeDefined()
+    expect(wrapper.is(BTable)).toBe(true)
+    expect(wrapper.is('div')).toBe(true)
+    expect(wrapper.classes()).toContain('b-table-sticky-header')
+    expect(wrapper.classes().length).toBe(1)
+    expect(wrapper.find('table').classes()).toContain('table')
+    expect(wrapper.find('table').classes()).toContain('b-table')
+    expect(wrapper.find('table').classes().length).toBe(2)
+
+    wrapper.destroy()
+  })
+
+  it('has class "b-table-sticky-header" when sticky-header=100px', async () => {
+    const wrapper = mount(BTable, {
+      propsData: {
+        items: items1,
+        fields: fields1,
+        stickyHeader: '100px'
+      }
+    })
+
+    expect(wrapper).toBeDefined()
+    expect(wrapper.is(BTable)).toBe(true)
+    expect(wrapper.is('div')).toBe(true)
+    expect(wrapper.classes()).toContain('b-table-sticky-header')
+    expect(wrapper.classes().length).toBe(1)
+    expect(wrapper.attributes('style')).toBeDefined()
+    expect(wrapper.attributes('style')).toContain(`max-height: 100px;`)
+    expect(wrapper.find('table').classes()).toContain('table')
+    expect(wrapper.find('table').classes()).toContain('b-table')
+    expect(wrapper.find('table').classes().length).toBe(2)
+
+    wrapper.destroy()
+  })
+
   it('has class "table-responsive" when responsive=true', async () => {
     const wrapper = mount(BTable, {
       propsData: {
@@ -585,58 +629,6 @@ describe('table', () => {
     expect($tds.at(2).attributes('data-parent')).toBe('parent')
     expect($tds.at(2).attributes('data-foo')).not.toBeDefined()
     expect($tds.at(2).classes().length).toBe(0)
-
-    wrapper.destroy()
-  })
-
-  it('item field formatter as function works', async () => {
-    const wrapper = mount(BTable, {
-      propsData: {
-        items: [{ a: 1, b: 2 }],
-        fields: [
-          {
-            key: 'a',
-            formatter(value, key, item) {
-              return item.a + item.b
-            }
-          },
-          'b'
-        ]
-      }
-    })
-
-    expect(wrapper).toBeDefined()
-    expect(wrapper.findAll('tbody > tr').length).toBe(1)
-    expect(wrapper.findAll('tbody > tr > td').length).toBe(2)
-    const $tds = wrapper.findAll('tbody > tr > td')
-    expect($tds.at(0).text()).toBe('3')
-    expect($tds.at(1).text()).toBe('2')
-
-    wrapper.destroy()
-  })
-
-  it('item field formatter as string works', async () => {
-    const Parent = {
-      methods: {
-        formatter(value, key, item) {
-          return item.a + item.b
-        }
-      }
-    }
-    const wrapper = mount(BTable, {
-      parentComponent: Parent,
-      propsData: {
-        items: [{ a: 1, b: 2 }],
-        fields: [{ key: 'a', formatter: 'formatter' }, 'b']
-      }
-    })
-
-    expect(wrapper).toBeDefined()
-    expect(wrapper.findAll('tbody > tr').length).toBe(1)
-    expect(wrapper.findAll('tbody > tr > td').length).toBe(2)
-    const $tds = wrapper.findAll('tbody > tr > td')
-    expect($tds.at(0).text()).toBe('3')
-    expect($tds.at(1).text()).toBe('2')
 
     wrapper.destroy()
   })

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { mount } from '@vue/test-utils'
-import { waitNT } from '../../../tests/utils'
+import { waitNT, waitRAF } from '../../../tests/utils'
 import BFormInput from './form-input'
 
 describe('form-input', () => {
@@ -775,16 +775,14 @@ describe('form-input', () => {
     beforeEach(() => {
       // Mock getBCR so that the isVisible(el) test returns true
       // In our test below, all pagination buttons would normally be visible
-      Element.prototype.getBoundingClientRect = jest.fn(() => {
-        return {
-          width: 24,
-          height: 24,
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0
-        }
-      })
+      Element.prototype.getBoundingClientRect = jest.fn(() => ({
+        width: 24,
+        height: 24,
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0
+      }))
     })
 
     afterEach(() => {
@@ -800,7 +798,8 @@ describe('form-input', () => {
         }
       })
       expect(wrapper.vm).toBeDefined()
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
 
       const input = wrapper.find('input')
       expect(input.exists()).toBe(true)
@@ -818,7 +817,8 @@ describe('form-input', () => {
         }
       })
       expect(wrapper.vm).toBeDefined()
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
 
       const input = wrapper.find('input')
       expect(input.exists()).toBe(true)

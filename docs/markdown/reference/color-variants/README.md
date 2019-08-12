@@ -1,6 +1,6 @@
 # Color variants and CSS class mapping
 
-> Below are the variants available when using the default Bootstrap V4 CSS. When using BootstrapVue
+> Below are the variants available when using the default Bootstrap v4 CSS. When using BootstrapVue
 > components, the variants are referred to by their variant name, rather than by the underlying CSS
 > classname
 
@@ -15,7 +15,7 @@
 - `light` - <span class="text-light">Light</span>
 - `dark` - <span class="text-dark">Dark</span>
 
-The base variants will translate to various Bootstrap V4 contextual class names based on the
+The base variants will translate to various Bootstrap v4 contextual class names based on the
 component (and variant purpose) where they are used.
 
 ## Background and border variants
@@ -44,7 +44,7 @@ provide `text-variant` and `*-text-variant` props
 
 ## Component specific variants
 
-Some Bootstrap V4 components require additional CSS styling, or additional pseudo selector styling
+Some Bootstrap v4 components require additional CSS styling, or additional pseudo selector styling
 (i.e buttons), and hence have their own underlying variant CSS classes.
 
 ### Alert variants
@@ -80,6 +80,24 @@ These variants translate to class names `table-<variant>`.
 
 When the table has the `dark` prop set, the variants translate to the `bg-<variant>` classes.
 
+### Popover variants
+
+All the **base variants**
+
+These translate to BootstrapVue custom class names `b-popover-<variant>`.
+
+### Tooltip variants
+
+All the **base variants**
+
+These translate to BootstrapVue custom class names `b-tooltip-<variant>`.
+
+### Toast variants
+
+All the **base variants**
+
+These translate to BootstrapVue custom class names `b-toast-<variant>`.
+
 ## Using variant classes
 
 You may also use the underlying class names directly on elements (and some components) via the
@@ -87,6 +105,65 @@ standard HTML `class="..."` attribute.
 
 ## Creating custom variants
 
-When creating custom variants, follow the Bootstrap V4 variant CSS class naming scheme and they will
+When creating custom variants, follow the Bootstrap v4 variant CSS class naming scheme and they will
 become available to the various components that use that scheme (i.e. create a custom CSS class
 `btn-purple` and `purple` becomes a valid variant to use on `<b-button>`).
+
+Alternatively, you can create new variant theme colors by supplying custom Bootstrap SCSS them color
+maps. The default theme color map is (from `bootstrap/scss/_variables.scss`):
+
+```scss
+// Base grayscale colors definitions
+$white: #fff !default;
+$gray-100: #f8f9fa !default;
+$gray-200: #e9ecef !default;
+$gray-300: #dee2e6 !default;
+$gray-400: #ced4da !default;
+$gray-500: #adb5bd !default;
+$gray-600: #6c757d !default;
+$gray-700: #495057 !default;
+$gray-800: #343a40 !default;
+$gray-900: #212529 !default;
+$black: #000 !default;
+
+// Base colors definitions
+$blue: #007bff !default;
+$indigo: #6610f2 !default;
+$purple: #6f42c1 !default;
+$pink: #e83e8c !default;
+$red: #dc3545 !default;
+$orange: #fd7e14 !default;
+$yellow: #ffc107 !default;
+$green: #28a745 !default;
+$teal: #20c997 !default;
+$cyan: #17a2b8 !default;
+
+// Theme color default definitions
+$primary: $blue !default;
+$secondary: $gray-600 !default;
+$success: $green !default;
+$info: $cyan !default;
+$warning: $yellow !default;
+$danger: $red !default;
+$light: $gray-100 !default;
+$dark: $gray-800 !default;
+
+// This table defines the theme colors (variant names)
+$theme-colors: () !default;
+$theme-colors: map-merge(
+  (
+    'primary': $primary,
+    'secondary': $secondary,
+    'success': $success,
+    'info': $info,
+    'warning': $warning,
+    'danger': $danger,
+    'light': $light,
+    'dark': $dark
+  ),
+  $theme-colors
+);
+```
+
+Refer to the [Theming section](/docs/reference/theming) for details on customizing Bootstrap and
+BootstrapVue styles.

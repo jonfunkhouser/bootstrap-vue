@@ -1,7 +1,14 @@
 import Vue, { Component, PluginFunction, PluginObject } from 'vue'
 
 // Plugin Config Options
-export type BvConfigComponentOptionValue = string | string[] | number | number[] | boolean | object | null
+export type BvConfigComponentOptionValue =
+  | string
+  | string[]
+  | number
+  | number[]
+  | boolean
+  | object
+  | null
 export type BvConfigBreakpointsValue = string[]
 export interface BvConfigComponentOptions {
   [key: string]: BvConfigComponentOptionValue | any
@@ -12,12 +19,12 @@ export interface BvConfigOptions {
 }
 
 // Plugin definition
-export interface BvPlugin extends PluginObject {
+export interface BvPlugin extends PluginObject<BvConfigOptions> {
   install: PluginFunction<BvConfigOptions>
 }
 
 // Component base definition
-export interface BvComponent extends Vue {
+export class BvComponent extends Vue {
   // Simple catch-all to allow any prop/type
   [key: string]: any
 }

@@ -1,5 +1,8 @@
 import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
+import { getComponentConfig } from '../../utils/config'
+
+const NAME = 'BButtonGroup'
 
 export const props = {
   vertical: {
@@ -8,7 +11,7 @@ export const props = {
   },
   size: {
     type: String,
-    default: null
+    default: () => getComponentConfig('BButton', 'size')
   },
   tag: {
     type: String,
@@ -21,8 +24,8 @@ export const props = {
 }
 
 // @vue/component
-export default Vue.extend({
-  name: 'BButtonGroup',
+export const BButtonGroup = /*#__PURE__*/ Vue.extend({
+  name: NAME,
   functional: true,
   props,
   render(h, { props, data, children }) {
@@ -40,3 +43,5 @@ export default Vue.extend({
     )
   }
 })
+
+export default BButtonGroup

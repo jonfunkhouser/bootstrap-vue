@@ -1,44 +1,37 @@
+import { props as tbodyProps, BTbody } from '../tbody'
 import tbodyRowMixin from './mixin-tbody-row'
-import emptyMixin from './mixin-empty'
-import topRowMixin from './mixin-top-row'
-import bottomRowMixin from './mixin-bottom-row'
-// busy mixin is imported in main table.js as it is used by multiple mixins
+
+const props = {
+  tbodyClass: {
+    type: [String, Array, Object]
+    // default: undefined
+  },
+  ...tbodyProps
+}
 
 export default {
-  mixins: [tbodyRowMixin, emptyMixin, topRowMixin, bottomRowMixin],
-  props: {
-    tbodyClass: {
-      type: [String, Array],
-      default: null
-    },
-    tbodyTransitionProps: {
-      type: Object
-      // default: undefined
-    },
-    tbodyTransitionHandlers: {
-      type: Object
-      // default: undefined
-    }
-  },
+  mixins: [tbodyRowMixin],
+  props,
   methods: {
     renderTbody() {
       // Render the tbody element and children
-      const h = this.$createElement
       const items = this.computedItems
+      // Shortcut to `createElement` (could use `this._c()` instead)
+      const h = this.$createElement
 
       // Prepare the tbody rows
       const $rows = []
 
       // Add the item data rows or the busy slot
-      const $busy = this.renderBusy()
+      const $busy = this.renderBusy ? this.renderBusy() : null
       if ($busy) {
         // If table is busy and a busy slot, then return only the busy "row" indicator
         $rows.push($busy)
       } else {
-        // Table isn't bsuy, or we don't have a busy slot
+        // Table isn't busy, or we don't have a busy slot
 
-        // Add static Top Row slot (hidden in visibly stacked mode as we can't control the data-label)
-        $rows.push(this.renderTopRow())
+        // Add static Top Row slot (hidden in visibly stacked mode as we can't control data-label attr)
+        $rows.push(this.renderTopRow ? this.renderTopRow() : h())
 
         // render the rows
         items.forEach((item, rowIndex) => {
@@ -46,33 +39,22 @@ export default {
           $rows.push(this.renderTbodyRow(item, rowIndex))
         })
 
-        // Empty Items / Empty Filtered Row slot (only shows if items.length < -
-        $rows.push(this.renderEmpty())
+        // Empty Items / Empty Filtered Row slot (only shows if items.length < 1)
+        $rows.push(this.renderEmpty ? this.renderEmpty() : h())
 
-        // Static bottom row slot (hidden in visibly stacked mode as we can't control the data-label)
-        $rows.push(this.renderBottomRow())
-      }
-
-      // If tbody transition enabled
-      const isTransGroup = this.tbodyTransitionProps || this.tbodyTransitionHandlers
-      let tbodyProps = {}
-      let tbodyOn = {}
-      if (isTransGroup) {
-        tbodyOn = this.tbodyTransitionHandlers || {}
-        tbodyProps = {
-          ...(this.tbodyTransitionProps || {}),
-          tag: 'tbody'
-        }
+        // Static bottom row slot (hidden in visibly stacked mode as we can't control data-label attr)
+        $rows.push(this.renderBottomRow ? this.renderBottomRow() : h())
       }
 
       // Assemble rows into the tbody
       const $tbody = h(
-        isTransGroup ? 'transition-group' : 'tbody',
+        BTbody,
         {
-          props: tbodyProps,
-          on: tbodyOn,
-          class: [this.tbodyClass],
-          attrs: { role: 'rowgroup' }
+          class: this.tbodyClass || null,
+          props: {
+            tbodyTransitionProps: this.tbodyTransitionProps,
+            tbodyTransitionHandlers: this.tbodyTransitionHandlers
+          }
         },
         $rows
       )

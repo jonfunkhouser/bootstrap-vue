@@ -11,14 +11,19 @@ import normalizeSlotMixin from '../../mixins/normalize-slot'
 const NAME = 'BFormFile'
 
 // @vue/component
-export default Vue.extend({
+export const BFormFile = /*#__PURE__*/ Vue.extend({
   name: NAME,
   mixins: [idMixin, formMixin, formStateMixin, formCustomMixin, normalizeSlotMixin],
+  inheritAttrs: false,
   model: {
     prop: 'value',
     event: 'input'
   },
   props: {
+    size: {
+      type: String,
+      default: () => getComponentConfig('BFormControl', 'size')
+    },
     value: {
       // type: Object,
       default: null
@@ -261,6 +266,7 @@ export default Vue.extend({
         this.stateClass
       ],
       attrs: {
+        ...this.$attrs,
         type: 'file',
         id: this.safeId(),
         name: this.name,
@@ -304,7 +310,12 @@ export default Vue.extend({
       'div',
       {
         staticClass: 'custom-file b-form-file',
-        class: this.stateClass,
+        class: [
+          this.stateClass,
+          {
+            [`b-custom-control-${this.size}`]: Boolean(this.size)
+          }
+        ],
         attrs: { id: this.safeId('_BV_file_outer_') },
         on: {
           dragover: this.onDragover,
@@ -316,3 +327,5 @@ export default Vue.extend({
     )
   }
 })
+
+export default BFormFile

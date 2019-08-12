@@ -39,9 +39,10 @@ present, nor can you use the `modal-title` slot.
 
 <span class="badge badge-warning small">CHANGED in 2.0.0-rc.20</span> Modals will not render their
 content in the document until they are shown (lazily rendered). Modals, when visible, are rendered
-**appended to the `<body>` element**. The placement of the `<b-modal>` component will not affect layout,
-as it always renders as a placeholder comment node (`<!---->`). You can revert to the behaviour of
-previous BootstrapVue versions via the use of the [`static` prop](#lazy-loading-and-static-modals).
+**appended to the `<body>` element**. The placement of the `<b-modal>` component will not affect
+layout, as it always renders as a placeholder comment node (`<!---->`). You can revert to the
+behaviour of previous BootstrapVue versions via the use of the
+[`static` prop](#lazy-loading-and-static-modals).
 
 ## Toggle modal visibility
 
@@ -76,8 +77,8 @@ See the [Accessibility](#accessibility) section below for details.
 
 <span class="badge badge-info small">NEW in 2.0.0-rc.19</span>
 
-When BootstrapVue is installed as a plugin, or the <samp>ModalPlugin</samp> plugin is used, BoostrapVue
-will inject a `$bvModal` object on every Vue instance (components, apps). `this.$bvModal` exposes
+When BootstrapVue is installed as a plugin, or the `ModalPlugin` plugin is used, BoostrapVue will
+inject a `$bvModal` object into every Vue instance (components, apps). `this.$bvModal` exposes
 several methods, of which two are for showing and hiding modals:
 
 | Method                   | Description                            |
@@ -104,6 +105,8 @@ Both methods return immediately after being called.
 
 <!-- b-modal-bv-modal-hide-show.vue -->
 ```
+
+The `this.$bvModal` object is also used for displaying [modal message boxes](#modal-message-boxes).
 
 ### Using `show()`, `hide()`, and `toggle()` component methods
 
@@ -150,7 +153,7 @@ methods.
 The `hide()` method accepts an optional string `trigger` argument for defining what triggered the
 modal to close. See section [Prevent Closing](#prevent-closing) below for details.
 
-**Note:** It is reccomended to use the `this.$bvModal.show()` and `this.$bvModal.hide()` methods
+**Note:** It is recommended to use the `this.$bvModal.show()` and `this.$bvModal.hide()` methods
 (mentioned in the previous section) instead of using `$ref` methods.
 
 ### Using `v-model` property
@@ -223,7 +226,7 @@ export default {
 }
 ```
 
-**Note:** It is reccomended to use the `this.$bvModal.show()` and `this.$bvModal.hide()` methods
+**Note:** It is recommended to use the `this.$bvModal.show()` and `this.$bvModal.hide()` methods
 (mentioned in a previous section) instead of emitting `$root` events.
 
 ### Prevent closing
@@ -389,9 +392,9 @@ render changes of the content into the target.
 Modals can be rendered _in-place_ in the document (i.e. where the `<b-modal>` component is placed in
 the document) by setting the `static` prop to `true`. Note that the content of the modal will be
 rendered in the DOM even if the modal is not visible/shown when `static` is `true`. To make `static`
-modals lazy rendered, also set the `lazy` prop to `true`. The modal will then appear in the
-document _only_ when it is visible. Note, when in `static` mode, placement of the `<b-modal>`
-component _may affect layout_ of your document and the modal.
+modals lazy rendered, also set the `lazy` prop to `true`. The modal will then appear in the document
+_only_ when it is visible. Note, when in `static` mode, placement of the `<b-modal>` component _may
+affect layout_ of your document and the modal.
 
 The `lazy` prop will have no effect if the prop `static` is not `true` (non-static modals will
 _always_ be lazily rendered).
@@ -596,6 +599,28 @@ You can also apply arbitrary classes to the modal dialog container, content (mod
 header, body and footer via the `modal-class`, `content-class`, `header-class`, `body-class` and
 `footer-class` props, respectively. The props accept either a string or array of strings.
 
+### Hiding the backdrop
+
+Hide the modal's backdrop via setting the `hide-backdrop` prop.
+
+```html
+<div>
+  <b-button v-b-modal.modal-no-backdrop>Open modal</b-button>
+
+  <b-modal id="modal-no-backdrop" hide-backdrop content-class="shadow" title="BootstrapVue">
+    <p class="my-2">
+      We've added the utility class <code>'shadow'</code>
+      to the modal content for added effect.
+    </p>
+  </b-modal>
+</div>
+
+<!-- modal-no-backdrop.vue -->
+```
+
+Note that clicking outside of the modal will still close the modal even though the backdrop is
+hidden. You can disable this behaviour by setting the `no-close-on-backdrop` prop on `<b-modal>`.
+
 ### Disable open and close animation
 
 To disable the fading transition/animation when modal opens and closes, just set the prop `no-fade`
@@ -680,7 +705,7 @@ The scope available to the slots that support optional scoping are:
 
 ## Multiple modal support
 
-Unlike native Bootstrap V4, BootstrapVue supports multiple modals opened at the same time.
+Unlike native Bootstrap v4, BootstrapVue supports multiple modals opened at the same time.
 
 To disable stacking for a specific modal, just set the prop `no-stacking` on the `<b-modal>`
 component. This will hide the modal before another modal is shown.
@@ -869,6 +894,12 @@ Example Confirm Message boxes
 
 ### Message box notes
 
+- The `this.$bvModal` injection is only available when using the full `BootstrapVue` plugin or the
+  `ModalPlugin` plugin. It is not available if importing just the `b-modal` component. To just
+  import the injection, use the `BVModalPlugin` plugin.
+- A new `$bvModal` injection (mixin) is created for each Vue virtual machine (i.e. each instantiated
+  component), and is not usable via direct access to the `Vue.prototype`, as it needs access to the
+  instance's `this` and `$root` contexts.
 - Message Boxes require `Promise` support in the browser. If targeting your app for older browsers,
   such as IE 11, please include a polyfill that provides `Promise` support. If `Promise` support is
   not detected, then the message box methods will immediately return `undefined`.
@@ -892,11 +923,6 @@ Example Confirm Message boxes
   method to generate VNodes. This can also be done for the modal title (by passing VNodes to the
   `title` option), OK button text (via the `okTitle` option), and the CANCEL button text (via the
   `cancelTitle` option).
-- The `this.$bvModal` injection is only available when using the full BootstrapVue plugin or the
-  Modal plugin. It is not available if importing just the `b-modal` component.
-- A new `$bvModal` injection (mixin) is created for each Vue virtual machine (i.e. each instantiated
-  component), and is not usable via direct access to the `Vue.prototype`, as it needs access to the
-  instance's `this` and `$root` contexts.
 
 ## Listening to modal changes via \$root events
 
@@ -912,17 +938,31 @@ export default {
 }
 ```
 
-Refer to the [Events](/docs/components/modal#component-reference) section of documentation for the
-full list of events emitted.
+Refer to the [Events](#comp-ref-b-modal) section of this documentation for the full list of events
+emitted.
 
 ## Accessibility
 
-`<b-modal>` provides several accessibility features, including auto focus, return focus, and
-keyboard (tab) _focus containment_.
+`<b-modal>` provides several accessibility features, including auto focus, return focus, keyboard
+(tab) _focus containment_, and automated `aria-*` attributes.
 
-For `aria-labelledby` and `aria-described` by attributes to appear on the modal, you **must** supply
-an `id` attribute on `<b-modal>`. `aria-labelledby` will not be present if you have the header
-hidden.
+### ARIA attributes
+
+<span class="badge badge-info small">ENHANCED in 2.0.0-rc.27</span>
+
+The `aria-labelledby` and `aria-describedby` attributes will appear on the modal automatically in
+most cases.
+
+- The `aria-labelledby` attribute will **not** be present if you have the header hidden, or supplied
+  your own header, or have not supplied a modal title. It is recommended to supply a title for your
+  modals (when using the built in header). You can visually hide the header title, but still make it
+  available to screen readers by setting the `title-sr-only` prop. If you do not have a header, you
+  can supply a label for the modal by passing a string to the `aria-label` prop.
+- The `aria-describedby` attribute will always point to the modal's body content.
+- If the `aria-label` prop is specified with a string value, the `aria-labelledby` attribute will
+  not be rendered, even if you have a title/header for your modal.
+
+The `aria-label` and `title-sr-only` props were added in version 2.0.0-rc.27.
 
 ### Auto focus on open
 
@@ -963,9 +1003,14 @@ export default {
 }
 ```
 
-Note: it is not recommended to autofocus an input inside a modal for accessibility reasons, as
-screen reader users will not know the context of where the input is. It is best to let `<b-modal>`
-focus the modal container.
+Alternatively, if using `b-form-*` form controls, you can use the `autofocus` prop to automatically
+focus a form control when the modal opens. Note that the `autofocus` prop will not work with
+`b-modal` if the `static` prop is used without the `lazy` prop set, as `autofocus` happens when the
+`b-form-*` controls are _mounted in the DOM_.
+
+**Note:** it is **not recommended** to autofocus an input inside a modal for accessibility reasons,
+as screen reader users will not know the context of where the input is. It is best to let
+`<b-modal>` focus the modal's container and then allow the user to tab into the input.
 
 ### Returning focus to the triggering element
 
@@ -1025,7 +1070,11 @@ event will be ignored.
 When tabbing through elements within a `<b-modal>`, if focus attempts to leave the modal into the
 document, it will be brought back into the modal.
 
+Avoid setting `tabindex` on elements within the modal to any value other than `0` or `-1`. Doing so
+will make it difficult for people who rely on assistive technology to navigate and operate page
+content and can make some of your elements unreachable via keyboard navigation.
+
 In some circumstances, you may need to disable the enforce focus feature. You can do this by setting
-the prop `no-enforce-focus`.
+the prop `no-enforce-focus`, although this is highly discouraged.
 
 <!-- Component reference added automatically from component package.json -->

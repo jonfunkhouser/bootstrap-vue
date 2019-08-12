@@ -13,11 +13,11 @@ import formStateMixin from '../../mixins/form-state'
 import idMixin from '../../mixins/id'
 import normalizeSlotMixin from '../../mixins/normalize-slot'
 // Sub components
-import BCol from '../layout/col'
-import BFormInvalidFeedback from '../form/form-invalid-feedback'
-import BFormRow from '../layout/form-row'
-import BFormText from '../form/form-text'
-import BFormValidFeedback from '../form/form-valid-feedback'
+import { BCol } from '../layout/col'
+import { BFormRow } from '../layout/form-row'
+import { BFormText } from '../form/form-text'
+import { BFormInvalidFeedback } from '../form/form-invalid-feedback'
+import { BFormValidFeedback } from '../form/form-valid-feedback'
 
 // Component name
 const NAME = 'BFormGroup'
@@ -30,8 +30,8 @@ const DEPRECATED_MSG =
 
 // Render helper functions (here rather than polluting the instance with more methods)
 const renderInvalidFeedback = (h, ctx) => {
-  let content = ctx.normalizeSlot('invalid-feedback') || ctx.invalidFeedback
-  let invalidFeedback = h(false)
+  const content = ctx.normalizeSlot('invalid-feedback') || ctx.invalidFeedback
+  let invalidFeedback = h()
   if (content) {
     invalidFeedback = h(
       BFormInvalidFeedback,
@@ -54,7 +54,7 @@ const renderInvalidFeedback = (h, ctx) => {
 
 const renderValidFeedback = (h, ctx) => {
   const content = ctx.normalizeSlot('valid-feedback') || ctx.validFeedback
-  let validFeedback = h(false)
+  let validFeedback = h()
   if (content) {
     validFeedback = h(
       BFormValidFeedback,
@@ -78,7 +78,7 @@ const renderValidFeedback = (h, ctx) => {
 const renderHelpText = (h, ctx) => {
   // Form help text (description)
   const content = ctx.normalizeSlot('description') || ctx.description
-  let description = h(false)
+  let description = h()
   if (content) {
     description = h(
       BFormText,
@@ -102,9 +102,9 @@ const renderLabel = (h, ctx) => {
   const isHorizontal = ctx.isHorizontal
   const labelTag = isLegend ? 'legend' : 'label'
   if (!content && !isHorizontal) {
-    return h(false)
+    return h()
   } else if (ctx.labelSrOnly) {
-    let label = h(false)
+    let label = h()
     if (content) {
       label = h(
         labelTag,
@@ -158,7 +158,7 @@ const makePropName = memoize((breakpoint = '', prefix) => {
   return `${prefix}${upperFirst(breakpoint)}`
 })
 
-// BFormgroup prop generator for lazy generation of props
+// BFormGroup prop generator for lazy generation of props
 const generateProps = () => {
   const BREAKPOINTS = getBreakpointsUpCached()
 
@@ -254,7 +254,7 @@ const generateProps = () => {
 // We do not use Vue.extend here as that would evaluate the props
 // immediately, which we do not want to happen
 // @vue/component
-export default {
+export const BFormGroup = {
   name: NAME,
   mixins: [idMixin, formStateMixin, normalizeSlotMixin],
   get props() {
@@ -432,7 +432,7 @@ export default {
         }
       },
       [
-        this.normalizeSlot('default') || h(false),
+        this.normalizeSlot('default') || h(),
         renderInvalidFeedback(h, this),
         renderValidFeedback(h, this),
         renderHelpText(h, this)
@@ -466,3 +466,5 @@ export default {
     )
   }
 }
+
+export default BFormGroup

@@ -2,26 +2,22 @@ import { htmlOrText } from '../../../utils/html'
 
 export default {
   props: {
+    // `caption-top` is part of table-redere mixin (styling)
+    // captionTop: {
+    //   type: Boolean,
+    //   default: false
+    // },
     caption: {
       type: String,
       default: null
     },
     captionHtml: {
       type: String
-    },
-    captionTop: {
-      type: Boolean,
-      default: false
     }
   },
   computed: {
-    captionClasses() {
-      return {
-        'b-table-caption-top': this.captionTop
-      }
-    },
     captionId() {
-      // Even though this.safeId looks like a method, it is a computed prop
+      // Even though `this.safeId` looks like a method, it is a computed prop
       // that returns a new function if the underlying ID changes
       return this.isStacked ? this.safeId('_caption_') : null
     }
@@ -31,13 +27,12 @@ export default {
       const h = this.$createElement
 
       // Build the caption
-      const $captionSlot = this.normalizeSlot('table-caption', {})
-      let $caption = h(false)
+      const $captionSlot = this.normalizeSlot('table-caption')
+      let $caption = h()
 
       if ($captionSlot || this.caption || this.captionHtml) {
         const data = {
           key: 'caption',
-          class: this.captionClasses,
           attrs: { id: this.captionId }
         }
         if (!$captionSlot) {

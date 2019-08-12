@@ -168,6 +168,16 @@ disabled in auto-height mode.
 <!-- b-form-textarea-auto-height.vue -->
 ```
 
+#### Auto height implementation note
+
+Auto-height works by computing the resulting height via CSS queries, hence the input has to be in
+document (DOM) and visible (not hidden via `display: none`). Initial height is computed on mount. If
+the `b-form-text-area` is visually hidden on mount, the auto height cannot be computed.
+
+In situations where the text area may initially be hidden visually (i.e. in non-lazy `b-tab`
+components or non-lazy static `b-modal`), you may want to use `v-if` to delay mouting (lazy mount),
+or delay setting the value of `b-form-textarea` until it's visually hidden parent is shown.
+
 ## Contextual states
 
 Bootstrap includes validation styles for `valid` and `invalid` states on most form controls.
@@ -288,6 +298,8 @@ Emulation of the `.lazy` modifier is _not_ supported (listen for `change` or `bl
   which handles the modifiers).
 
 ## Autofocus
+
+<span class="badge badge-info small">NEW in 2.0.0-rc.21</span>
 
 When the `autofocus` prop is set, the textarea will be auto-focused when it is inserted into the
 document, or re-activated when inside a Vue `<keep-alive>` component. Note that this prop **does

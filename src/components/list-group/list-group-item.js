@@ -3,12 +3,12 @@ import { mergeData } from 'vue-functional-data-merge'
 import pluckProps from '../../utils/pluck-props'
 import { arrayIncludes } from '../../utils/array'
 import { getComponentConfig } from '../../utils/config'
-import Link, { propsFactory as linkPropsFactory } from '../link/link'
+import { BLink, propsFactory as linkPropsFactory } from '../link/link'
 
 const NAME = 'BListGroupItem'
 
 const actionTags = ['a', 'router-link', 'button', 'b-link']
-let linkProps = linkPropsFactory()
+const linkProps = linkPropsFactory()
 delete linkProps.href.default
 delete linkProps.to.default
 
@@ -32,12 +32,12 @@ export const props = {
   ...linkProps
 }
 // @vue/component
-export default Vue.extend({
+export const BListGroupItem = /*#__PURE__*/ Vue.extend({
   name: NAME,
   functional: true,
   props,
   render(h, { props, data, children }) {
-    const tag = props.button ? 'button' : !props.href && !props.to ? props.tag : Link
+    const tag = props.button ? 'button' : !props.href && !props.to ? props.tag : BLink
     const isAction = Boolean(
       props.href || props.to || props.action || props.button || arrayIncludes(actionTags, props.tag)
     )
@@ -70,3 +70,5 @@ export default Vue.extend({
     return h(tag, mergeData(data, componentData), children)
   }
 })
+
+export default BListGroupItem

@@ -1,11 +1,16 @@
 import Vue from '../../utils/vue'
-import BLink from '../link/link'
-import BNav, { props as BNavProps } from '../nav/nav'
 import KeyCodes from '../../utils/key-codes'
+import looseEqual from '../../utils/loose-equal'
 import observeDom from '../../utils/observe-dom'
+import stableSort from '../../utils/stable-sort'
+import { arrayIncludes, concat } from '../../utils/array'
+import { requestAF, selectAll } from '../../utils/dom'
+import { isEvent } from '../../utils/inspect'
 import { omit } from '../../utils/object'
 import idMixin from '../../mixins/id'
 import normalizeSlotMixin from '../../mixins/normalize-slot'
+import { BLink } from '../link/link'
+import { BNav, props as BNavProps } from '../nav/nav'
 
 // -- Constants --
 
@@ -19,7 +24,7 @@ const notDisabled = tab => !tab.disabled
 // --- Helper components ---
 
 // @vue/component
-const BTabButtonHelper = Vue.extend({
+const BTabButtonHelper = /*#__PURE__*/ Vue.extend({
   name: 'BTabButtonHelper',
   inject: {
     bvTabs: {
@@ -51,7 +56,7 @@ const BTabButtonHelper = Vue.extend({
       }
     },
     handleEvt(evt) {
-      function stop() {
+      const stop = () => {
         evt.preventDefault()
         evt.stopPropagation()
       }
@@ -138,7 +143,7 @@ const BTabButtonHelper = Vue.extend({
 })
 
 // @vue/component
-export default Vue.extend({
+export const BTabs = /*#__PURE__*/ Vue.extend({
   name: 'BTabs',
   mixins: [idMixin, normalizeSlotMixin],
   provide() {
@@ -221,8 +226,12 @@ export default Vue.extend({
     return {
       // Index of current tab
       currentTab: tabIdx,
-      // Array of direct child <b-tab> instances
-      tabs: []
+      // Array of direct child <b-tab> instances, in DOM order
+      tabs: [],
+      // Array of child instances registered (for triggering reactive updates)
+      registeredTabs: [],
+      // Flag to know if we are mounted or not
+      isMounted: false
     }
   },
   computed: {
@@ -234,7 +243,7 @@ export default Vue.extend({
       return this.pills ? 'pills' : 'tabs'
     },
     localNavClass() {
-      let classes = []
+      const classes = []
       if (this.card) {
         if (this.vertical) {
           classes.push('card-header', 'h-100', 'border-bottom-0', 'rounded-0')
@@ -277,12 +286,44 @@ export default Vue.extend({
           }
         }
       }
+    },
+    registeredTabs(newVal, oldVal) {
+      // Each b-tab will register/unregister itself.
+      // We use this to detect when tabs are added/removed
+      // to trigger the update of the tabs.
+      this.$nextTick(() => {
+        requestAF(() => {
+          this.updateTabs()
+        })
+      })
+    },
+    tabs(newVal, oldVal) {
+      // If tabs added, removed, or re-ordered, we emit a `changed` event.
+      // We use `tab._uid` instead of `tab.safeId()`, as the later is changed
+      // in a nextTick if no explicit ID is provided, causing duplicate emits.
+      if (!looseEqual(newVal.map(t => t._uid), oldVal.map(t => t._uid))) {
+        // In a nextTick to ensure currentTab has been set first.
+        this.$nextTick(() => {
+          // We emit shallow copies of the new and old arrays of tabs, to
+          // prevent users from potentially mutating the internal arrays.
+          this.$emit('changed', newVal.slice(), oldVal.slice())
+        })
+      }
+    },
+    isMounted(newVal, oldVal) {
+      // Trigger an update after mounted.  Needed for tabs inside lazy modals.
+      if (newVal) {
+        requestAF(() => {
+          this.updateTabs()
+        })
+      }
+      // Enable or disable the observer
+      this.setObserver(newVal)
     }
   },
   created() {
-    let tabIdx = parseInt(this.value, 10)
+    const tabIdx = parseInt(this.value, 10)
     this.currentTab = isNaN(tabIdx) ? -1 : tabIdx
-    // Create private non-reactive prop
     this._bvObserver = null
     // For SSR and to make sure only a single tab is shown on mount
     // We wrap this in a `$nextTick()` to ensure the child tabs have been created
@@ -291,38 +332,68 @@ export default Vue.extend({
     })
   },
   mounted() {
+    // Call `updateTabs()` just in case...
+    this.updateTabs()
     this.$nextTick(() => {
-      // Call `updateTabs()` just in case...
-      this.updateTabs()
-      // Observe child changes so we can update list of tabs
-      this.setObserver(true)
+      // Flag we are now mounted and to switch to DOM for tab probing.
+      // As this.$slots.default appears to lie about component instances
+      // after b-tabs is destroyed and re-instantiated.
+      // And this.$children does not respect DOM order.
+      this.isMounted = true
     })
   },
   deactivated() /* istanbul ignore next */ {
-    this.setObserver(false)
+    this.isMounted = false
   },
   activated() /* istanbul ignore next */ {
-    let tabIdx = parseInt(this.value, 10)
+    const tabIdx = parseInt(this.value, 10)
     this.currentTab = isNaN(tabIdx) ? -1 : tabIdx
     this.$nextTick(() => {
       this.updateTabs()
-      this.setObserver(true)
+      this.isMounted = true
     })
   },
-  beforeDestroy() /* istanbul ignore next */ {
-    this.setObserver(false)
+  beforeDestroy() {
+    this.isMounted = false
+  },
+  destroyed() {
+    // Ensure no references to child instances exist
+    this.tabs = []
   },
   methods: {
+    registerTab(tab) {
+      if (!arrayIncludes(this.registeredTabs, tab)) {
+        this.registeredTabs.push(tab)
+        tab.$once('hook:destroyed', () => {
+          this.unregisterTab(tab)
+        })
+      }
+    },
+    unregisterTab(tab) {
+      this.registeredTabs = this.registeredTabs.slice().filter(t => t !== tab)
+    },
     setObserver(on) {
+      // DOM observer is needed to detect changes in order of tabs
       if (on) {
         // Make sure no existing observer running
         this.setObserver(false)
+        const self = this
+        /* istanbul ignore next: difficult to test mutation observer in JSDOM */
+        const handler = () => {
+          // We delay the update to ensure that `tab.safeId()` has
+          // updated with the final ID value.
+          self.$nextTick(() => {
+            requestAF(() => {
+              self.updateTabs()
+            })
+          })
+        }
         // Watch for changes to <b-tab> sub components
-        this._bvObserver = observeDom(this.$refs.tabsContainer, this.updateTabs.bind(this), {
+        this._bvObserver = observeDom(this.$refs.tabsContainer, handler, {
           childList: true,
           subtree: false,
           attributes: true,
-          attributeFilter: ['style', 'class']
+          attributeFilter: ['id']
         })
       } else {
         if (this._bvObserver && this._bvObserver.disconnect) {
@@ -332,9 +403,28 @@ export default Vue.extend({
       }
     },
     getTabs() {
-      return (this.normalizeSlot('default') || [])
-        .map(vnode => vnode.componentInstance)
-        .filter(tab => tab && tab._isTab)
+      // We use registeredTabs as the source of truth for child tab components. And we
+      // filter out any BTab components that are extended BTab with a root child BTab.
+      // https://github.com/bootstrap-vue/bootstrap-vue/issues/3260
+      const tabs = this.registeredTabs.filter(
+        tab => tab.$children.filter(t => t._isTab).length === 0
+      )
+      // DOM Order of Tabs
+      let order = []
+      if (this.isMounted && tabs.length > 0) {
+        // We rely on the DOM when mounted to get the 'true' order of the b-tab children.
+        // querySelectorAll(...) always returns elements in document order, regardless of
+        // order specified in the selector.
+        const selector = tabs.map(tab => `#${tab.safeId()}`).join(', ')
+        order = selectAll(selector, this.$el)
+          .map(el => el.id)
+          .filter(Boolean)
+      }
+      // Stable sort keeps the original order if not found in the
+      // `order` array, which will be an empty array before mount.
+      return stableSort(tabs, (a, b) => {
+        return order.indexOf(a.safeId()) - order.indexOf(b.safeId())
+      })
     },
     // Update list of <b-tab> children
     updateTabs() {
@@ -442,7 +532,7 @@ export default Vue.extend({
     },
     // Emit a click event on a specified <b-tab> component instance
     emitTabClick(tab, evt) {
-      if (evt && evt instanceof Event && tab && tab.$emit && !tab.disabled) {
+      if (isEvent(evt) && tab && tab.$emit && !tab.disabled) {
         tab.$emit('click', evt)
       }
     },
@@ -496,7 +586,7 @@ export default Vue.extend({
     const tabs = this.tabs
 
     // Currently active tab
-    let activeTab = tabs.find(tab => tab.localActive && !tab.disabled)
+    const activeTab = tabs.find(tab => tab.localActive && !tab.disabled)
 
     // Tab button to allow focusing when no active tab found (keynav only)
     const fallbackTab = tabs.find(tab => !tab.disabled)
@@ -521,10 +611,8 @@ export default Vue.extend({
         props: {
           tab: tab,
           tabs: tabs,
-          id:
-            tab.controlledBy ||
-            (this.tab && this.tab.safeId ? this.tab.safeId(`_BV_tab_button_`) : null),
-          controls: this.tab && this.tab.safeId ? this.tab.safeId() : null,
+          id: tab.controlledBy || (tab.safeId ? tab.safeId(`_BV_tab_button_`) : null),
+          controls: tab.safeId ? tab.safeId() : null,
           tabIndex,
           setSize: tabs.length,
           posInSet: index + 1,
@@ -562,7 +650,11 @@ export default Vue.extend({
           small: this.small
         }
       },
-      [buttons, this.normalizeSlot('tabs')]
+      [
+        this.normalizeSlot('tabs-start') || h(false),
+        buttons,
+        this.normalizeSlot('tabs-end') || this.normalizeSlot('tabs') || h(false)
+      ]
     )
     nav = h(
       'div',
@@ -580,17 +672,16 @@ export default Vue.extend({
       [nav]
     )
 
-    let empty = h(false)
+    let empty = h()
     if (!tabs || tabs.length === 0) {
       empty = h(
         'div',
-        { key: 'empty-tab', class: ['tab-pane', 'active', { 'card-body': this.card }] },
+        { key: 'bv-empty-tab', class: ['tab-pane', 'active', { 'card-body': this.card }] },
         this.normalizeSlot('empty')
       )
     }
 
     // Main content section
-    // TODO: This container should be a helper component
     const content = h(
       'div',
       {
@@ -600,7 +691,7 @@ export default Vue.extend({
         class: [{ col: this.vertical }, this.contentClass],
         attrs: { id: this.safeId('_BV_tab_container_') }
       },
-      [this.normalizeSlot('default'), empty]
+      concat(this.normalizeSlot('default'), empty)
     )
 
     // Render final output
@@ -614,11 +705,9 @@ export default Vue.extend({
         },
         attrs: { id: this.safeId() }
       },
-      [
-        this.end || this.bottom ? content : h(false),
-        [nav],
-        this.end || this.bottom ? h(false) : content
-      ]
+      [this.end || this.bottom ? content : h(), [nav], this.end || this.bottom ? h() : content]
     )
   }
 })
+
+export default BTabs

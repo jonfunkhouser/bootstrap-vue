@@ -30,7 +30,7 @@ export const props = {
 }
 
 // @vue/component
-export default Vue.extend({
+export const BDropdownGroup = /*#__PURE__*/ Vue.extend({
   name: 'BDropdownGroup',
   functional: true,
   inheritAttrs: false,
@@ -63,7 +63,7 @@ export default Vue.extend({
       .trim()
 
     return h('li', [
-      header || h(false),
+      header || h(),
       h(
         'ul',
         mergeData(data, {
@@ -78,3 +78,5 @@ export default Vue.extend({
     ])
   }
 })
+
+export default BDropdownGroup

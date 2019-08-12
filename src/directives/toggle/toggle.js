@@ -78,7 +78,7 @@ const handleUpdate = (el, binding, vnode) => {
 /*
  * Export our directive
  */
-export default {
+export const VBToggle = {
   bind(el, binding, vnode) {
     const targets = bindTargets(vnode, binding, listenTypes, handleTargets)
     if (isBrowser && vnode.context && targets.length > 0) {
@@ -95,8 +95,8 @@ export default {
         setAttr(el, 'role', 'button')
       }
 
-      // Toggle state handler, stored on element
-      el[BV_TOGGLE] = function toggleDirectiveHandler(id, state) {
+      // Toggle state handler
+      const toggleDirectiveHandler = (id, state) => {
         const targets = el[BV_TOGGLE_TARGETS] || []
         if (targets.indexOf(id) !== -1) {
           // Set aria-expanded state
@@ -110,6 +110,9 @@ export default {
           }
         }
       }
+
+      // Store the toggle handler on the element
+      el[BV_TOGGLE] = toggleDirectiveHandler
 
       // Listen for toggle state changes (public)
       vnode.context.$root.$on(EVENT_STATE, el[BV_TOGGLE])
@@ -138,3 +141,5 @@ export default {
     removeAttr(el, 'role')
   }
 }
+
+export default VBToggle

@@ -12,16 +12,14 @@ describe('modal', () => {
   beforeEach(() => {
     // Mock `getBCR()` so that the `isVisible(el)` test returns `true`
     // Needed for z-index checks
-    Element.prototype.getBoundingClientRect = jest.fn(() => {
-      return {
-        width: 24,
-        height: 24,
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0
-      }
-    })
+    Element.prototype.getBoundingClientRect = jest.fn(() => ({
+      width: 24,
+      height: 24,
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0
+    }))
   })
 
   afterEach(() => {
@@ -58,8 +56,6 @@ describe('modal', () => {
       expect($modal.attributes('id')).toEqual('test')
       expect($modal.attributes('role')).toBeDefined()
       expect($modal.attributes('role')).toEqual('dialog')
-      expect($modal.attributes('tabindex')).toBeDefined()
-      expect($modal.attributes('tabindex')).toEqual('-1')
       expect($modal.attributes('aria-hidden')).toBeDefined()
       expect($modal.attributes('aria-hidden')).toEqual('true')
       expect($modal.classes()).toContain('modal')
@@ -68,6 +64,14 @@ describe('modal', () => {
       // Modal dialog wrapper
       const $dialog = $modal.find('div.modal-dialog')
       expect($dialog.exists()).toBe(true)
+
+      // Modal content wrapper
+      const $content = $dialog.find('div.modal-content')
+      expect($content.exists()).toBe(true)
+      expect($content.attributes('tabindex')).toBeDefined()
+      expect($content.attributes('tabindex')).toEqual('-1')
+      expect($content.attributes('role')).toBeDefined()
+      expect($content.attributes('role')).toEqual('document')
 
       wrapper.destroy()
     })
@@ -141,13 +145,11 @@ describe('modal', () => {
       expect($modal.attributes('id')).toEqual('test')
       expect($modal.attributes('role')).toBeDefined()
       expect($modal.attributes('role')).toEqual('dialog')
-      expect($modal.attributes('tabindex')).toBeDefined()
-      expect($modal.attributes('tabindex')).toEqual('-1')
       expect($modal.attributes('aria-hidden')).not.toBeDefined()
       expect($modal.attributes('aria-modal')).toBeDefined()
       expect($modal.attributes('aria-modal')).toEqual('true')
       expect($modal.classes()).toContain('modal')
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Should have a backdrop
       const $backdrop = wrapper.find('div.modal-backdrop')
@@ -156,6 +158,14 @@ describe('modal', () => {
       // Modal dialog wrapper
       const $dialog = $modal.find('div.modal-dialog')
       expect($dialog.exists()).toBe(true)
+
+      // Modal content wrapper
+      const $content = $dialog.find('div.modal-content')
+      expect($content.exists()).toBe(true)
+      expect($content.attributes('tabindex')).toBeDefined()
+      expect($content.attributes('tabindex')).toEqual('-1')
+      expect($content.attributes('role')).toBeDefined()
+      expect($content.attributes('role')).toEqual('document')
 
       wrapper.destroy()
     })
@@ -186,7 +196,7 @@ describe('modal', () => {
       expect(wrapper.isEmpty()).toBe(true)
       expect(wrapper.element.nodeType).toEqual(Node.COMMENT_NODE)
 
-      let outer = document.getElementById('testtarget___BV_modal_outer_')
+      const outer = document.getElementById('testtarget___BV_modal_outer_')
       expect(outer).toBeDefined()
       expect(outer).not.toBe(null)
 
@@ -244,7 +254,7 @@ describe('modal', () => {
       expect($modal.attributes('aria-hidden')).not.toBeDefined()
       expect($modal.attributes('aria-modal')).toBeDefined()
       expect($modal.attributes('aria-modal')).toEqual('true')
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Should have a backdrop
       const $backdrop = wrapper.find('div.modal-backdrop')
@@ -268,6 +278,27 @@ describe('modal', () => {
 
       // Backdrop should be removed
       expect(wrapper.find('div.modal-backdrop').exists()).toBe(false)
+
+      wrapper.destroy()
+    })
+
+    it('title-html prop works', async () => {
+      const wrapper = mount(BModal, {
+        attachToDocument: true,
+        propsData: {
+          static: true,
+          id: 'test',
+          titleHtml: '<em>title</em>'
+        }
+      })
+
+      expect(wrapper.isVueInstance()).toBe(true)
+      await waitNT(wrapper.vm)
+
+      // Modal title
+      const $title = wrapper.find('.modal-title')
+      expect($title.exists()).toBe(true)
+      expect($title.html()).toContain('<em>title</em>')
 
       wrapper.destroy()
     })
@@ -324,6 +355,37 @@ describe('modal', () => {
 
       wrapper.destroy()
     })
+
+    it('ok-title-html and cancel-title-html works', async () => {
+      const wrapper = mount(BModal, {
+        attachToDocument: true,
+        propsData: {
+          static: true,
+          okTitleHtml: '<em>ok</em>',
+          cancelTitleHtml: '<em>cancel</em>'
+        }
+      })
+      expect(wrapper).toBeDefined()
+
+      const $buttons = wrapper.findAll('footer button')
+      expect($buttons.length).toBe(2)
+
+      // Cancel button (left-most button)
+      const $cancel = $buttons.at(0)
+      expect($cancel.attributes('type')).toBe('button')
+      expect($cancel.text()).toContain('cancel')
+      // v-html is applied to a span
+      expect($cancel.html()).toContain('<span><em>cancel</em></span>')
+
+      // OK button (right-most button)
+      const $ok = $buttons.at(1)
+      expect($ok.attributes('type')).toBe('button')
+      expect($ok.text()).toContain('ok')
+      // v-html is applied to a span
+      expect($ok.html()).toContain('<span><em>ok</em></span>')
+
+      wrapper.destroy()
+    })
   })
 
   describe('button and event functionality', () => {
@@ -362,7 +424,7 @@ describe('modal', () => {
       const $modal = wrapper.find('div.modal')
       expect($modal.exists()).toBe(true)
 
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       const $buttons = wrapper.findAll('header button')
       expect($buttons.length).toBe(1)
@@ -388,7 +450,7 @@ describe('modal', () => {
       await waitRAF()
 
       // Modal should still be open
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Try and close modal (and not prevent it)
       cancelHide = false
@@ -442,7 +504,7 @@ describe('modal', () => {
       const $modal = wrapper.find('div.modal')
       expect($modal.exists()).toBe(true)
 
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       const $buttons = wrapper.findAll('footer button')
       expect($buttons.length).toBe(2)
@@ -468,7 +530,7 @@ describe('modal', () => {
       await waitRAF()
 
       // Modal should still be open
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Try and close modal (and not prevent it)
       cancelHide = false
@@ -524,7 +586,7 @@ describe('modal', () => {
       const $modal = wrapper.find('div.modal')
       expect($modal.exists()).toBe(true)
 
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       expect(wrapper.emitted('hide')).not.toBeDefined()
       expect(trigger).toEqual(null)
@@ -582,7 +644,7 @@ describe('modal', () => {
       const $modal = wrapper.find('div.modal')
       expect($modal.exists()).toBe(true)
 
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       expect(wrapper.emitted('hide')).not.toBeDefined()
       expect(trigger).toEqual(null)
@@ -648,7 +710,7 @@ describe('modal', () => {
       const $footer = wrapper.find('footer.modal-footer')
       expect($footer.exists()).toBe(true)
 
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       expect(wrapper.emitted('hide')).not.toBeDefined()
       expect(trigger).toEqual(null)
@@ -668,7 +730,7 @@ describe('modal', () => {
       expect(trigger).toEqual(null)
 
       // Modal should not be closed
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Try and close modal via a "dragged" click out
       // starting from inside modal and finishing on backdrop
@@ -685,7 +747,7 @@ describe('modal', () => {
       expect(trigger).toEqual(null)
 
       // Modal should not be closed
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Try and close modal via click out
       $modal.trigger('click')
@@ -738,7 +800,7 @@ describe('modal', () => {
       await waitRAF()
 
       // Modal should now be open
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Try and close modal via `bv::hide::modal`
       wrapper.vm.$root.$emit('bv::hide::modal', 'test')
@@ -788,7 +850,7 @@ describe('modal', () => {
       await waitRAF()
 
       // Modal should now be open
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Try and close modal via `bv::toggle::modal`
       wrapper.vm.$root.$emit('bv::toggle::modal', 'test')
@@ -809,7 +871,7 @@ describe('modal', () => {
       await waitNT(wrapper.vm)
       await waitRAF()
 
-      // Modal should now be open
+      // Modal should not be open
       expect($modal.element.style.display).toEqual('none')
 
       wrapper.destroy()
@@ -880,7 +942,7 @@ describe('modal', () => {
 
       // Modal should now be open
       expect(called).toBe(true)
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       wrapper.destroy()
     })
@@ -919,7 +981,7 @@ describe('modal', () => {
       await waitRAF()
 
       // Modal should now be open
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
 
       // Try and close modal via `.toggle()` method
       wrapper.vm.toggle()
@@ -990,7 +1052,7 @@ describe('modal', () => {
       await waitNT(wrapper.vm)
 
       // Modal should now be open
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
       expect(document.activeElement).not.toBe(document.body)
       expect(document.activeElement).not.toBe($button.element)
       expect($modal.element.contains(document.activeElement)).toBe(true)
@@ -1072,7 +1134,7 @@ describe('modal', () => {
       await waitNT(wrapper.vm)
 
       // Modal should now be open
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
       expect(document.activeElement).not.toBe(document.body)
       expect(document.activeElement).not.toBe($button.element)
       expect(document.activeElement).not.toBe($button2.element)
@@ -1127,24 +1189,65 @@ describe('modal', () => {
 
       const $modal = wrapper.find('div.modal')
       expect($modal.exists()).toBe(true)
+      const $content = $modal.find('div.modal-content')
+      expect($content.exists()).toBe(true)
 
-      expect($modal.element.style.display).toEqual('')
+      expect($modal.element.style.display).toEqual('block')
       expect(document.activeElement).not.toBe(document.body)
-      expect(document.activeElement).toBe($modal.element)
+      expect(document.activeElement).toBe($content.element)
 
-      // Try anf set focusin on external button
+      // Try and set focusin on external button
       $button.trigger('focusin')
       await waitNT(wrapper.vm)
       await waitNT(wrapper.vm)
       expect(document.activeElement).not.toBe($button.element)
-      expect(document.activeElement).toBe($modal.element)
+      expect(document.activeElement).toBe($content.element)
 
-      // Try anf set focusin on external button
+      // Try and set focusin on external button
       $button.trigger('focus')
       await waitNT(wrapper.vm)
       await waitNT(wrapper.vm)
       expect(document.activeElement).not.toBe($button.element)
-      expect(document.activeElement).toBe($modal.element)
+      expect(document.activeElement).toBe($content.element)
+
+      // Emulate TAB by focusing the `bottomTrap` span element.
+      // Should focus first button in modal (in the header)
+      const $bottomTrap = wrapper.find(BModal).find({ ref: 'bottomTrap' })
+      expect($bottomTrap.exists()).toBe(true)
+      expect($bottomTrap.is('span')).toBe(true)
+      // Find the close (x) button (it is the only one with the .close class)
+      const $closeButton = $modal.find('button.close')
+      expect($closeButton.exists()).toBe(true)
+      expect($closeButton.is('button')).toBe(true)
+      // focus the tab trap
+      $bottomTrap.trigger('focusin')
+      $bottomTrap.trigger('focus')
+      await waitNT(wrapper.vm)
+      await waitNT(wrapper.vm)
+      expect(document.activeElement).not.toBe($bottomTrap.element)
+      expect(document.activeElement).not.toBe($content.element)
+      // The close (x) button (first tabable in modal) should be focused
+      expect(document.activeElement).toBe($closeButton.element)
+
+      // Emulate CTRL-TAB by focusing the `topTrap` div element.
+      // Should focus last button in modal (in the footer)
+      const $topTrap = wrapper.find(BModal).find({ ref: 'topTrap' })
+      expect($topTrap.exists()).toBe(true)
+      expect($topTrap.is('span')).toBe(true)
+      // Find the OK button (it is the only one with .btn-primary class)
+      const $okButton = $modal.find('button.btn.btn-primary')
+      expect($okButton.exists()).toBe(true)
+      expect($okButton.is('button')).toBe(true)
+      // focus the tab trap
+      $topTrap.trigger('focusin')
+      $topTrap.trigger('focus')
+      await waitNT(wrapper.vm)
+      await waitNT(wrapper.vm)
+      expect(document.activeElement).not.toBe($topTrap.element)
+      expect(document.activeElement).not.toBe($bottomTrap.element)
+      expect(document.activeElement).not.toBe($content.element)
+      // The OK button (last tabbable in modal) should be focused
+      expect(document.activeElement).toBe($okButton.element)
 
       wrapper.destroy()
     })

@@ -1,8 +1,3 @@
-/*
- * Common props, computed, data, render function, and methods
- * for <b-pagination> and <b-pagination-nav>
- */
-
 import KeyCodes from '../utils/key-codes'
 import range from '../utils/range'
 import toString from '../utils/to-string'
@@ -10,7 +5,10 @@ import warn from '../utils/warn'
 import { isFunction, isNull } from '../utils/inspect'
 import { isVisible, isDisabled, selectAll, getAttr } from '../utils/dom'
 import normalizeSlotMixin from '../mixins/normalize-slot'
-import BLink from '../components/link/link'
+import { BLink } from '../components/link/link'
+
+// Common props, computed, data, render function, and methods
+// for <b-pagination> and <b-pagination-nav>
 
 // Threshold of limit size when we start/stop showing ellipsis
 const ELLIPSIS_THRESHOLD = 3
@@ -19,26 +17,24 @@ const ELLIPSIS_THRESHOLD = 3
 const DEFAULT_LIMIT = 5
 
 // Make an array of N to N+X
-function makePageArray(startNum, numPages) {
-  return range(numPages).map(function(value, index) {
-    return { number: index + startNum, classes: null }
-  })
-}
+const makePageArray = (startNumber, numberOfPages) =>
+  range(numberOfPages).map((val, i) => ({ number: startNumber + i, classes: null }))
 
-// Sanitize the provided Limit value (converting to a number)
-function sanitizeLimit(value) {
-  const limit = parseInt(value, 10) || 1
+// Sanitize the provided limit value (converting to a number)
+const sanitizeLimit = val => {
+  const limit = parseInt(val, 10) || 1
   return limit < 1 ? DEFAULT_LIMIT : limit
 }
 
 // Sanitize the provided current page number (converting to a number)
-function sanitizeCurPage(value, numPages) {
-  const page = parseInt(value, 10) || 1
-  return page > numPages ? numPages : page < 1 ? 1 : page
+const sanitizeCurrentPage = (val, numberOfPages) => {
+  const page = parseInt(val, 10) || 1
+  return page > numberOfPages ? numberOfPages : page < 1 ? 1 : page
 }
 
-// Links don't normally respond to SPACE, so we add that functionality via this handler
-function onSpaceKey(evt) {
+// Links don't normally respond to SPACE, so we add that
+// functionality via this handler
+const onSpaceKey = evt => {
   if (evt.keyCode === KeyCodes.SPACE) {
     evt.preventDefault() // Stop page from scrolling
     evt.stopImmediatePropagation()
@@ -49,8 +45,7 @@ function onSpaceKey(evt) {
   }
 }
 
-// Props object
-const props = {
+export const props = {
   disabled: {
     type: Boolean,
     default: false
@@ -80,10 +75,6 @@ const props = {
       }
       return true
     }
-  },
-  size: {
-    type: String,
-    default: 'md'
   },
   align: {
     type: String,
@@ -156,7 +147,7 @@ export default {
     return {
       // -1 signifies no page initially selected
       currentPage: curr > 0 ? curr : -1,
-      localNumPages: 1,
+      localNumberOfPages: 1,
       localLimit: DEFAULT_LIMIT
     }
   },
@@ -178,64 +169,64 @@ export default {
       return ''
     },
     computedCurrentPage() {
-      return sanitizeCurPage(this.currentPage, this.localNumPages)
+      return sanitizeCurrentPage(this.currentPage, this.localNumberOfPages)
     },
     paginationParams() {
       // Determine if we should show the the ellipsis
       const limit = this.limit
-      const numPages = this.localNumPages
-      const curPage = this.computedCurrentPage
+      const numberOfPages = this.localNumberOfPages
+      const currentPage = this.computedCurrentPage
       const hideEllipsis = this.hideEllipsis
       let showFirstDots = false
       let showLastDots = false
-      let numLinks = limit
-      let startNum = 1
+      let numberOfLinks = limit
+      let startNumber = 1
 
-      if (numPages <= limit) {
+      if (numberOfPages <= limit) {
         // Special Case: Less pages available than the limit of displayed pages
-        numLinks = numPages
-      } else if (curPage < limit - 1 && limit > ELLIPSIS_THRESHOLD) {
+        numberOfLinks = numberOfPages
+      } else if (currentPage < limit - 1 && limit > ELLIPSIS_THRESHOLD) {
         // We are near the beginning of the page list
         if (!hideEllipsis) {
           showLastDots = true
-          numLinks = limit - 1
+          numberOfLinks = limit - 1
         }
-      } else if (numPages - curPage + 2 < limit && limit > ELLIPSIS_THRESHOLD) {
+      } else if (numberOfPages - currentPage + 2 < limit && limit > ELLIPSIS_THRESHOLD) {
         // We are near the end of the list
         if (!hideEllipsis) {
-          numLinks = limit - 1
+          numberOfLinks = limit - 1
           showFirstDots = true
         }
-        startNum = numPages - numLinks + 1
+        startNumber = numberOfPages - numberOfLinks + 1
       } else {
         // We are somewhere in the middle of the page list
         if (limit > ELLIPSIS_THRESHOLD && !hideEllipsis) {
-          numLinks = limit - 2
+          numberOfLinks = limit - 2
           showFirstDots = showLastDots = true
         }
-        startNum = curPage - Math.floor(numLinks / 2)
+        startNumber = currentPage - Math.floor(numberOfLinks / 2)
       }
       // Sanity checks
-      if (startNum < 1) {
+      if (startNumber < 1) {
         /* istanbul ignore next */
-        startNum = 1
-      } else if (startNum > numPages - numLinks) {
-        startNum = numPages - numLinks + 1
+        startNumber = 1
+      } else if (startNumber > numberOfPages - numberOfLinks) {
+        startNumber = numberOfPages - numberOfLinks + 1
       }
-      return { showFirstDots, showLastDots, numLinks, startNum }
+      return { showFirstDots, showLastDots, numberOfLinks, startNumber }
     },
     pageList() {
       // Generates the pageList array
-      const { numLinks, startNum } = this.paginationParams
-      const currPage = this.computedCurrentPage
+      const { numberOfLinks, startNumber } = this.paginationParams
+      const currentPage = this.computedCurrentPage
       // Generate list of page numbers
-      const pages = makePageArray(startNum, numLinks)
+      const pages = makePageArray(startNumber, numberOfLinks)
       // We limit to a total of 3 page buttons on XS screens
       // So add classes to page links to hide them for XS breakpoint
       // Note: Ellipsis will also be hidden on XS screens
       // TODO: Make this visual limit configurable based on breakpoint(s)
       if (pages.length > 3) {
-        const idx = currPage - startNum
+        const idx = currentPage - startNumber
         // THe following is a bootstrap-vue custom utility class
         const classes = 'bv-d-xs-down-none'
         if (idx === 0) {
@@ -266,7 +257,7 @@ export default {
   watch: {
     value(newValue, oldValue) {
       if (newValue !== oldValue) {
-        this.currentPage = sanitizeCurPage(newValue, this.localNumPages)
+        this.currentPage = sanitizeCurrentPage(newValue, this.localNumberOfPages)
       }
     },
     currentPage(newValue, oldValue) {
@@ -287,7 +278,7 @@ export default {
     this.$nextTick(() => {
       // Sanity check
       this.currentPage =
-        this.currentPage > this.localNumPages ? this.localNumPages : this.currentPage
+        this.currentPage > this.localNumberOfPages ? this.localNumberOfPages : this.currentPage
     })
   },
   methods: {
@@ -356,14 +347,14 @@ export default {
   },
   render(h) {
     const buttons = []
-    const numberOfPages = this.localNumPages
+    const numberOfPages = this.localNumberOfPages
     const disabled = this.disabled
     const { showFirstDots, showLastDots } = this.paginationParams
-    const currPage = this.computedCurrentPage
+    const currentPage = this.computedCurrentPage
     const fill = this.align === 'fill'
 
     // Helper function and flag
-    const isActivePage = pageNum => pageNum === currPage
+    const isActivePage = pageNum => pageNum === currentPage
     const noCurrPage = this.currentPage < 1
 
     // Factory function for prev/next/first/last buttons
@@ -372,7 +363,7 @@ export default {
         disabled || isActivePage(pageTest) || noCurrPage || linkTo < 1 || linkTo > numberOfPages
       const pageNum = linkTo < 1 ? 1 : linkTo > numberOfPages ? numberOfPages : linkTo
       const scope = { disabled: isDisabled, page: pageNum, index: pageNum - 1 }
-      const btnContent = this.normalizeSlot(btnSlot, scope) || toString(btnText) || h(false)
+      const btnContent = this.normalizeSlot(btnSlot, scope) || toString(btnText) || h()
       const inner = h(
         isDisabled ? 'span' : BLink,
         {
@@ -423,7 +414,7 @@ export default {
         },
         [
           h('span', { staticClass: 'page-link' }, [
-            this.normalizeSlot('ellipsis-text', {}) || toString(this.ellipsisText) || h(false)
+            this.normalizeSlot('ellipsis-text') || toString(this.ellipsisText) || h()
           ])
         ]
       )
@@ -432,14 +423,14 @@ export default {
     // Goto First Page button bookend
     buttons.push(
       this.hideGotoEndButtons
-        ? h(false)
+        ? h()
         : makeEndBtn(1, this.labelFirstPage, 'first-text', this.firstText, 1, 'bookend-goto-first')
     )
 
     // Goto Previous page button bookend
     buttons.push(
       makeEndBtn(
-        currPage - 1,
+        currentPage - 1,
         this.labelPrevPage,
         'prev-text',
         this.prevText,
@@ -449,13 +440,13 @@ export default {
     )
 
     // First Ellipsis Bookend
-    buttons.push(showFirstDots ? makeEllipsis(false) : h(false))
+    buttons.push(showFirstDots ? makeEllipsis(false) : h())
 
     // Individual Page links
     this.pageList.forEach((page, idx) => {
       const active = isActivePage(page.number) && !noCurrPage
       // Active page will have tabindex of 0, or if no current page and first page button
-      let tabIndex = disabled ? null : active || (noCurrPage && idx === 0) ? '0' : '-1'
+      const tabIndex = disabled ? null : active || (noCurrPage && idx === 0) ? '0' : '-1'
       const attrs = {
         role: 'menuitemradio',
         'aria-disabled': disabled ? 'true' : null,
@@ -509,12 +500,12 @@ export default {
     })
 
     // Last Ellipsis Bookend
-    buttons.push(showLastDots ? makeEllipsis(true) : h(false))
+    buttons.push(showLastDots ? makeEllipsis(true) : h())
 
     // Goto Next page button bookend
     buttons.push(
       makeEndBtn(
-        currPage + 1,
+        currentPage + 1,
         this.labelNextPage,
         'next-text',
         this.nextText,
@@ -526,7 +517,7 @@ export default {
     // Goto Last Page button bookend
     buttons.push(
       this.hideGotoEndButtons
-        ? h(false)
+        ? h()
         : makeEndBtn(
             numberOfPages,
             this.labelLastPage,

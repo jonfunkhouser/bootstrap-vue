@@ -57,19 +57,19 @@ const TransitionEndEvents = {
 const EventOptions = { passive: true, capture: false }
 
 // Return the browser specific transitionEnd event name
-function getTransitionEndEvent(el) {
+const getTransitionEndEvent = el => {
   for (const name in TransitionEndEvents) {
     if (!isUndefined(el.style[name])) {
       return TransitionEndEvents[name]
     }
   }
-  // fallback
+  // Fallback
   /* istanbul ignore next */
   return null
 }
 
 // @vue/component
-export default Vue.extend({
+export const BCarousel = /*#__PURE__*/ Vue.extend({
   name: 'BCarousel',
   mixins: [idMixin, normalizeSlotMixin],
   provide() {
@@ -289,7 +289,7 @@ export default Vue.extend({
     doSlide(to, from) {
       const isCycling = Boolean(this.interval)
       // Determine sliding direction
-      let direction = this.calcDirection(this.direction, from, to)
+      const direction = this.calcDirection(this.direction, from, to)
       const overlayClass = direction.overlayClass
       const dirClass = direction.dirClass
       // Determine current and next slides
@@ -406,6 +406,9 @@ export default Vue.extend({
         return
       }
       const direction = absDeltaX / this.touchDeltaX
+      // Reset touch delta X
+      // https://github.com/twbs/bootstrap/pull/28558
+      this.touchDeltaX = 0
       if (direction > 0) {
         // Swipe left
         this.prev()
@@ -467,7 +470,7 @@ export default Vue.extend({
     )
 
     // Prev and next controls
-    let controls = h(false)
+    let controls = h()
     if (this.controls) {
       controls = [
         h(
@@ -609,3 +612,5 @@ export default Vue.extend({
     )
   }
 })
+
+export default BCarousel

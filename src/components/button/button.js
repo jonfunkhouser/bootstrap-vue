@@ -4,9 +4,9 @@ import pluckProps from '../../utils/pluck-props'
 import { concat } from '../../utils/array'
 import { getComponentConfig } from '../../utils/config'
 import { addClass, removeClass } from '../../utils/dom'
-import { isBoolean, isFunction } from '../../utils/inspect'
+import { isBoolean, isEvent, isFunction } from '../../utils/inspect'
 import { keys } from '../../utils/object'
-import BLink, { propsFactory as linkPropsFactory } from '../link/link'
+import { BLink, propsFactory as linkPropsFactory } from '../link/link'
 
 // --- Constants --
 
@@ -23,7 +23,7 @@ const btnProps = {
   },
   size: {
     type: String,
-    default: null
+    default: () => getComponentConfig(NAME, 'size')
   },
   variant: {
     type: String,
@@ -41,6 +41,10 @@ const btnProps = {
     type: Boolean,
     default: false
   },
+  squared: {
+    type: Boolean,
+    default: false
+  },
   pressed: {
     // tri-state prop: true, false or null
     // => on, off, not a toggle
@@ -49,7 +53,7 @@ const btnProps = {
   }
 }
 
-let linkProps = linkPropsFactory()
+const linkProps = linkPropsFactory()
 delete linkProps.href.default
 delete linkProps.to.default
 const linkPropKeys = keys(linkProps)
@@ -96,6 +100,7 @@ const computeClass = props => [
     [`btn-${props.size}`]: Boolean(props.size),
     'btn-block': props.block,
     'rounded-pill': props.pill,
+    'rounded-0': props.squared && !props.pill,
     disabled: props.disabled,
     active: props.pressed
   }
@@ -139,7 +144,7 @@ const computeAttrs = (props, data) => {
 }
 
 // @vue/component
-export default Vue.extend({
+export const BButton = /*#__PURE__*/ Vue.extend({
   name: NAME,
   functional: true,
   props,
@@ -147,11 +152,11 @@ export default Vue.extend({
     const toggle = isToggle(props)
     const link = isLink(props)
     const on = {
-      click(e) {
+      click(evt) {
         /* istanbul ignore if: blink/button disabled should handle this */
-        if (props.disabled && e instanceof Event) {
-          e.stopPropagation()
-          e.preventDefault()
+        if (props.disabled && isEvent(evt)) {
+          evt.stopPropagation()
+          evt.preventDefault()
         } else if (toggle && listeners && listeners['update:pressed']) {
           // Send .sync updates to any "pressed" prop (if .sync listeners)
           // Concat will normalize the value to an array
@@ -181,3 +186,5 @@ export default Vue.extend({
     return h(link ? BLink : props.tag, mergeData(data, componentData), children)
   }
 })
+
+export default BButton

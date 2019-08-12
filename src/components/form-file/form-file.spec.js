@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { waitNT } from '../../../tests/utils'
+import { waitNT, waitRAF } from '../../../tests/utils'
 import BFormFile from './form-file'
 
 describe('form-file', () => {
@@ -131,6 +131,20 @@ describe('form-file', () => {
     const input = wrapper.find('input')
     expect(input.attributes('form')).toBeDefined()
     expect(input.attributes('form')).toBe('bar')
+
+    wrapper.destroy()
+  })
+
+  it('default has custom attributes transferred input element', async () => {
+    const wrapper = mount(BFormFile, {
+      propsData: {
+        id: 'foo',
+        foo: 'bar'
+      }
+    })
+    const input = wrapper.find('input')
+    expect(input.attributes('foo')).toBeDefined()
+    expect(input.attributes('foo')).toEqual('bar')
 
     wrapper.destroy()
   })
@@ -492,16 +506,14 @@ describe('form-file', () => {
     beforeEach(() => {
       // Mock getBCR so that the isVisible(el) test returns true
       // In our test below, all pagination buttons would normally be visible
-      Element.prototype.getBoundingClientRect = jest.fn(() => {
-        return {
-          width: 24,
-          height: 24,
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0
-        }
-      })
+      Element.prototype.getBoundingClientRect = jest.fn(() => ({
+        width: 24,
+        height: 24,
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0
+      }))
     })
 
     afterEach(() => {
@@ -517,7 +529,8 @@ describe('form-file', () => {
         }
       })
       expect(wrapper.vm).toBeDefined()
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
 
       const input = wrapper.find('input')
       expect(input.exists()).toBe(true)

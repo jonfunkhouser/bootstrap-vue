@@ -1,53 +1,58 @@
-import { installFactory } from '../utils/plugins'
-import * as componentPlugins from './plugins'
+// Legacy index file supporting legacy plugin names and default export.
+// This file is only here from transpilation purposes for `es/` build.
+// src/index imports /src/components/index.esm so that we don't
+// have top-level duplicate plugin names.
+//
+// TODO:
+// Once `es/` build is removed, we will rename index.esm.js to index.js
+// and update /src/index.js to import the new index.js
 
-// Export all component group plugins as named exports
-export * from './plugins'
+// Import the main components plugin
+import { componentsPlugin } from './index.esm'
 
-// Export all legacy name component group plugins as named exports
-export * from './plugins-legacy'
+// Export all component group plugins and components as named exports
+export * from './index.esm'
 
-// Export all individual components as named exports
-export * from './alert'
-export * from './badge'
-export * from './breadcrumb'
-export * from './button'
-export * from './button-group'
-export * from './button-toolbar'
-export * from './input-group'
-export * from './card'
-export * from './carousel'
-export * from './layout'
-export * from './collapse'
-export * from './dropdown'
-export * from './embed'
-export * from './form'
-export * from './form-group'
-export * from './form-checkbox'
-export * from './form-radio'
-export * from './form-input'
-export * from './form-textarea'
-export * from './form-file'
-export * from './form-select'
-export * from './image'
-export * from './jumbotron'
-export * from './link'
-export * from './list-group'
-export * from './media'
-export * from './modal'
-export * from './nav'
-export * from './navbar'
-export * from './pagination'
-export * from './pagination-nav'
-export * from './popover'
-export * from './progress'
-export * from './spinner'
-export * from './table'
-export * from './tabs'
-export * from './toast'
-export * from './tooltip'
+// Export all legacy named component group plugins as named exports
+// To be removed in stable release
+export { AlertPlugin as Alert } from './alert'
+export { BadgePlugin as Badge } from './badge'
+export { BreadcrumbPlugin as Breadcrumb } from './breadcrumb'
+export { ButtonPlugin as Button } from './button'
+export { ButtonGroupPlugin as ButtonGroup } from './button-group'
+export { ButtonToolbarPlugin as ButtonToolbar } from './button-toolbar'
+export { CardPlugin as Card } from './card'
+export { CarouselPlugin as Carousel } from './carousel'
+export { CollapsePlugin as Collapse } from './collapse'
+export { DropdownPlugin as Dropdown } from './dropdown'
+export { EmbedPlugin as Embed } from './embed'
+export { FormPlugin as Form } from './form'
+export { FormGroupPlugin as FormGroup } from './form-group'
+export { FormCheckboxPlugin as FormCheckbox } from './form-checkbox'
+export { FormRadioPlugin as FormRadio } from './form-radio'
+export { FormInputPlugin as FormInput } from './form-input'
+export { FormTextareaPlugin as FormTextarea } from './form-textarea'
+export { FormFilePlugin as FormFile } from './form-file'
+export { FormSelectPlugin as FormSelect } from './form-select'
+export { ImagePlugin as Image } from './image'
+export { InputGroupPlugin as InputGroup } from './input-group'
+export { JumbotronPlugin as Jumbotron } from './jumbotron'
+export { LayoutPlugin as Layout } from './layout'
+export { LinkPlugin as Link } from './link'
+export { ListGroupPlugin as ListGroup } from './list-group'
+export { MediaPlugin as Media } from './media'
+export { ModalPlugin as Modal } from './modal'
+export { NavPlugin as Nav } from './nav'
+export { NavbarPlugin as Navbar } from './navbar'
+export { PaginationPlugin as Pagination } from './pagination'
+export { PaginationNavPlugin as PaginationNav } from './pagination-nav'
+export { PopoverPlugin as Popover } from './popover'
+export { ProgressPlugin as Progress } from './progress'
+export { SpinnerPlugin as Spinner } from './spinner'
+export { TablePlugin as Table } from './table'
+export { TabsPlugin as Tabs } from './tabs'
+export { ToastPlugin as Toast } from './toast'
+export { TooltipPlugin as Tooltip } from './tooltip'
 
 // Export default as a plugin that installs all the component group plugins
-export default {
-  install: installFactory({ plugins: componentPlugins })
-}
+export default componentsPlugin

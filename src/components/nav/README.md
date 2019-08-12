@@ -186,8 +186,8 @@ Use `<b-nav-item-dropdown>` to place dropdown items within your nav.
 ```
 
 Sometimes you want to add your own class names to the generated dropdown toggle button, that by
-default have the classes `nav-link` and `dropdown-toggle`. Use the `toggle-class` prop to
-add them (like above) which will produce something like:
+default have the classes `nav-link` and `dropdown-toggle`. Use the `toggle-class` prop to add them
+(like above) which will produce something like:
 
 ```html
 <li id="my-nav-dropdown" class="nav-item b-nav-dropdown dropdown">
@@ -211,8 +211,17 @@ Refer to [`<b-dropdown>`](/docs/components/dropdown) for a list of supported sub
 The dropdown default slot is optionally scoped with the following scope available:
 
 | Property or Method | Description                                                                                                                      |
-| ------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
 | `hide()`           | Can be used to close the dropdown menu. Accepts an optional boolean argument, which if `true` returns focus to the toggle button |
+
+### Lazy dropdown
+
+<span class="badge badge-info small">NEW in 2.0.0-rc.26</span>
+
+By default, `<b-nav-item-dropdown>` renders the menu contents in the DOM even when the menu is not
+shown. When there are a large number of dropdowns rendered on the same page, performance could be
+impacted due to larger overall memory utilization. You can instruct `<b-nav-item-dropdown>` to
+render the menu contents only when it is shown by setting the `lazy` prop to true.
 
 ## Using in navbar
 

@@ -5,6 +5,9 @@
     "title": "Modal",
     "enhanced": true,
     "description": "Modals are streamlined, but flexible dialog prompts powered by JavaScript and CSS. They support a number of use cases from user notification to completely custom content and feature a handful of helpful sub-components, sizes, variants, accessibility, and more.",
+    "plugins": [
+      "BVModalPlugin"
+    ],
     "directives": [
       "VBModal"
     ],
@@ -44,7 +47,7 @@
           },
           {
             "event": "hide",
-            "description": "Always emits just before modal has hidden. Cancelable (as long as modal wasn't forceably hidden)",
+            "description": "Always emits just before modal has hidden. Cancelable (as long as modal wasn't forcibly hidden)",
             "args": [
               {
                 "arg": "bvModalEvt",
@@ -122,7 +125,7 @@
           },
           {
             "event": "bv::modal::hide",
-            "description": "Emitted on $root when modal is about to be hidden. Cancelable (as long as modal wasn't forceably hidden)",
+            "description": "Emitted on $root when modal is about to be hidden. Cancelable (as long as modal wasn't forcibly hidden)",
             "args": [
               {
                 "arg": "bvModalEvt",

@@ -7,7 +7,7 @@ import warn from '../../utils/warn'
 const DEPRECATED_MSG = 'Setting prop "href" is deprecated. Use the <b-nav> component instead.'
 
 // @vue/component
-export default Vue.extend({
+export const BTab = /*#__PURE__*/ Vue.extend({
   name: 'BTab',
   mixins: [idMixin, normalizeSlotMixin],
   inject: {
@@ -136,6 +136,8 @@ export default Vue.extend({
     }
   },
   mounted() {
+    // Inform b-tabs of our presence
+    this.registerTab()
     // Initially show on mount if active and not disabled
     this.show = this.localActive
     // Deprecate use of `href` prop
@@ -151,7 +153,20 @@ export default Vue.extend({
       this.bvTabs.updateButton(this)
     }
   },
+  destroyed() {
+    // inform b-tabs of our departure
+    this.unregisterTab()
+  },
   methods: {
+    // Private methods
+    registerTab() {
+      // Inform `b-tabs` of our presence
+      this.bvTabs.registerTab && this.bvTabs.registerTab(this)
+    },
+    unregisterTab() {
+      // Inform `b-tabs` of our departure
+      this.bvTabs.unregisterTab && this.bvTabs.unregisterTab(this)
+    },
     // Public methods
     activate() {
       if (this.bvTabs.activateTab && !this.disabled) {
@@ -171,7 +186,7 @@ export default Vue.extend({
     }
   },
   render(h) {
-    let content = h(
+    const content = h(
       this.tag,
       {
         ref: 'panel',
@@ -188,14 +203,16 @@ export default Vue.extend({
         attrs: {
           role: 'tabpanel',
           id: this.safeId(),
-          tabindex: this.localActive && !this.bvTabs.noKeyNav ? '0' : null,
+          tabindex: this.localActive && !this.bvTabs.noKeyNav ? '-1' : null,
           'aria-hidden': this.localActive ? 'false' : 'true',
           'aria-labelledby': this.controlledBy || null
         }
       },
       // Render content lazily if requested
-      [this.localActive || !this.computedLazy ? this.normalizeSlot('default') : h(false)]
+      [this.localActive || !this.computedLazy ? this.normalizeSlot('default') : h()]
     )
     return h(BVTransition, { props: { mode: 'out-in', noFade: this.computedNoFade } }, [content])
   }
 })
+
+export default BTab

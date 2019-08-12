@@ -36,13 +36,13 @@ export const props = {
 }
 
 // @vue/component
-export default Vue.extend({
+export const BNavbar = /*#__PURE__*/ Vue.extend({
   name: NAME,
   functional: true,
   props,
   render(h, { props, data, children }) {
     let breakpoint = ''
-    let xs = getBreakpoints()[0]
+    const xs = getBreakpoints()[0]
     if (props.toggleable && isString(props.toggleable) && props.toggleable !== xs) {
       breakpoint = `navbar-expand-${props.toggleable}`
     } else if (props.toggleable === false) {
@@ -68,3 +68,5 @@ export default Vue.extend({
     )
   }
 })
+
+export default BNavbar

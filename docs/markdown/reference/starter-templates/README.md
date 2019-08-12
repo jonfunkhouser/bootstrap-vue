@@ -34,16 +34,18 @@ tags to load the required JavaScript and CSS in your page.
       href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css"
     />
 
+    <!-- Load polyfills to support older browsers -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver"></script>
+
     <!-- Required scripts -->
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+    <script src="https://unpkg.com/vue@latest/dist/vue.js"></script>
     <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
   </head>
   <body>
     <!-- Our application root element -->
     <div id="app">
       <b-container>
-        <b-jumbotron header="BootstrapVue" lead="Bootstrap 4 Components for Vue.js 2">
+        <b-jumbotron header="BootstrapVue" lead="Bootstrap v4 Components for Vue.js 2">
           <p>For more information visit our website</p>
           <b-btn variant="primary" href="https://bootstrap-vue.js.org/">More Info</b-btn>
         </b-jumbotron>
@@ -81,6 +83,8 @@ tags to load the required JavaScript and CSS in your page.
 
 ## Vue CLI 2
 
+<span class="badge badge-warning small">DEPRECATED</span>
+
 ### `webpack-simple` example
 
 Starter template: https://github.com/bootstrap-vue/webpack-simple
@@ -104,16 +108,14 @@ Vue CLI 3 is the newest way to create Vue apps.
 A Vue CLI 3 BootStrapVue plugin is available for setting up a basic app. refer to the
 [Getting Started](/docs/#vue-cli-3-plugin) docs page for more details.
 
-## Building with customized Bootstrap V4 CSS
+## Building with customized Bootstrap v4 CSS
 
-If you are using a build system, and would like to customize the Bootstrap V4 CSS, the following
+If you are using a build system, and would like to customize the Bootstrap v4 CSS, the following
 references will be handy starting points:
 
-- Article on
-  [Integrating and Customising Bootstrap 4 in vue-js](https://medium.com/@_Dreamstream/integrating-and-customising-bootstrap-4-in-vue-js-cbc29ba7688e)
-  hosted on medium.com
-- Official Bootstrap [Theming Bootstrap](https://getbootstrap.com/docs/4.3/getting-started/theming/)
-  guide
+- BootstrapVue's [Theming](/docs/reference/theming) reference section
+- Official Bootstrap
+  [Theming Bootstrap ](https://getbootstrap.com/docs/4.3/getting-started/theming/) guide
 
 ## Individual component import
 
@@ -127,19 +129,14 @@ located in the `bootstrap-vue/es/components/` and `bootstrap-vue/es/directives/`
 using the NPM bundle. When building from the BootstrapVue repo source the directories will be
 created when you run `yarn build`.
 
-### Importing individual components and directives as ES modules
+### Importing individual components and directives
 
-Components and directives appear in sub directories, grouped by functionality. As an example, you
-can import `<b-card>` (plus it's sub components) and `<b-table>` as follows:
+As an example, you can import `<b-card>` (plus some of it's sub components) and `<b-table>` as
+follows:
 
 ```js
 // Import the individual components
-import BCard from 'bootstrap-vue/es/components/card/card'
-import BCardBody from 'bootstrap-vue/es/components/card/card-body'
-import BCardFooter from 'bootstrap-vue/es/components/card/card-footer'
-import BCardHeader from 'bootstrap-vue/es/components/card/card-header'
-import BCardImg from 'bootstrap-vue/es/components/card/card-img'
-import BTable from 'bootstrap-vue/es/components/table/table'
+import { BCard, BCardBody, BCardFooter, BCardHeader, BCardImg, BTable } from 'bootstrap-vue'
 
 // Add components globally
 Vue.component('b-card', BCard)
@@ -149,7 +146,7 @@ Vue.component('b-card-header', BCardHeader)
 Vue.component('b-card-img', BCardImg)
 Vue.component('b-table', BTable)
 
-// Or make available to your component or app
+// Or make available locally to your component or app
 export default {
   components: {
     BCard,
@@ -171,11 +168,11 @@ done with:
 
 ```js
 // Import the components as Vue plugins
-import { Card, Table } from 'bootstrap-vue/es/components'
+import { CardPlugin, TablePlugin } from 'bootstrap-vue'
 
 // Add the plugins to Vue
-Vue.use(Card)
-Vue.use(Table)
+Vue.use(CardPlugin)
+Vue.use(TablePlugin)
 ```
 
 Now you can use the `<b-card>` (including the `<b-card-*>` sub-components) and `<b-table>`

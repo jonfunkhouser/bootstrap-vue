@@ -6,7 +6,7 @@
 
 ## Configuring defaults
 
-BootstrapVue is pre-configured for the default Bootstrap V4.x configuration. It assumes the
+BootstrapVue is pre-configured for the default Bootstrap v4.x configuration. It assumes the
 breakpoints are the standard breakpoint names of `xs`, `sm`, `md`, `lg`, and `xl`. Also various
 BootstrapVue components have props with default variants and text content.
 
@@ -16,16 +16,21 @@ Note that it is not possible to change the defaults when using BootstrapVue via 
 
 ### Default configuration
 
-Default breakpoint names are stored in the `breakpoints` property, while component defaults are
-keyed by their <samp>PascalCase</samp> name with the props as <samp>camelCase</samp> properties.
-Only properties defined in the default configuration can be overridden. Attempting to set a config
-property that is not defined in the default will generate a console warning.
+Default breakpoint names are stored in the `breakpoints` property, default form control size is
+stored under the `formControls` property, while component specific defaults are keyed by their
+<samp>PascalCase</samp> name with the props as <samp>camelCase</samp> properties. Only properties
+defined in the default configuration can be overridden. Attempting to set a config property that is
+not defined in the default will generate a console warning.
+
+The `formControls` entry was introduced in <span class="badge badge-info small">v2.0.0-rc.28</span>.
 
 ```json
 {{ defaultConfig }}
 ```
 
 ### Setting new configuration values
+
+<span class="badge badge-info small">ENHANCED in v2.0.0-rc.22</span>
 
 When you `Vue.use(BootstrapVue)`, you can optionally pass a configuration object which specifies new
 values to replace the default values. For example if you wish to define new breakpoint names (which
@@ -55,7 +60,8 @@ The values provided as the config option to `Vue.use` will be merged with the de
 
 **Note:** When defining custom breakpoints, keep the names short (2 to 3 characters). At least two
 breakpoint names must be defined. The breakpoint names **must** match the breakpoint names defined
-in your custom Bootstrap SCSS.
+in your custom Bootstrap SCSS. Breakpoint names must not conflict with non-breakpoint prop names
+used on various components (i.e. avoid `to`, `col`, etc)
 
 ### Setting config via individual component group plugin imports
 
@@ -73,7 +79,7 @@ and subsequent changes to the breakpoints will **not** be reflected.
 
 ```js
 // Component group plugins
-import { LayoutPlugin, AlertPlugin, ButtonPlugin } from 'bootstrap-vue/es/components'
+import { LayoutPlugin, AlertPlugin, ButtonPlugin } from 'bootstrap-vue'
 
 // Supply configs via each plugin as it is `Vue.use()`'d
 Vue.use(LayoutPlugin, { breakpoints: ['xs', 'sm', 'lg', 'xl', 'xxl'] })
@@ -87,7 +93,7 @@ Vue.use(ButtonPlugin, { BButton: { variant: 'primary' } })
 
 ```js
 // Component group plugins
-import { LayoutPlugin, AlertPlugin, ButtonPlugin } from 'bootstrap-vue/es/components'
+import { LayoutPlugin, AlertPlugin, ButtonPlugin } from 'bootstrap-vue'
 
 // Supply complete config to first `Vue.use()`'d plugin
 Vue.use(LayoutPlugin, {
@@ -104,13 +110,11 @@ Vue.use(ButtonPlugin)
 <!-- eslint-disable import/first, import/no-duplicates -->
 
 ```js
-// BootstrapVue configuration helper plugin
-import BVConfig from 'bootstrap-vue/es/bv-config'
-// Component group plugins
-import { LayoutPlugin, AlertPlugin, ButtonPlugin } from 'bootstrap-vue/es/components'
+// BootstrapVue configuration helper plugin and Component group plugins
+import { BVConfigPlugin, LayoutPlugin, AlertPlugin, ButtonPlugin } from 'bootstrap-vue'
 
-// Supply complete config to the BVConfig helper plugin
-Vue.use(BVConfig, {
+// Supply complete config to the BVConfigPlugin helper plugin
+Vue.use(BVConfigPlugin, {
   breakpoints: ['xs', 'sm', 'lg', 'xl', 'xxl'],
   BAlert: { variant: 'danger' },
   BButton: { variant: 'primary' }
@@ -122,19 +126,16 @@ Vue.use(AlertPlugin)
 Vue.use(ButtonPlugin)
 ```
 
-
 **Example 4 when importing individual components (preferred method):**
 
 <!-- eslint-disable import/first, import/no-duplicates -->
 
 ```js
-// BootstrapVue configuration helper plugin
-import BVConfig from 'bootstrap-vue/es/bv-config'
-// Individual components
-import { BAlert, BButton, BRow, BCol } from 'bootstrap-vue/es/components'
+// Import BootstrapVue configuration helper plugin and Individual components
+import { BVConfigPlugin, BAlert, BButton, BRow, BCol } from 'bootstrap-vue'
 
 // Supply complete config to the BVConfig helper plugin
-Vue.use(BVConfig, {
+Vue.use(BVConfigPlugin, {
   breakpoints: ['xs', 'sm', 'lg', 'xl', 'xxl'],
   BAlert: { variant: 'danger' },
   BButton: { variant: 'primary' }
@@ -161,9 +162,10 @@ export default {
 
 **Caveat:** Vue only installs plugins _once_. If you import a plugin that has already been imported
 by another component plugin, the configuration passed to the component plugin will **not** be merged
-in. It is best to set the complete configuration using the `BVConfig` helper plugin as shown in
-**Example 3** and **Example 4** above. The `BVConfig` plugin should be used in the main entry point of
-your app, and before any `Vue.use()` of component plugins or `Vue.component()` of indivdual components.
+in. It is best to set the complete configuration using the `BVConfigPlugin` helper plugin as shown
+in **Example 3** and **Example 4** above. The `BVConfigPlugin` plugin should be used in the main
+entry point of your app, and **before** any `Vue.use()` of component plugins or `Vue.component()` or
+individual components.
 
 ### Setting the config via Nuxt.js BootstrapVue plugin
 

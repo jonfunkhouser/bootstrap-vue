@@ -25,16 +25,14 @@ describe('v-b-tooltip directive', () => {
     })
     // Mock getBCR so that the isVisible(el) test returns true
     // Needed for visibility checks of trigger element, etc.
-    Element.prototype.getBoundingClientRect = jest.fn(() => {
-      return {
-        width: 24,
-        height: 24,
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0
-      }
-    })
+    Element.prototype.getBoundingClientRect = jest.fn(() => ({
+      width: 24,
+      height: 24,
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0
+    }))
   })
 
   afterEach(() => {
@@ -49,9 +47,6 @@ describe('v-b-tooltip directive', () => {
     const App = localVue.extend({
       directives: {
         bTooltip: tooltipDirective
-      },
-      data() {
-        return {}
       },
       template: '<button v-b-tooltip title="foobar">button</button>'
     })
@@ -79,9 +74,6 @@ describe('v-b-tooltip directive', () => {
     const App = localVue.extend({
       directives: {
         bTooltip: tooltipDirective
-      },
-      data() {
-        return {}
       },
       template: '<button v-b-tooltip.click.html title="<b>foobar</b>">button</button>'
     })
@@ -120,6 +112,51 @@ describe('v-b-tooltip directive', () => {
     const tip = document.querySelector(`#${adb}`)
     expect(tip).not.toBe(null)
     expect(tip.classList.contains('tooltip')).toBe(true)
+
+    wrapper.destroy()
+  })
+
+  it('variant and customClass should work', async () => {
+    jest.useFakeTimers()
+    const localVue = new CreateLocalVue()
+
+    const App = localVue.extend({
+      directives: {
+        bTooltip: tooltipDirective
+      },
+      template: `<button v-b-tooltip.click.html.v-info="{ customClass: 'foobar'}" title="<b>foobar</b>">button</button>`
+    })
+
+    const wrapper = mount(App, {
+      localVue: localVue,
+      attachToDocument: true
+    })
+
+    expect(wrapper.isVueInstance()).toBe(true)
+    expect(wrapper.is('button')).toBe(true)
+    const $button = wrapper.find('button')
+    await waitNT(wrapper.vm)
+    await waitRAF()
+    await waitNT(wrapper.vm)
+    await waitRAF()
+    jest.runOnlyPendingTimers()
+
+    // Trigger click
+    $button.trigger('click')
+    await waitNT(wrapper.vm)
+    await waitRAF()
+    await waitNT(wrapper.vm)
+    await waitRAF()
+    jest.runOnlyPendingTimers()
+
+    expect($button.attributes('aria-describedby')).toBeDefined()
+    const adb = $button.attributes('aria-describedby')
+
+    const tip = document.querySelector(`#${adb}`)
+    expect(tip).not.toBe(null)
+    expect(tip.classList.contains('tooltip')).toBe(true)
+    expect(tip.classList.contains('b-tooltip-info')).toBe(true)
+    expect(tip.classList.contains('foobar')).toBe(true)
 
     wrapper.destroy()
   })

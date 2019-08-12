@@ -30,7 +30,7 @@ const EVENT_STATE_REQUEST = 'bv::request::collapse::state'
 const EventOptions = { passive: true, capture: false }
 
 // @vue/component
-export default Vue.extend({
+export const BCollapse = /*#__PURE__*/ Vue.extend({
   name: 'BCollapse',
   mixins: [listenOnRootMixin, normalizeSlotMixin],
   model: {
@@ -104,7 +104,7 @@ export default Vue.extend({
       this.emitState()
     })
     // Listen for "Sync state" requests from `v-b-toggle`
-    this.$root.$on(EVENT_STATE_REQUEST, id => {
+    this.listenOnRoot(EVENT_STATE_REQUEST, id => {
       if (id === this.id) {
         this.$nextTick(this.emitSync)
       }
@@ -270,3 +270,5 @@ export default Vue.extend({
     )
   }
 })
+
+export default BCollapse

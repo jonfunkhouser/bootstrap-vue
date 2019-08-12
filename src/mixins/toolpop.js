@@ -42,10 +42,6 @@ export default {
       type: [String, Object, HTMLElement, Function]
       // default: undefined
     },
-    delay: {
-      type: [Number, Object, String],
-      default: 0
-    },
     offset: {
       type: [Number, String],
       default: 0
@@ -77,7 +73,7 @@ export default {
   computed: {
     baseConfig() {
       const cont = this.container
-      let delay = isObject(this.delay) ? this.delay : parseInt(this.delay, 10) || 0
+      const delay = isObject(this.delay) ? this.delay : parseInt(this.delay, 10) || 0
       return {
         // Title prop
         title: (this.title || '').trim() || '',
@@ -85,7 +81,7 @@ export default {
         content: (this.content || '').trim() || '',
         // Tooltip/Popover placement
         placement: PLACEMENTS[this.placement] || 'auto',
-        // Tooltip/popover fallback placemenet
+        // Tooltip/popover fallback placement
         fallbackPlacement: this.fallbackPlacement || 'flip',
         // Container currently needs to be an ID with '#' prepended, if null then body is used
         container: cont ? (/^#/.test(cont) ? cont : `#${cont}`) : false,
@@ -99,6 +95,10 @@ export default {
         offset: this.offset || 0,
         // Disable fade Animation?
         animation: !this.noFade,
+        // Variant
+        variant: this.variant,
+        // Custom class
+        customClass: this.customClass,
         // Open/Close Trigger(s)
         trigger: isArray(this.triggers) ? this.triggers.join(' ') : this.triggers,
         // Callbacks so we can trigger events on component

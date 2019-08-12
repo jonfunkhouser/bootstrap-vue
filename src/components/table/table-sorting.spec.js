@@ -181,16 +181,14 @@ describe('table > sorting', () => {
     expect(wrapper).toBeDefined()
     expect(wrapper.findAll('tbody > tr').exists()).toBe(true)
     expect(wrapper.findAll('tbody > tr').length).toBe(3)
-    let $rows
-    let columnA
 
     await waitNT(wrapper.vm)
     expect(wrapper.emitted('input')).toBeDefined()
     expect(wrapper.emitted('input').length).toBe(1)
-    $rows = wrapper.findAll('tbody > tr').wrappers
+    const $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
     // Map the rows to the first column text value
-    columnA = $rows.map(row => {
+    const columnA = $rows.map(row => {
       return row
         .findAll('td')
         .at(0)
@@ -215,7 +213,6 @@ describe('table > sorting', () => {
     expect(wrapper.findAll('tbody > tr').length).toBe(3)
     let $rows
     let columnA
-    let columnB
 
     // Should not be sorted
     await waitNT(wrapper.vm)
@@ -288,7 +285,7 @@ describe('table > sorting', () => {
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
     // Map the rows to the column text value
-    columnB = $rows.map(row => {
+    const columnB = $rows.map(row => {
       return row
         .findAll('td')
         .at(1)
@@ -335,7 +332,6 @@ describe('table > sorting', () => {
     expect(wrapper.findAll('tbody > tr').length).toBe(3)
     let $rows
     let columnA
-    let columnB
 
     // Should not be sorted
     await waitNT(wrapper.vm)
@@ -417,7 +413,7 @@ describe('table > sorting', () => {
     $rows = wrapper.findAll('tbody > tr').wrappers
     expect($rows.length).toBe(3)
     // Map the rows to the column text value
-    columnB = $rows.map(row => {
+    const columnB = $rows.map(row => {
       return row
         .findAll('td')
         .at(1)
@@ -695,6 +691,57 @@ describe('table > sorting', () => {
     expect(columnA[0]).toBe('1')
     expect(columnA[1]).toBe('2')
     expect(columnA[2]).toBe('3')
+
+    wrapper.destroy()
+  })
+
+  it('sorting by virutal column formatter works', async () => {
+    const wrapper = mount(BTable, {
+      propsData: {
+        items: [{ a: 5, b: 2 }, { a: 10, b: 9 }],
+        fields: [
+          'a',
+          'b',
+          {
+            key: 'c',
+            sortable: true,
+            formatter(value, key, item) {
+              return item.a - item.b
+            },
+            sortByFormatted: true
+          }
+        ],
+        // Initialy unsorted
+        sortBy: ''
+      }
+    })
+
+    expect(wrapper).toBeDefined()
+    let $trs = wrapper.findAll('tbody > tr')
+    expect($trs.length).toBe(2)
+
+    // First Row - unsorted
+    let $tds = $trs.at(0).findAll('td')
+    expect($tds.length).toBe(3)
+    expect($tds.at(0).text()).toBe('5')
+    expect($tds.at(1).text()).toBe('2')
+    expect($tds.at(2).text()).toBe('3') // 5 - 2
+
+    wrapper.setProps({
+      sortBy: 'c',
+      sortDesc: false
+    })
+
+    // Grab the sorted TRs
+    $trs = wrapper.findAll('tbody > tr')
+    expect($trs.length).toBe(2)
+
+    // First Row - sorted (smallest first)
+    $tds = $trs.at(0).findAll('td')
+    expect($tds.length).toBe(3)
+    expect($tds.at(0).text()).toBe('10')
+    expect($tds.at(1).text()).toBe('9')
+    expect($tds.at(2).text()).toBe('1') // 10 - 9
 
     wrapper.destroy()
   })

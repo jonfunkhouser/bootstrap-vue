@@ -1,11 +1,11 @@
 import Vue from '../../utils/vue'
-import BLink from '../link/link'
 import { props as BDropdownProps } from '../dropdown/dropdown'
 import idMixin from '../../mixins/id'
 import dropdownMixin from '../../mixins/dropdown'
 import normalizeSlotMixin from '../../mixins/normalize-slot'
 import pluckProps from '../../utils/pluck-props'
 import { htmlOrText } from '../../utils/html'
+import { BLink } from '../link/link'
 
 // -- Constants --
 
@@ -29,7 +29,7 @@ export const props = {
 }
 
 // @vue/component
-export default Vue.extend({
+export const BNavItemDropdown = /*#__PURE__*/ Vue.extend({
   name: 'BNavItemDropdown',
   mixins: [idMixin, dropdownMixin, normalizeSlotMixin],
   props,
@@ -56,7 +56,6 @@ export default Vue.extend({
         this.extraToggleClasses, // Deprecated
         this.toggleClass,
         {
-          disabled: this.disabled,
           'dropdown-toggle-no-caret': this.noCaret
         }
       ]
@@ -76,7 +75,7 @@ export default Vue.extend({
         attrs: {
           id: this.safeId('_BV_button_'),
           'aria-haspopup': 'true',
-          'aria-expanded': String(this.visible)
+          'aria-expanded': this.visible ? 'true' : 'false'
         },
         on: {
           click: this.toggle,
@@ -103,7 +102,7 @@ export default Vue.extend({
           keydown: this.onKeydown // up, down, esc
         }
       },
-      [this.normalizeSlot('default', { hide: this.hide })]
+      !this.lazy || this.visible ? this.normalizeSlot('default', { hide: this.hide }) : [h()]
     )
     return h(
       'li',
@@ -116,3 +115,5 @@ export default Vue.extend({
     )
   }
 })
+
+export default BNavItemDropdown

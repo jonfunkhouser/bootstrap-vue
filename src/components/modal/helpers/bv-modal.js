@@ -4,7 +4,7 @@
 
 import BModal, { props as modalProps } from '../modal'
 import { concat } from '../../../utils/array'
-import { setConfig, getComponentConfig } from '../../../utils/config'
+import { getComponentConfig } from '../../../utils/config'
 import { isUndefined, isFunction } from '../../../utils/inspect'
 import {
   assign,
@@ -14,6 +14,7 @@ import {
   defineProperties,
   readonlyDescriptor
 } from '../../../utils/object'
+import { pluginFactory } from '../../../utils/plugins'
 import { warn, warnNotClient, warnNoPromiseSupport } from '../../../utils/warn'
 
 // --- Constants ---
@@ -54,16 +55,7 @@ const filterOptions = options => {
 }
 
 // Method to install `$bvModal` VM injection
-const install = (Vue, config = {}) => {
-  if (install.installed) {
-    // Only install once
-    /* istanbul ignore next */
-    return
-  }
-  install.installed = true
-
-  setConfig(config)
-
+const plugin = Vue => {
   // Create a private sub-component that extends BModal
   // which self-destructs after hidden
   // @vue/component
@@ -102,7 +94,7 @@ const install = (Vue, config = {}) => {
 
   // Method to generate the on-demand modal message box
   // Returns a promise that resolves to a value returned by the resolve
-  const asyncMsgBox = (props, $parent, resolver = defaultResolver) => {
+  const asyncMsgBox = ($parent, props, resolver = defaultResolver) => {
     if (warnNotClient(PROP_NAME) || warnNoPromiseSupport(PROP_NAME)) {
       /* istanbul ignore next */
       return
@@ -120,7 +112,7 @@ const install = (Vue, config = {}) => {
         hideHeaderClose: true,
         hideHeader: !(props.title || props.titleHtml),
         // Add in (filtered) user supplied props
-        ...omit(props, ['msgBoxContent']),
+        ...omit(props, keys(propsToSlots)),
         // Props that can't be overridden
         lazy: false,
         busy: false,
@@ -163,6 +155,21 @@ const install = (Vue, config = {}) => {
     })
   }
 
+  // Private utility method to open a user defined message box and returns a promise.
+  // Not to be used directly by consumers, as this method may change calling syntax
+  const makeMsgBox = ($parent, content, options = {}, resolver) => {
+    if (
+      !content ||
+      warnNoPromiseSupport(PROP_NAME) ||
+      warnNotClient(PROP_NAME) ||
+      !isFunction(resolver)
+    ) {
+      /* istanbul ignore next */
+      return
+    }
+    return asyncMsgBox($parent, { ...filterOptions(options), msgBoxContent: content }, resolver)
+  }
+
   // BvModal instance class
   class BvModal {
     constructor(vm) {
@@ -195,21 +202,6 @@ const install = (Vue, config = {}) => {
     // IE 11 and others do not support Promise natively, so users
     // should have a Polyfill loaded (which they need anyways for IE 11 support)
 
-    // Opens a user defined message box and returns a promise
-    // Not yet documented
-    msgBox(content, options = {}, resolver) {
-      if (
-        !content ||
-        warnNoPromiseSupport(PROP_NAME) ||
-        warnNotClient(PROP_NAME) ||
-        !isFunction(resolver)
-      ) {
-        /* istanbul ignore next */
-        return
-      }
-      return asyncMsgBox({ ...filterOptions(options), msgBoxContent: content }, this._vm, resolver)
-    }
-
     // Open a message box with OK button only and returns a promise
     msgBoxOk(message, options = {}) {
       // Pick the modal props we support from options
@@ -221,7 +213,7 @@ const install = (Vue, config = {}) => {
         hideFooter: false,
         msgBoxContent: message
       }
-      return this.msgBox(message, props, bvModalEvt => {
+      return makeMsgBox(this._vm, message, props, bvModalEvt => {
         // Always resolve to true for OK
         return true
       })
@@ -239,7 +231,7 @@ const install = (Vue, config = {}) => {
         cancelDisabled: false,
         hideFooter: false
       }
-      return this.msgBox(message, props, bvModalEvt => {
+      return makeMsgBox(this._vm, message, props, bvModalEvt => {
         const trigger = bvModalEvt.trigger
         return trigger === 'ok' ? true : trigger === 'cancel' ? false : null
       })
@@ -257,6 +249,7 @@ const install = (Vue, config = {}) => {
 
   // Define our read-only `$bvModal` instance property
   // Placed in an if just in case in HMR mode
+  // eslint-disable-next-line no-prototype-builtins
   if (!Vue.prototype.hasOwnProperty(PROP_NAME)) {
     defineProperty(Vue.prototype, PROP_NAME, {
       get() {
@@ -270,8 +263,8 @@ const install = (Vue, config = {}) => {
   }
 }
 
-install.installed = false
+export const BVModalPlugin = /*#__PURE__*/ pluginFactory({
+  plugins: { plugin }
+})
 
-export default {
-  install: install
-}
+export default BVModalPlugin

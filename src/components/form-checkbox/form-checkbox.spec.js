@@ -1,5 +1,6 @@
 import BFormCheckbox from './form-checkbox'
 import { mount } from '@vue/test-utils'
+import { waitNT, waitRAF } from '../../../tests/utils'
 
 describe('form-checkbox', () => {
   // --- Custom checkbox structure, class and attributes tests ---
@@ -274,6 +275,20 @@ describe('form-checkbox', () => {
     const input = wrapper.find('input')
     expect(input.attributes('form')).toBeDefined()
     expect(input.attributes('form')).toEqual('test')
+
+    wrapper.destroy()
+  })
+
+  it('has custom attributes transferred to input element', async () => {
+    const wrapper = mount(BFormCheckbox, {
+      propsData: {
+        id: 'foo',
+        foo: 'bar'
+      }
+    })
+    const input = wrapper.find('input')
+    expect(input.attributes('foo')).toBeDefined()
+    expect(input.attributes('foo')).toEqual('bar')
 
     wrapper.destroy()
   })
@@ -1241,16 +1256,14 @@ describe('form-checkbox', () => {
     beforeEach(() => {
       // Mock getBCR so that the isVisible(el) test returns true
       // In our test below, all pagination buttons would normally be visible
-      Element.prototype.getBoundingClientRect = jest.fn(() => {
-        return {
-          width: 24,
-          height: 24,
-          top: 0,
-          left: 0,
-          bottom: 0,
-          right: 0
-        }
-      })
+      Element.prototype.getBoundingClientRect = jest.fn(() => ({
+        width: 24,
+        height: 24,
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0
+      }))
     })
 
     afterEach(() => {
@@ -1270,7 +1283,8 @@ describe('form-checkbox', () => {
         }
       })
       expect(wrapper.vm).toBeDefined()
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
 
       const input = wrapper.find('input')
       expect(input.exists()).toBe(true)
@@ -1292,7 +1306,8 @@ describe('form-checkbox', () => {
         }
       })
       expect(wrapper.vm).toBeDefined()
-      await wrapper.vm.$nextTick()
+      await waitNT(wrapper.vm)
+      await waitRAF()
 
       const input = wrapper.find('input')
       expect(input.exists()).toBe(true)

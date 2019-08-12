@@ -1,8 +1,20 @@
 const fs = require('fs')
 const path = require('path')
-const hljs = require('highlight.js')
 const marked = require('marked')
+const hljs = require('highlight.js/lib/highlight.js')
 
+// import only the languages we need for hljs
+hljs.registerLanguage('javascript', require('highlight.js/lib/languages/javascript'))
+hljs.registerLanguage('typescript', require('highlight.js/lib/languages/typescript'))
+hljs.registerLanguage('json', require('highlight.js/lib/languages/json'))
+hljs.registerLanguage('xml', require('highlight.js/lib/languages/xml')) // includes HTML
+hljs.registerLanguage('css', require('highlight.js/lib/languages/css'))
+hljs.registerLanguage('scss', require('highlight.js/lib/languages/scss'))
+hljs.registerLanguage('bash', require('highlight.js/lib/languages/bash')) // includes sh
+hljs.registerLanguage('shell', require('highlight.js/lib/languages/shell'))
+hljs.registerLanguage('plaintext', require('highlight.js/lib/languages/plaintext'))
+
+// Create a new marked renderer
 const renderer = new marked.Renderer()
 
 const ANCHOR_LINK_HEADING_LEVELS = [2, 3, 4, 5]
@@ -19,7 +31,37 @@ const getRoutesByDir = (root, dir, excludes = []) =>
 renderer.code = (code, language) => {
   const validLang = !!(language && hljs.getLanguage(language))
   const highlighted = validLang ? hljs.highlight(language, code).value : code
-  return `<pre class="hljs ${language} text-monospace p-2">${highlighted}</pre>`
+  return `<pre class="hljs ${language} text-monospace p-2 notranslate" translate="no">${highlighted}</pre>`
+}
+
+// Instruct google translate not to translate `<code>` content, and
+// don't let browsers wrap the contents across lines
+renderer.codespan = text => {
+  return `<code translate="no" class="notranslate text-nowrap">${text}</code>`
+}
+
+// Custom link renderer, to update bootstrap docs version in href
+// Only applies to markdown links (not explicit `<a href="..">...</a>` tags
+renderer.link = (href, title, text) => {
+  let target = ''
+  let rel = ''
+  let classAttr = ''
+  href = href || '#'
+  title = title ? ` title="${title}"` : ''
+  text = text || ''
+  if (href.indexOf('http') === 0 || href.indexOf('//') === 0) {
+    // External links
+    // Open in a new window (will reduce bounce rates in analytics)
+    target = ' target="_blank"'
+    // We add in rel="noopener" to all external links for security and performance reasons
+    // https://developers.google.com/web/tools/lighthouse/audits/noopener
+    rel = ' rel="noopener"'
+    // External links use the default link style
+  } else if (href.indexOf('/') === 0 || href.indexOf('#') === 0) {
+    // Internal docs links
+    classAttr = ' class="font-weight-bold"'
+  }
+  return `<a href="${href}"${classAttr}${title}${target}${rel}>${text}</a>`
 }
 
 // Custom heading implementation for markdown renderer
@@ -55,7 +97,7 @@ renderer.blockquote = function(text) {
   return text.replace('<p>', '<p class="bd-lead">')
 }
 
-// BS4 table support for markdown renderer
+// Bootstrap v4 table support for markdown renderer
 const originalTable = renderer.table
 renderer.table = function(header, body) {
   let table = originalTable.apply(this, arguments)
@@ -80,13 +122,16 @@ module.exports = {
         }
       }
     },
-    extend(config, { loaders }) {
+    extend(config, { isDev, loaders }) {
       config.resolve.alias.vue = 'vue/dist/vue.common'
 
       config.resolveLoader.alias = config.resolveLoader.alias || {}
       config.resolveLoader.alias['marked-loader'] = path.join(__dirname, './utils/marked-loader')
 
-      config.devtool = 'source-map'
+      if (isDev) {
+        // Source maps make the bundles monsterous, do leave it off in prod mode
+        config.devtool = 'eval-source-map'
+      }
 
       config.module.rules.push({
         test: /\.md$/,
@@ -108,18 +153,33 @@ module.exports = {
 
       loaders.scss.precision = 6
       loaders.scss.outputStyle = 'expanded'
+
+      loaders.vue.transformAssetUrls = {
+        // Nuxt default is missing `poster` for video
+        video: ['src', 'poster'],
+        // Nuxt default is missing image
+        image: 'xlink:href',
+        // Add BootstrapVue specific component asset items
+        'b-img': 'src',
+        'b-img-lazy': ['src', 'blank-src'],
+        'b-card': 'img-src',
+        'b-card-img': 'src',
+        'b-card-img-lazy': ['src', 'blank-src'],
+        'b-carousel-slide': 'img-src',
+        'b-embed': 'src'
+      }
     }
   },
 
   loading: {
-    color: '#59cc93',
+    color: '#ccc',
     height: '3px'
   },
 
   manifest: {
     name: 'BootstrapVue',
     short_name: 'BootstrapVue',
-    description: 'Quickly integrate Bootstrap 4 components with Vue.js',
+    description: 'Quickly integrate Bootstrap v4 components with Vue.js',
     theme_color: '#563d7c'
   },
 
@@ -133,12 +193,7 @@ module.exports = {
     ]
   },
 
-  plugins: [
-    '~plugins/bootstrap-vue.js',
-    '~plugins/codemirror.js',
-    '~plugins/play.js',
-    '~/plugins/docs.js'
-  ],
+  plugins: ['~/plugins/bootstrap-vue.js', '~/plugins/play.js', '~/plugins/docs.js'],
 
   modules: ['@nuxtjs/pwa', '@nuxtjs/google-analytics'],
 
@@ -153,7 +208,7 @@ module.exports = {
     meta: [{ 'http-equiv': 'X-UA-Compatible', content: 'IE=edge' }],
     script: [
       {
-        src: '//polyfill.io/v3/polyfill.min.js?features=es2015%2CMutationObserver',
+        src: '//polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver',
         crossorigin: 'anonymous'
       }
     ]

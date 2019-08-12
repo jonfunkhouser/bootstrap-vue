@@ -1,6 +1,7 @@
 import Vue from '../../utils/vue'
 import { mergeData } from 'vue-functional-data-merge'
 import { getComponentConfig } from '../../utils/config'
+import { isEvent } from '../../utils/inspect'
 import { hasNormalizedSlot, normalizeSlot } from '../../utils/normalize-slot'
 
 const NAME = 'BButtonClose'
@@ -21,7 +22,7 @@ const props = {
 }
 
 // @vue/component
-export default Vue.extend({
+export const BButtonClose = /*#__PURE__*/ Vue.extend({
   name: NAME,
   functional: true,
   props,
@@ -40,12 +41,12 @@ export default Vue.extend({
         'aria-label': props.ariaLabel ? String(props.ariaLabel) : null
       },
       on: {
-        click(e) {
+        click(evt) {
           // Ensure click on button HTML content is also disabled
           /* istanbul ignore if: bug in JSDOM still emits click on inner element */
-          if (props.disabled && e instanceof Event) {
-            e.stopPropagation()
-            e.preventDefault()
+          if (props.disabled && isEvent(evt)) {
+            evt.stopPropagation()
+            evt.preventDefault()
           }
         }
       }
@@ -61,3 +62,5 @@ export default Vue.extend({
     )
   }
 })
+
+export default BButtonClose

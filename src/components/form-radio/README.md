@@ -193,6 +193,29 @@ render them inline.
 <!-- b-form-radio-stacked.vue -->
 ```
 
+## Control sizing
+
+<span class="badge badge-info small">NEW in 2.0.0-rc.28</span>
+
+Use the `size` prop to control the size of the radio. The default size is medium. Supported size
+values are `sm` (small) and `lg` (large).
+
+```html
+<div>
+  <b-form-radio name="radio-size" size="sm">Small</b-form-radio>
+  <b-form-radio name="radio-size">Default</b-form-radio>
+  <b-form-radio name="radio-size" size="lg">Large</b-form-radio>
+</div>
+
+<!-- form-radio-sizes.vue -->
+```
+
+Sizes can be set on individual `<b-form-radio>` components, or inherited from the `size` setting of
+`<b-form-radio-group>`.
+
+**Note:** Bootstrap v4.x does not natively support sizes for the custom radio control. However,
+BootstrapVue includes custom SCSS/CSS that adds support for sizing the custom radios.
+
 ## Button style radios
 
 Render radios with the look of buttons by setting the prop `buttons` to `true` on
@@ -326,6 +349,8 @@ enables native browser keyboard navigation), hence `required` will only work if 
 group.
 
 ## Autofocus
+
+<span class="badge badge-info small">NEW in 2.0.0-rc.21</span>
 
 When the `autofocus` prop is set on `<b-form-radio>`, the input will be auto-focused when it is
 inserted into the document or re-activated when inside a Vue `<keep-alive>` component. Note that

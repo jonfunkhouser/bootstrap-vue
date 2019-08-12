@@ -4,42 +4,37 @@ import { getComponentConfig } from '../../../utils/config'
 import { htmlOrText } from '../../../utils/html'
 import filterEvent from './filter-event'
 import textSelectionActive from './text-selection-active'
+import { BThead } from '../thead'
+import { BTfoot } from '../tfoot'
+import { BTr } from '../tr'
+import { BTh } from '../th'
 
 export default {
   props: {
     headVariant: {
-      type: String,
+      type: String, // 'light', 'dark' or null (or custom)
       default: () => getComponentConfig('BTable', 'headVariant')
     },
     theadClass: {
-      type: [String, Array, Object],
-      default: null
+      type: [String, Array, Object]
+      // default: undefined
     },
     theadTrClass: {
-      type: [String, Array, Object],
-      default: null
-    }
-  },
-  computed: {
-    headClasses() {
-      return [this.headVariant ? 'thead-' + this.headVariant : '', this.theadClass]
+      type: [String, Array, Object]
+      // default: undefined
     }
   },
   methods: {
     fieldClasses(field) {
-      // header field (th) classes
-      return [
-        field.variant ? 'table-' + field.variant : '',
-        field.class ? field.class : '',
-        field.thClass ? field.thClass : ''
-      ]
+      // Header field (<th>) classes
+      return [field.class ? field.class : '', field.thClass ? field.thClass : '']
     },
     headClicked(evt, field, isFoot) {
-      if (this.stopIfBusy(evt)) {
+      if (this.stopIfBusy && this.stopIfBusy(evt)) {
         // If table is busy (via provider) then don't propagate
         return
       } else if (filterEvent(evt)) {
-        // clicked on a non-disabled control so ignore
+        // Clicked on a non-disabled control so ignore
         return
       } else if (textSelectionActive(this.$el)) {
         // User is selecting text, so ignore
@@ -52,15 +47,16 @@ export default {
     },
     renderThead(isFoot = false) {
       const h = this.$createElement
-
-      if (this.isStacked === true) {
-        // In always stacked mode, we don't bother rendering the head/foot
-        return h(false)
-      }
-
       const fields = this.computedFields || []
 
-      // Helper function to generate a field TH cell
+      if (this.isStacked === true || fields.length === 0) {
+        // In always stacked mode, we don't bother rendering the head/foot.
+        // Or if no field headings (empty table)
+        return h()
+      }
+
+      // Helper function to generate a field <th> cell
+      // TODO: This should be moved into it's own mixin
       const makeCell = (field, colIndex) => {
         let ariaLabel = null
         if (!field.label.trim() && !field.headerTitle) {
@@ -82,56 +78,76 @@ export default {
             }
           }
         }
+        const sortAttrs = this.isSortable ? this.sortTheadThAttrs(field.key, field, isFoot) : {}
+        const sortClass = this.isSortable ? this.sortTheadThClasses(field.key, field, isFoot) : null
         const data = {
           key: field.key,
-          class: [this.fieldClasses(field), this.sortTheadThClasses(field.key, field, isFoot)],
+          class: [this.fieldClasses(field), sortClass],
+          props: {
+            variant: field.variant,
+            stickyColumn: field.stickyColumn
+          },
           style: field.thStyle || {},
           attrs: {
             // We only add a tabindex of 0 if there is a head-clicked listener
             tabindex: hasHeadClickListener ? '0' : null,
             abbr: field.headerAbbr || null,
             title: field.headerTitle || null,
-            role: 'columnheader',
-            scope: 'col',
             'aria-colindex': String(colIndex + 1),
             'aria-label': ariaLabel,
-            ...this.sortTheadThAttrs(field.key, field, isFoot)
+            ...sortAttrs
           },
           on: handlers
         }
-        let fieldScope = { label: field.label, column: field.key, field: field }
-        let slot =
-          isFoot && this.hasNormalizedSlot(`FOOT_${field.key}`)
-            ? this.normalizeSlot(`FOOT_${field.key}`, fieldScope)
-            : this.normalizeSlot(`HEAD_${field.key}`, fieldScope)
+        const fieldScope = { label: field.label, column: field.key, field, isFoot }
+        let slot
+        if (
+          isFoot &&
+          this.hasNormalizedSlot([`FOOT[${field.key}]`, 'FOOT[]', `FOOT_${field.key}`])
+        ) {
+          // TODO: `FOOT_${field.key}` is deprecated, to be removed in future release
+          slot = this.normalizeSlot(
+            [`FOOT[${field.key}]`, 'FOOT[]', `FOOT_${field.key}`],
+            fieldScope
+          )
+        } else {
+          // TODO: `HEAD_${field.key}` is deprecated, to be removed in future release
+          slot = this.normalizeSlot(
+            [`HEAD[${field.key}]`, 'HEAD[]', `HEAD_${field.key}`],
+            fieldScope
+          )
+        }
         if (!slot) {
+          // need to check if this will work
           data.domProps = htmlOrText(field.labelHtml)
         }
-        return h('th', data, slot || field.label)
+        return h(BTh, data, slot || field.label)
       }
 
-      // Generate the array of TH cells
+      // Generate the array of <th> cells
       const $cells = fields.map(makeCell).filter(th => th)
 
       // Genrate the row(s)
       const $trs = []
       if (isFoot) {
-        $trs.push(h('tr', { class: this.tfootTrClass, attrs: { role: 'row' } }, $cells))
+        $trs.push(h(BTr, { class: this.tfootTrClass }, $cells))
       } else {
         const scope = {
           columns: fields.length,
           fields: fields
         }
-        $trs.push(this.normalizeSlot('thead-top', scope) || h(false))
-        $trs.push(h('tr', { class: this.theadTrClass, attrs: { role: 'row' } }, $cells))
+        $trs.push(this.normalizeSlot('thead-top', scope) || h())
+        $trs.push(h(BTr, { class: this.theadTrClass }, $cells))
       }
 
       return h(
-        isFoot ? 'tfoot' : 'thead',
+        isFoot ? BTfoot : BThead,
         {
-          key: isFoot ? 'tfoot' : 'thead',
-          class: isFoot ? this.footClasses : this.headClasses,
-          attrs: { role: 'rowgroup' }
+          key: isFoot ? 'bv-tfoot' : 'bv-thead',
+          class: (isFoot ? this.tfootClass : this.theadClass) || null,
+          props: isFoot
+            ? { footVariant: this.footVariant || this.headVariant || null }
+            : { headVariant: this.headVariant || null }
         },
         $trs
       )

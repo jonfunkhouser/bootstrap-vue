@@ -1,7 +1,7 @@
 module.exports = api => {
   const isDocs = api.env('docs')
 
-  let presets = []
+  const presets = []
   if (!isDocs) {
     presets.push(['@babel/env', { useBuiltIns: 'entry', corejs: { version: 2 } }])
   }
@@ -11,6 +11,9 @@ module.exports = api => {
     env: {
       es: {
         plugins: [['@babel/plugin-transform-modules-commonjs', { loose: true }]]
+      },
+      esm: {
+        presets: [['@babel/env', { modules: false }]]
       },
       test: {
         presets: [['@babel/env', { targets: { node: 'current' } }]]

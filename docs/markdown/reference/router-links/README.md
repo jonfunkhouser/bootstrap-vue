@@ -107,7 +107,8 @@ accessibility of keyboard and/or screen-reader users, and is also not very SEO f
 - default: `'router-link-active'` (`'nuxt-link-active'` when using Nuxt.js)
 
 Configure the active CSS class applied when the link is active. Note the default value can also be
-configured globally via the `linkActiveClass` router constructor option.
+configured globally via the `linkActiveClass`
+[router constructor option](https://router.vuejs.org/api/#linkactiveclass).
 
 ### `exact`
 
@@ -136,7 +137,8 @@ Check out more examples explaining active link class [live](https://jsfiddle.net
 - availability: Vue Router 2.5.0+
 
 Configure the active CSS class applied when the link is active with exact match. Note the default
-value can also be configured globally via the `linkExactActiveClass` router constructor option.
+value can also be configured globally via the `linkExactActiveClass`
+[router constructor option](https://router.vuejs.org/api/#linkexactactiveclass).
 
 ## Nuxt.js specific router link props
 
@@ -169,7 +171,10 @@ do not support IntersectionObserver, you can use the following conditional polyf
 export default {
   head: {
     script: [
-      { src: 'https://polyfill.io/v2/polyfill.min.js?features=IntersectionObserver', body: true }
+      {
+        src: 'https://polyfill.io/v3/polyfill.min.js?features=es2015%2CIntersectionObserver',
+        body: true
+      }
     ]
   }
 }

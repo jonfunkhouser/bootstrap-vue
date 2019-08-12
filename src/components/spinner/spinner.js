@@ -6,7 +6,7 @@ import { normalizeSlot } from '../../utils/normalize-slot'
 const NAME = 'BSpinner'
 
 // @vue/component
-export default Vue.extend({
+export const BSpinner = /*#__PURE__*/ Vue.extend({
   name: NAME,
   functional: true,
   props: {
@@ -55,7 +55,9 @@ export default Vue.extend({
           [`text-${props.variant}`]: Boolean(props.variant)
         }
       }),
-      [label || h(false)]
+      [label || h()]
     )
   }
 })
+
+export default BSpinner
